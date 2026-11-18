@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Sign in | Will's Tech Store</title>
+  <meta name="description" content="Sign in to track orders, save a wishlist and check out faster.">
+  <meta name="theme-color" content="#F4F5F7">
+  <meta name="robots" content="noindex">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Will's Tech Store">
+  <meta property="og:title" content="Sign in | Will's Tech Store">
+  <meta property="og:description" content="Sign in to track orders, save a wishlist and check out faster.">
+  <meta property="og:image" content="../IMAGES/social-share.jpg">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="icon" type="image/png" href="../favicon-96x96.png" sizes="96x96">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Public+Sans:wght@400..800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/store.css">
+  <link rel="stylesheet" href="../css/pages.css">
+  <link rel="stylesheet" href="../css/account.css">
+  <script>try{var t=localStorage.getItem('wt-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main id="main-content">
+    <section class="auth-page">
+      <div class="auth-container">
+        <!-- Left Panel - Branding -->
+        <div class="auth-branding">
+          <div class="auth-branding-content">
+            <div class="auth-branding-logo">Will's <span>Tech</span></div>
+            <h2>Welcome Back!</h2>
+            <p>Sign in to access your account, track orders, and enjoy a personalized shopping experience.</p>
+            
+            <div class="auth-features">
+              <div class="auth-feature-item">
+                <i class="fa-solid fa-truck-fast" aria-hidden="true"></i>
+                <span>Track your orders</span>
+              </div>
+              <div class="auth-feature-item">
+                <i class="fa-solid fa-heart" aria-hidden="true"></i>
+                <span>Save items to wishlist</span>
+              </div>
+              <div class="auth-feature-item">
+                <i class="fa-solid fa-bolt" aria-hidden="true"></i>
+                <span>Faster checkout</span>
+              </div>
+              <div class="auth-feature-item">
+                <i class="fa-solid fa-tag" aria-hidden="true"></i>
+                <span>Exclusive deals & offers</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Panel - Login Form -->
+        <div class="auth-form-panel">
+          <div class="auth-form-header">
+            <h1>Sign In</h1>
+            <p>Enter your credentials to access your account</p>
+          </div>
+
+          <form id="login-form" class="auth-form" novalidate>
+            <!-- Error Message -->
+            <div id="login-error" class="auth-error" role="alert" aria-live="polite"></div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="login-email" class="form-label">Email Address</label>
+              <div class="form-input-wrap">
+                <input 
+                  type="email" 
+                  id="login-email" 
+                  class="form-input" 
+                  required 
+                  autocomplete="email"
+                  aria-label="Email address"
+                >
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <label for="login-password" class="form-label">Password</label>
+              <div class="form-input-wrap">
+                <input 
+                  type="password" 
+                  id="login-password" 
+                  class="form-input" 
+                  required 
+                  autocomplete="current-password"
+                  aria-label="Password"
+                >
+                <button type="button" class="password-toggle" id="login-toggle-password" aria-label="Toggle password visibility">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="login-submit-btn" class="auth-btn auth-btn-primary">
+              Sign In
+            </button>
+
+            <!-- Forgot Password Link -->
+            <a href="reset-password.html" class="auth-forgot-link">Forgot Password?</a>
+          </form>
+
+          <!-- Sign Up Link -->
+          <div class="auth-links">
+            Don't have an account? <a href="register.html">Create Account</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+<div id="site-footer"></div>
+  <script src="../js/api-config.js"></script>
+  <script src="../js/site.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/cart.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/products.js"></script>
+  <script src="../js/compare.js"></script>
+  <script src="../js/wishlist.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/layout.js"></script>
+  <script type="module" src="../js/auth-init.js"></script>
+  <script type="module">
+import AuthUI from '../js/auth/auth-ui.js';
+    const run = () => { AuthUI.initLoginPage(); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+  </script>
+</body>
+</html>

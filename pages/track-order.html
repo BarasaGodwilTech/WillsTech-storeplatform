@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Track your order | Will's Tech Store</title>
+  <meta name="description" content="Check where your Will's Tech Store order is. Enter your order number and the phone or email you used.">
+  <meta name="theme-color" content="#F4F5F7">
+  <meta name="robots" content="noindex">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Will's Tech Store">
+  <meta property="og:title" content="Track your order | Will's Tech Store">
+  <meta property="og:description" content="Check where your Will's Tech Store order is. Enter your order number and the phone or email you used.">
+  <meta property="og:image" content="../IMAGES/social-share.jpg">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="icon" type="image/png" href="../favicon-96x96.png" sizes="96x96">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Public+Sans:wght@400..800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/store.css">
+  <link rel="stylesheet" href="../css/pages.css">
+  <script>try{var t=localStorage.getItem('wt-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+
+<main id="main-content" class="container">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><i class="fa-solid fa-chevron-right"></i><span>Track order</span></nav>
+  <section class="page-hero t0"><div><h1>Track your order</h1><p>Enter the order number from your confirmation and the phone number or email you used at checkout.</p></div><div class="ph-icon" aria-hidden="true"><i class="fa-solid fa-box-open"></i></div></section>
+  <form class="track-form" id="track-form" novalidate>
+    <div class="form-group"><label class="form-label" for="t-number">Order number</label><input class="form-input" id="t-number" placeholder="WT-2026-00042" autocomplete="off" autocapitalize="characters" required></div>
+    <div class="form-group"><label class="form-label" for="t-contact">Phone or email used</label><input class="form-input" id="t-contact" placeholder="0751 924 844 or you@email.com" autocomplete="tel" required></div>
+    <div class="err-box" id="t-error" hidden></div>
+    <button class="btn btn-primary btn-lg btn-block" type="submit" id="t-btn" style="margin-top:14px"><i class="fa-solid fa-magnifying-glass"></i> Find my order</button>
+  </form>
+  <div id="track-result" class="confirm" style="margin-top:8px"></div>
+</main>
+<div id="site-footer"></div>
+  <script src="../js/api-config.js"></script>
+  <script src="../js/site.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/cart.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/products.js"></script>
+  <script src="../js/compare.js"></script>
+  <script src="../js/wishlist.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/pages/order.js"></script>
+  <script src="../js/pages/track.js"></script>
+  <script type="module" src="../js/auth-init.js"></script>
+</body>
+</html>

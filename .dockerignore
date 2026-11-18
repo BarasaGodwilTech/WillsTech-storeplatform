@@ -1,0 +1,8 @@
+.git
+backend/node_modules
+node_modules
+*.log
+.env
+
+data/images
+firestore.rules

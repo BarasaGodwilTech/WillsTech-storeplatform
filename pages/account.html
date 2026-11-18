@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>My account | Will's Tech Store</title>
+  <meta name="description" content="Manage your profile, orders, wishlist and addresses.">
+  <meta name="theme-color" content="#F4F5F7">
+  <meta name="robots" content="noindex">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Will's Tech Store">
+  <meta property="og:title" content="My account | Will's Tech Store">
+  <meta property="og:description" content="Manage your profile, orders, wishlist and addresses.">
+  <meta property="og:image" content="../IMAGES/social-share.jpg">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="icon" type="image/png" href="../favicon-96x96.png" sizes="96x96">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Public+Sans:wght@400..800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/store.css">
+  <link rel="stylesheet" href="../css/pages.css">
+  <link rel="stylesheet" href="../css/account.css">
+  <script>try{var t=localStorage.getItem('wt-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+<main id="main-content">
+    <section class="account-page">
+      <div class="container">
+        <!-- Page Header -->
+        <div class="account-header">
+          <h1 class="account-page-title">My Account</h1>
+          <p class="account-page-subtitle">Manage your profile, orders, and preferences</p>
+        </div>
+
+        <div class="account-layout">
+          <!-- Sidebar -->
+          <aside class="account-sidebar">
+            <div class="account-user-card">
+              <div id="account-avatar-container">
+                <div class="account-avatar-placeholder" id="account-avatar-placeholder"></div>
+                <img id="account-avatar-img" src="" alt="Profile photo" class="account-avatar-large" style="display:none;">
+              </div>
+              <div class="account-user-details">
+                <div class="account-user-name" id="sidebar-user-name"></div>
+                <div class="account-user-email" id="sidebar-user-email"></div>
+              </div>
+            </div>
+
+            <nav class="account-nav">
+              <button class="account-nav-item active" data-tab="profile">
+                <span class="nav-icon">
+                  <i class="fa-regular fa-user" aria-hidden="true"></i>
+                </span>
+                <span class="nav-text">Profile</span>
+              </button>
+              <button class="account-nav-item" data-tab="orders">
+                <span class="nav-icon">
+                  <i class="fa-solid fa-box-open" aria-hidden="true"></i>
+                </span>
+                <span class="nav-text">Orders</span>
+              </button>
+              <button class="account-nav-item" data-tab="wishlist">
+                <span class="nav-icon">
+                  <i class="fa-regular fa-heart" aria-hidden="true"></i>
+                </span>
+                <span class="nav-text">Wishlist</span>
+              </button>
+              <button class="account-nav-item" data-tab="addresses">
+                <span class="nav-icon">
+                  <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                </span>
+                <span class="nav-text">Addresses</span>
+              </button>
+              <button class="account-nav-item" data-tab="payment">
+                <span class="nav-icon">
+                  <i class="fa-solid fa-wallet" aria-hidden="true"></i>
+                </span>
+                <span class="nav-text">Payment</span>
+              </button>
+              <button class="account-nav-item" data-tab="notifications">
+                <span class="nav-icon">
+                  <i class="fa-regular fa-bell" aria-hidden="true"></i>
+                </span>
+                <span class="nav-text">Notifications</span>
+              </button>
+              <button class="account-nav-item" data-tab="security">
+                <span class="nav-icon">
+                  <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+                </span>
+                <span class="nav-text">Security</span>
+              </button>
+              
+              <div class="account-nav-divider"></div>
+              
+              <button class="account-nav-item account-logout-btn" id="logout-btn">
+                <span class="nav-icon">
+                  <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+                </span>
+                <span class="nav-text">Sign Out</span>
+              </button>
+            </nav>
+          </aside>
+
+          <!-- Main Content -->
+          <div class="account-main">
+            <!-- Profile Tab -->
+            <div id="profile-panel" class="account-panel active">
+              <div class="account-panel-header">
+                <h2 class="panel-title">Profile Settings</h2>
+                <p class="panel-subtitle">Update your personal information and profile photo</p>
+              </div>
+
+              <div id="account-overview-stats" class="stats-container"><div class="account-stats-grid"><div class="skeleton" style="height:110px;border-radius:20px;margin-bottom:14px"></div><div class="skeleton" style="height:110px;border-radius:20px;margin-bottom:14px"></div><div class="skeleton" style="height:110px;border-radius:20px;margin-bottom:14px"></div><div class="skeleton" style="height:110px;border-radius:20px;margin-bottom:14px"></div></div></div>
+
+              <div class="account-panel-body">
+                <div id="profile-error" class="auth-error" role="alert" aria-live="polite"></div>
+                <div id="profile-success" class="auth-success" role="alert" aria-live="polite"></div>
+
+                <form id="profile-form" class="profile-form">
+                  <div class="profile-photo-section">
+                    <div class="photo-preview-wrapper">
+                      <img id="profile-photo-preview" src="" alt="Profile photo" class="photo-preview" onerror="this.style.display='none'">
+                    </div>
+                    <div class="photo-upload-section">
+                      <label for="profile-photo-input" class="upload-btn">
+                        <i class="fa-solid fa-camera" aria-hidden="true"></i>
+                        Upload Photo
+                        <input type="file" id="profile-photo-input" accept="image/*" style="display:none;">
+                      </label>
+                      <span class="upload-hint">JPG, PNG or GIF. Max 5MB.</span>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="profile-name" class="form-label">Full Name</label>
+                      <input type="text" id="profile-name" class="form-input" required placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Email Address</label>
+                      <div id="profile-email" class="form-input form-input-readonly"></div>
+                      <small class="form-hint">Email cannot be changed</small>
+                    </div>
+                  </div>
+
+                  <div class="form-actions">
+                    <button type="button" id="profile-save-btn" class="btn btn-primary">Save Changes</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Orders Tab -->
+            <div id="orders-panel" class="account-panel">
+              <div class="account-panel-header">
+                <h2 class="panel-title">My Orders</h2>
+                <p class="panel-subtitle">View your order history and track deliveries</p>
+              </div>
+              <div class="account-panel-body">
+                <div id="orders-list"><div class="skeleton" style="height:190px;border-radius:20px;margin-bottom:14px"></div><div class="skeleton" style="height:190px;border-radius:20px;margin-bottom:14px"></div></div>
+              </div>
+            </div>
+
+            <!-- Wishlist Tab -->
+            <div id="wishlist-panel" class="account-panel">
+              <div class="account-panel-header">
+                <h2 class="panel-title">My Wishlist</h2>
+                <p class="panel-subtitle">Products you've saved for later</p>
+              </div>
+              <div class="account-panel-body">
+                <div id="wishlist-grid" class="products-grid"><div class="skeleton" style="height:360px;border-radius:22px;margin-bottom:14px"></div><div class="skeleton" style="height:360px;border-radius:22px;margin-bottom:14px"></div><div class="skeleton" style="height:360px;border-radius:22px;margin-bottom:14px"></div></div>
+              </div>
+            </div>
+
+            <!-- Addresses Tab -->
+            <div id="addresses-panel" class="account-panel">
+              <div class="account-panel-header">
+                <div class="header-content">
+                  <h2 class="panel-title">Address Book</h2>
+                  <p class="panel-subtitle">Manage your shipping and billing addresses</p>
+                </div>
+                <button class="btn btn-primary" id="add-address-btn">
+                  <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                  Add Address
+                </button>
+              </div>
+              <div class="account-panel-body">
+                <div id="addresses-list"><div class="skeleton" style="height:130px;border-radius:20px;margin-bottom:14px"></div><div class="skeleton" style="height:130px;border-radius:20px;margin-bottom:14px"></div></div>
+              </div>
+            </div>
+
+            <!-- Payment Methods Tab -->
+            <div id="payment-panel" class="account-panel">
+              <div class="account-panel-header">
+                <div class="header-content">
+                  <h2 class="panel-title">Payment Methods</h2>
+                  <p class="panel-subtitle">Manage your saved payment methods</p>
+                </div>
+                <button class="btn btn-primary" id="add-payment-btn">
+                  <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                  Add Method
+                </button>
+              </div>
+              <div class="account-panel-body">
+                <div id="payment-methods-list"><div class="skeleton" style="height:90px;border-radius:20px;margin-bottom:14px"></div></div>
+              </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div id="notifications-panel" class="account-panel">
+              <div class="account-panel-header">
+                <h2 class="panel-title">Notification Preferences</h2>
+                <p class="panel-subtitle">Control which emails and notifications you receive</p>
+              </div>
+              <div class="account-panel-body">
+                <div id="notification-preferences-container" class="preferences-section"></div>
+                <div class="preferences-divider"></div>
+                <h3 class="preferences-subtitle">Privacy Settings</h3>
+                <div id="privacy-settings-container" class="preferences-section"></div>
+              </div>
+            </div>
+
+            <!-- Security Tab -->
+            <div id="security-panel" class="account-panel">
+              <div class="account-panel-header">
+                <h2 class="panel-title">Security Settings</h2>
+                <p class="panel-subtitle">Manage your password and account security</p>
+              </div>
+              <div class="account-panel-body">
+                <div id="security-error" class="auth-error" role="alert" aria-live="polite"></div>
+                <div id="security-success" class="auth-success" role="alert" aria-live="polite"></div>
+
+                <form id="security-form" class="security-form">
+                  <div class="form-group">
+                    <label for="current-password" class="form-label">Current Password</label>
+                    <input type="password" id="current-password" class="form-input" required placeholder="Enter current password">
+                  </div>
+                  <div class="form-group">
+                    <label for="new-password" class="form-label">New Password</label>
+                    <input type="password" id="new-password" class="form-input" required placeholder="Enter new password">
+                  </div>
+                  <div class="form-group">
+                    <label for="confirm-new-password" class="form-label">Confirm New Password</label>
+                    <input type="password" id="confirm-new-password" class="form-input" required placeholder="Confirm new password">
+                  </div>
+
+                  <div class="form-actions">
+                    <button type="submit" id="update-password-btn" class="btn btn-primary">Update Password</button>
+                  </div>
+                </form>
+
+                <div class="danger-zone">
+                  <h3 class="danger-zone-title">Danger Zone</h3>
+                  <p class="danger-zone-desc">Once you delete your account, there is no going back. Please be certain.</p>
+                  <button id="delete-account-btn" class="btn btn-danger">Delete Account</button>
+                </div>
+
+                <div id="login-history-list" class="login-history-section"></div>
+
+                <div class="data-export-section">
+                  <h3 class="section-subtitle">Your Data</h3>
+                  <p class="section-desc">Download a copy of all your account data.</p>
+                  <button id="export-data-btn" class="btn btn-secondary">Download My Data</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+<div id="site-footer"></div>
+  <script src="../js/api-config.js"></script>
+  <script src="../js/site.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/cart.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/products.js"></script>
+  <script src="../js/compare.js"></script>
+  <script src="../js/wishlist.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/pages/order.js"></script>
+  <script type="module" src="../js/auth-init.js"></script>
+  <script type="module">
+import AuthUI from '../js/auth/auth-ui.js';
+    import FirestoreService from '../js/account/firestore-service.js';
+    import GuestMode from '../js/account/guest-mode.js';
+    const run = () => { WT.ready(() => { AuthUI.initAccountPage(); const nav = document.querySelector('.account-nav'); const show = () => { const a = document.querySelector('.account-nav-item.active'); if (a) a.scrollIntoView({ inline: 'center', block: 'nearest' }); }; if (nav) { nav.addEventListener('click', () => setTimeout(show, 60)); setTimeout(show, 200); } }); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+  </script>
+</body>
+</html>

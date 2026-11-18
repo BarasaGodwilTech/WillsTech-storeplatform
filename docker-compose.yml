@@ -1,0 +1,49 @@
+# Optional local Docker setup: Postgres + the backend (which also serves
+# the frontend). NOT required — see BACKEND_README.md for running without
+# Docker at all, or deploying to a hosted Postgres.
+#
+# Usage:
+#   docker compose up --build          # first run (builds + starts both)
+#   docker compose exec backend npm run setup   # create tables + import data (once)
+#   docker compose down                # stop
+#
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: willstech
+      POSTGRES_PASSWORD: willstech
+      POSTGRES_DB: willstechstore
+    ports:
+      - "5432:5432"
+    volumes:
+      - willstech_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U willstech -d willstechstore"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - backend/.env
+    environment:
+      # Overrides backend/.env so the container talks to the "postgres"
+      # service above instead of localhost.
+      DATABASE_URL: postgres://willstech:willstech@postgres:5432/willstechstore
+      PORT: 4000
+    ports:
+      - "4000:4000"
+
+volumes:
+  willstech_pgdata:

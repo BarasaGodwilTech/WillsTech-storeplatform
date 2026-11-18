@@ -1,0 +1,562 @@
+{
+  "hero": {
+    "title": "Your Ultimate Online Tech Experience Is Coming Soon!",
+    "description": "We're working hard to bring you the ultimate tech shopping experience, delivering authentic and top-notch technologies and innovation to your doorstep without lifting a foot. Uganda, are you ready? Join our WhatsApp channel for exclusive early-bird deals!",
+    "whatsappLink": "https://wa.me/256751924844?text=Hi%20Will's%20Tech!%20I%20want%20to%20join%20your%20channel.%20Thanks."
+  },
+  "products": [
+    {
+      "id": 1761667657767,
+      "name": "Jbl Flip 6 Waterproof Portable Wireless Bluetooth Speaker - Black",
+      "sku": "0100",
+      "category": "accessories",
+      "description": "The beat goes on with the JBL Flip 6 2-way speaker system, engineered to deliver loud, crystal clear, powerful sound. Its racetrack-shaped woofer delivers exceptional low frequencies and midrange, while a separate tweeter produces crisp, clear high-frequencies. Flip 6 also features optimized dual passive radiators for deep bass, fine-tuned with using Harman's advanced algorithm.\nBold audio meets bold design. Big-sounding yet easy to carry, the design fits any personal style. Stand it vertical or horizontal and choose from a variety of vibrant colors.\nTo the pool. To the park. JBL Flip 6 is IP67 waterproof and dustproof, so you can bring your speaker anywhere.\nDon't sweat the small stuff like charging your battery. JBL Flip 6 gives you up to 12 hours of playtime on a single charge.",
+      "price": 404500,
+      "originalPrice": 500000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761667577691.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761667861767.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761667934509.jpg"
+      ],
+      "videos": [],
+      "stock": "in-stock",
+      "rating": 5,
+      "reviewCount": 93,
+      "badges": [
+        "new"
+      ],
+      "features": [
+        "Wireless Bluetooth streaming",
+        "12 hours of playtime",
+        "IPX7 waterproof",
+        "Pair multiple speakers with party boost",
+        "Premium sound quality",
+        "Connector type: 3.5 millimeter stereo",
+        "Power source type: Battery powered",
+        "Included components: Quick start guide"
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-10-28T16:07:37.767Z",
+      "dateUpdated": "2025-10-28T16:34:23.019Z"
+    },
+    {
+      "id": 1761670093698,
+      "name": "Jbl Xtreme 4 Portable Bluetooth Speaker ",
+      "sku": "0101",
+      "category": "accessories",
+      "description": "Next-Level Massive JBL Pro Sound\n\nImmerse yourself in powerful audio with the JBL Xtreme 4. Equipped with two woofers, two powerful drivers, and dual pumping JBL Bass Radiators, it delivers a dynamic soundscape with deep bass and exceptional clarity. Get lost in the music wherever you are.\n\nDesigned for Adventure\nCarry it effortlessly with the convenient, adjustable shoulder strap (wear it on your shoulder or as a crossbody) and enjoy practical features like a built-in bottle opener.\n\nAll-Day Playtime\nWith up to 24 hours of battery life and an extra 6 hours available with Playtime Boost your music can last from sunrise to sunset and beyond. This feature also tunes the performance for louder, crisper sound.\n\nColor Variations: Green, Black, Blue.",
+      "price": 1023000,
+      "originalPrice": 1039000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761670060464.jpg"
+      ],
+      "videos": [],
+      "stock": "in-stock",
+      "rating": 4.9,
+      "reviewCount": 58,
+      "badges": [
+        "new"
+      ],
+      "features": [
+        "Powerful JBL Pro Sound with dual woofers and dual tweeters",
+        "Deep bass from dual JBL passive radiators",
+        "Waterproof, dustproof and shockproof design",
+        "Built-in power bank to charge your devices",
+        "Up to 24 hours of playtime on a single charge"
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-10-28T16:48:13.698Z",
+      "dateUpdated": "2025-10-28T18:11:16.079Z"
+    },
+    {
+      "id": 1761671191331,
+      "name": "Jbl Go 3 Portable Speaker",
+      "sku": "0102",
+      "category": "accessories",
+      "description": "JBL Go 3: Bold Sound, Bold Style.\n\nElevate your every day with the JBL Go 3. Featuring JBL Pro Sound in an eye-catching, edgy design, it's the perfect fusion of style and performance. With colorful fabrics and expressive details, it's a must-have accessory for any outing.\n\nSurprisingly Powerful Audio\nDon't let its size fool you. The Go 3 delivers rich, powerful sound and punchy bass that brings your music to life.\n\nBuilt for Adventure\nAn integrated loop makes it easy to carry, while an IP67 rating means it's completely waterproof and dustproof. From the beach to the park, your music is protected.\n\nStyle that Sounds as Good as it Looks\nInspired by street fashion, the Go 3 comes in vibrant new color combinations that look as great as they sound.",
+      "price": 224900,
+      "originalPrice": 300000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761671139915.jpg"
+      ],
+      "videos": [],
+      "stock": "in-stock",
+      "rating": 3.6,
+      "reviewCount": 79,
+      "badges": [
+        "new"
+      ],
+      "features": [
+        "JBL Pro Sound: Powerful audio and punchy bass from a compact speaker.",
+        "Stylish & Portable: A design that goes great with the latest styles.",
+        "All-Weather Ready: IP67 waterproof and dustproof.",
+        "Wireless Streaming: Connects easily to your devices via Bluetooth.",
+        "5-Hour Playtime: Battery-powered for all-day entertainment."
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-10-28T17:06:31.331Z",
+      "dateUpdated": "2025-10-28T18:19:07.067Z"
+    },
+    {
+      "id": 1761671568551,
+      "name": "JBL Go 4",
+      "sku": "0103",
+      "category": "accessories",
+      "description": "Ultra-portable JBL Pro Sound with punchier bass\nDon't let its little size fool you. The JBL Go 4 packs a serious musical punch, delivering big JBL Pro Sound with punchy bass. Your friends won't believe how much great JBL Pro Sound comes out of such a small speaker. \nUp to 7 hours of playtime plus 2 hours with Playtime Boost\nDon't sweat the small stuff like charging your battery. JBL Go 4 gives you up to 7 hours of playtime on a single charge. Simply tap Playtime Boost to prolong the playtime, adding up to 2 hours to your battery life. It tunes and optimizes the performance for louder and crisper sound. \nWaterproof and dustproof\nThe JBL Go 4's IP67 waterproof and dustproof rating ensures this portable speaker can handle almost any environment, from a poolside party to a seaside picnic.\n",
+      "price": 244500,
+      "originalPrice": 329000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761671544217.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761757862875.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761757883947.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761757898655.jpg"
+      ],
+      "videos": [],
+      "stock": "limited",
+      "rating": 5,
+      "reviewCount": 124,
+      "badges": [
+        "new"
+      ],
+      "features": [
+        "JBL Go 4: Ultra-Portable Pro Sound with Enhanced Bass",
+        "Extended Playtime: 7 Hours + 2 Hour Playtime Boost on JBL Go 4",
+        "IP67 Waterproof & Dustproof JBL Go 4: Adventure-Ready Audio",
+        "Auracast Multi-Speaker Connection: JBL Go 4 Stereo & Beyond",
+        "Eco-Friendly JBL Go 4: Made with Recycled Materials",
+        "Compact & Powerful: JBL Go 4 Portable Bluetooth Speaker"
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-10-28T17:12:48.551Z",
+      "dateUpdated": "2025-10-29T17:11:43.906Z"
+    },
+    {
+      "id": 1761747725876,
+      "name": "Galaxy A17 5G -4GB RAM/ 128GB ROM Android 15 - Black",
+      "sku": "0105",
+      "category": "smartphones",
+      "description": "Samsung Galaxy A17 5G\n\n6.7 FHD+ Super AMOLED display with a 90Hz refresh rate and 800 nits peak brightness for crisp outdoor viewing; 5,000mAh battery with 25W fast charging that replenishes half capacity in minutes; and a camera system with a 50MP main sensor with optical image stabilization (OIS) for capturing sharp images even on the move.",
+      "price": 795000,
+      "originalPrice": 1000000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761746998578.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761748079968.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1761748150057.jpg"
+      ],
+      "videos": [],
+      "stock": "in-stock",
+      "rating": 4.7,
+      "reviewCount": 68,
+      "badges": [
+        "new"
+      ],
+      "features": [
+        "Camera:Back Camera -50MP - 5MP - 2MP",
+        "Frontal\t13MP",
+        "Model\tGalaxy A17 5G/SM-A176B"
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-10-29T14:22:05.876Z",
+      "dateUpdated": "2025-11-05T16:29:28.531Z"
+    },
+    {
+      "id": 1762196578863,
+      "name": "Galaxy tab A9+ 5G",
+      "sku": "0106",
+      "category": "smartphones",
+      "description": "Galaxy tab A9+ 8GB RAM / 128GB ROM",
+      "price": 780000,
+      "originalPrice": 900000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1762196536105.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1762196966183.jpg"
+      ],
+      "videos": [],
+      "stock": "in-stock",
+      "rating": 3.6,
+      "reviewCount": 69,
+      "badges": [
+        "new"
+      ],
+      "features": [
+        "8GB RAM / 128GB ROM"
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-11-03T19:02:58.865Z",
+      "dateUpdated": "2025-11-03T19:14:50.502Z"
+    },
+    {
+      "id": 1762207090559,
+      "name": "Dji RS 4 Mini, Gimbal Stabilizer for Cameras Sony/Panasonic/Nikon/Fujifilm",
+      "sku": "0107",
+      "category": "accessories",
+      "description": "Capture incredibly smooth and professional looking video with the DJI RS 4 Mini, a lightweight and portable camera gimbal stabilizer. Designed for filmmakers and content creators, this compact gimbal offers superior stabilization technology, ensuring your footage remains steady and cinematic, even when you're on the move. Its user-friendly design and Automated Axis Locks make it quick and easy to set up, so you never miss a shot.",
+      "price": 2800000,
+      "originalPrice": 4000000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1762207010094.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1762207192250.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1762207228081.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1762207272400.jpg"
+      ],
+      "videos": [],
+      "stock": "in-stock",
+      "rating": 5,
+      "reviewCount": 99,
+      "badges": [
+        "bestseller"
+      ],
+      "features": [
+        "Professional Stabilization: Utilizes DJI's advanced stabilization algorithms to eliminate camera shake and vibrations, producing fluid and professional-grade video.",
+        "Compact and Lightweight: The \"Mini\" form factor makes it easy to carry and handle, reducing fatigue during long shooting sessions and making it ideal for travel.",
+        "Automated Axis Locks: Features automated locks for quick setup and breakdown, allowing you to power on, start shooting, and pack away with ease and speed.",
+        "Versatile Compatibility: Designed to support a wide range of mirrorless cameras and lens combinations, giving you the flexibility to use your preferred gear.",
+        "Ergonomic Design: The intuitive controls and comfortable grip make it simple to operate, even for new users."
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-11-03T21:58:10.559Z",
+      "dateUpdated": "2025-11-03T22:01:20.397Z"
+    },
+    {
+      "id": 1762239120138,
+      "name": "KZ EDX Pro In Ear monitor",
+      "sku": "0108",
+      "category": "accessories",
+      "description": "Brand+ KZ EDX Pro 10mm Dual Magnetic Circuit Dynamic Drive in ear monitor 2Pin Cable HIFI Bass Earphones Stereo Noise Cancelling",
+      "price": 150000,
+      "originalPrice": 290000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1762239004262.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1762239269686.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1762239321177.jpg"
+      ],
+      "videos": [],
+      "stock": "pre-order",
+      "rating": 4.5,
+      "reviewCount": 103,
+      "badges": [
+        "new"
+      ],
+      "features": [
+        "Brand+ KZ EDX Pro ",
+        "10mm Dual Magnetic",
+        "Circuit Dynamic Drive Earphone 2Pin Cable",
+        "HIFI Bass Earphones Stereo Noise Cancelling"
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-11-04T06:52:00.138Z",
+      "dateUpdated": "2025-11-04T07:03:56.841Z"
+    },
+    {
+      "id": 1762277051281,
+      "name": "DJI Mic Mini",
+      "sku": "0109",
+      "category": "accessories",
+      "description": "DJI Mic Mini, a wireless microphone that packs powerful performance into an ultralight body. It ensures stable transmission of high-quality audio, boasts extended battery life, and features direct connection with products in the DJI OsmoAudio ecosystem. Experience detail-rich sound recording that elevates your content creation experience. With a simple flip of the case, you are ready to add high-quality audio to any project.",
+      "price": 950000,
+      "originalPrice": null,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1762276861884.jpg"
+      ],
+      "videos": [],
+      "stock": "in-stock",
+      "rating": 4,
+      "reviewCount": 107,
+      "badges": [
+        "new"
+      ],
+      "features": [
+        "Small but Mighty - The DJI Mic Mini Transmitter is small and ultralight, weighing only 10 g, [1] making it comfortable to wear, discreet, and aesthetically pleasing on-camera.",
+        "Detail-Rich Sound - Mic Mini delivers high-quality audio. A 400m max transmission range [2] ensures stable recording, even in bustling outdoor environments like a busy street.",
+        "Extended Battery, More Recording Time - Mic Mini with Charging Case offers up to 48 hours of battery life, [3] ideal for long trips, interviews, livestreaming and other intensive usage scenarios.",
+        "DJI Ecosystem Direct Connection - With DJI OsmoAudio, a transmitter can connect to Osmo Action 5 Pro, Osmo Action 4, or Osmo Pocket 3 without a receiver, delivering premium audio."
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-11-04T17:24:11.281Z",
+      "dateUpdated": "2025-11-04T17:26:55.946Z"
+    },
+    {
+      "id": 1762358999120,
+      "name": "Galaxy A07 4GB / 128GB",
+      "sku": "0110",
+      "category": "smartphones",
+      "description": "The Samsung Galaxy A07 4GB / 128GB features a slim and light design that increases one-handed portability, and the 6.7-inch large display provides you with an immersive viewing experience. With the upgraded AP, it delivers faster performance.",
+      "price": 520000,
+      "originalPrice": 780000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1762358967708.jpg"
+      ],
+      "videos": [],
+      "stock": "in-stock",
+      "rating": 5,
+      "reviewCount": 203,
+      "badges": [
+        "new"
+      ],
+      "features": [
+        "Screen: 6.7 HD+ ",
+        "Rear Camera: Wide 50 MP + Depth 2 MP",
+        "Front Camera: 8 MP",
+        "Processor: 6 nm, Helio G99, 2.2 Ghz",
+        "Memory: 4 + 64 GB, microSD card (Up to 2.0 TB)",
+        "Battery: 5,000mAh",
+        "Water Splash Resistance: IP54",
+        "Warranty: 24 months",
+        "7.6 mm Slimmer Design ",
+        "6x OS/6years Security Update ",
+        "GFRP, 2 step tempering glass "
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-11-05T16:09:59.120Z",
+      "dateUpdated": "2025-11-13T18:03:59.005Z"
+    },
+    {
+      "id": 1763448705783,
+      "name": "Oraimo Traveler 12 Power Bank",
+      "sku": "0111",
+      "category": "accessories",
+      "description": "Stay powered all week with the Oraimo Traveler 12 Power Bank. Its massive 20000mAh capacity can fully charge your smartphone up to 4 times. Featuring Type-C two-way fast charging, triple outputs to charge 3 devices at once, and a bright LED torch for emergencies or outdoor use. Built with 9 safety protection layers, it's compatible with over 1000+ devices including smartphones, tablets, smartwatches, and more.",
+      "price": 100000,
+      "originalPrice": 210000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1763448669723.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1763448910998.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1763448939308.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1763448963297.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1763448986338.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1763449013262.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1763449036115.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1763449055657.jpg"
+      ],
+      "videos": [],
+      "stock": "in-stock",
+      "rating": 5,
+      "reviewCount": 240,
+      "badges": [
+        "bestseller"
+      ],
+      "features": [
+        "Massive 20000mAh Capacity: Fully charges your phone up to 4 times — ideal for travel, work, or emergencies.*",
+        "Type-C Two-Way Charging: Both input and output via Type-C for faster recharging and wider compatibility.",
+        "Triple Output Charging: Charge 3 devices simultaneously (USB-A x2 + Type-C).",
+        "12W Fast Recharge: Type-C input supports fast recharging in just 8 hours.*",
+        "LED Torch: Provides up to 100 hours of light — perfect for night use or power outages.*",
+        "Universal Compatibility: Works with iPhones, Samsung, Pixel, OnePlus, Xiaomi, tablets, speakers, and more (1000+ devices).",
+        "9-Layer Safety Protection: Includes overcharge, short-circuit, temperature, and voltage protections for reliable use.",
+        "Smart Power Display: Keep track of remaining power at a glance."
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-11-18T06:51:45.783Z",
+      "dateUpdated": "2025-11-18T06:57:41.972Z"
+    },
+    {
+      "id": 1765455856524,
+      "name": "Monaco MagSafe 20000mAh Power Bank",
+      "sku": "0112",
+      "category": "accessories",
+      "description": "Green Lion Monaco MagSafe 20000mAh Power Bank, compatible, Integrated Type-C Cable,Smart Chip,15W Wireless Charging,Strong Magnetic,LCD Power Indicator,PD 20W,Pocket Sized",
+      "price": 220000,
+      "originalPrice": 312000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1765455793543.jpg"
+      ],
+      "videos": [],
+      "stock": "in-stock",
+      "rating": 3.2,
+      "reviewCount": 168,
+      "badges": [
+        "new"
+      ],
+      "features": [
+        "High Capacity: A powerful 20,000mAh battery ensures your devices stay charged throughout the day, perfect for travel and long outings.",
+        "Integrated Type-C Cable: Built-in Type-C cable eliminates the need for extra cords, making charging more convenient than ever.",
+        "Smart Chip Technology: Automatically detects your device's power needs, optimizing charging speeds for maximum efficiency.",
+        "15W Wireless Charging: Effortlessly charge compatible devices wirelessly, providing a hassle-free experience.",
+        "Power Delivery (PD) 20W: Enjoy rapid charging capabilities for various devices, including tablets and laptops.",
+        "Pocket-Sized and Lightweight: Despite its high capacity, the compact design makes it easy to carry in your bag or pocket.",
+        "Reason to Buy: The Green Lion Monaco Power Bank is an essential companion for anyone who values convenience and high performance in their charging solutions. Its impressive capacity, smart technology, and portability ensure you stay powered up, no matter where life takes you."
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2025-12-11T12:24:16.667Z"
+    },
+    {
+      "id": 1768026137894,
+      "name": "KZ Castor 2DD in Ear monitor Earphones ",
+      "sku": "0113",
+      "category": "accessories",
+      "description": "The KZ Castor 2DD is a premium in‑ear earphone delivering HiFi, dynamic sound with dual‑driver technology. It features high‑end tunable audio, excellent noise cancellation, and a comfortable fit for professional monitoring or everyday music enjoyment. Ideal for audiophiles seeking clear, balanced sound and versatile performance in a sleek earbud design (compatible with ZSNPRO, ZSX, ESX, and D‑FI setups).",
+      "price": 200000,
+      "originalPrice": 420000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768025736788.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768026999241.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768027052168.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768027085506.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768029240163.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768029346010.jpg"
+      ],
+      "videos": [],
+      "stock": "pre-order",
+      "rating": 5,
+      "reviewCount": 300,
+      "badges": [
+        "bestseller"
+      ],
+      "features": [
+        "- Driver Type: 2 × Dynamic drivers (2DD)",
+        "- Impedance: 32 Ω",
+        "- Frequency Response: 20 Hz – 40 kHz",
+        "- Sensitivity: 108 dB",
+        "- Connector: 3.5 mm jack (standard plug)",
+        "- Cable: Detachable, high‑purity copper or silver plated (depends on variant)",
+        "- Noise Cancellation: Passive noise isolation (physical fit)",
+        "- Fit: In‑ear earbuds with multiple silicone tip sizes",
+        "- Compatibility: Works with ZSNPRO, ZSX, ESX, and D‑Fi audio setups",
+        "- Sound Profile: Balanced, tunable HiFi audio with enhanced bass and clear highs",
+        "- Build: Metal housing for durability & stylish design",
+        "- Weight: 6 g (earbuds only)"
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2026-01-10T06:22:17.902Z",
+      "dateUpdated": "2026-01-12T20:28:04.673Z"
+    },
+    {
+      "id": 1768248623548,
+      "name": "KZ ZSN Pro 2 In-Ear monitor ",
+      "sku": "0114",
+      "category": "accessories",
+      "description": "The KZ ZSN Pro 2 Hybrid Drive earphones feature 1 Balanced Armature (1BA) + 1 Dynamic Driver (1DD) for crystal-clear HiFi sound with punchy bass. Designed as an in-ear monitor, they deliver immersive audio perfect for music, gaming, and sports. The lightweight headset offers excellent passive noise isolation and a comfortable fit for all-day use, making it a top choice for musicians, audiophiles and gamers alike.",
+      "price": 197000,
+      "originalPrice": 394000,
+      "images": [
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768248537638.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768248851231.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768248949243.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768248983133.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768249041783.jpg",
+        "https://raw.githubusercontent.com/BarasaGodwilTech/WILLSTECH-LANDINGSITE/main/public/images/products/product-1768249084006.jpg"
+      ],
+      "videos": [],
+      "stock": "pre-order",
+      "rating": 5,
+      "reviewCount": 568,
+      "badges": [
+        "bestseller"
+      ],
+      "features": [
+        " Driver configuration: 1 Balanced Armature (1BA) + 1 Dynamic Driver (1DD) hybrid",
+        " Sound: HiFi audio with enhanced bass",
+        " Design: In-ear earphones / earbuds with monitor quality",
+        " Usage: Suitable for music, gaming, and sports",
+        " Features: Passive noise isolation, comfortable fit",
+        " Model aliases: EDXPROX, ZS10PRO",
+        " Impedance: typically 22Ω (may vary by variant)",
+        " Frequency response: 20 Hz – 40 kHz (approx.)",
+        " Cable: Detachable or fixed (depends on version)",
+        " Accessories: Usually includes multiple ear tips and a carrying case"
+      ],
+      "specifications": {
+        "battery": "Up to 6 hours",
+        "charging": "Wireless charging case",
+        "connectivity": "Bluetooth 5.0"
+      },
+      "featured": true,
+      "status": "active",
+      "dateAdded": "2026-01-12T20:10:23.548Z",
+      "dateUpdated": "2026-01-12T20:18:11.618Z"
+    }
+  ],
+  "content": {
+    "storeName": "Will's Tech Store | Premium Gadgets & Tech in Uganda, Kampala | Mbale",
+    "tagline": "Elevate Your Lifestyle With Authentic Tech",
+    "description": "Uganda's trusted tech store for 100% authentic smartphones, laptops & gadgets. Elevate Your Lifestyle With Authentic Tech. We deliver everywhere in Uganda. WhatsApp: +256 751 924 844",
+    "contactInfo": "WhatsApp\n+256 751 924 844 \nChat Now\n                        \n                    \n                    \n                    \n                        \n                            \n                        \n                        \n                            Location\nKampala & Mbale, Uganda\nFree Delivery Available\n                        \n                    \n                    \n                    \n                        \n                            \n                        \n                        \n                            Business Hours\nMon - Sat: 8:00 AM - 8:00 PM\nSunday: 10:00 AM - 6:00 PM"
+  },
+  "social": {
+    "facebook": "",
+    "instagram": "https://instagram.com/willstech.store",
+    "twitter": "https://x.com/willstech_store",
+    "tiktok": "http://www.tiktok.com/@willstech.store",
+    "youtube": ""
+  },
+  "lastSynced": "2025-10-16T13:20:34.197Z",
+  "lastUpdated": "2026-01-12T20:28:04.699Z"
+}

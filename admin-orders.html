@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Orders &amp; Inbox | Will's Tech Admin</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Public+Sans:wght@400..800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/store.css">
+  <style>
+    @view-transition { navigation: none; }
+    .adm-top { background: var(--ink); color: #fff; }
+    .adm-top .container { display: flex; align-items: center; gap: 16px; padding-block: 14px; flex-wrap: wrap; }
+    .adm-top h1 { font-size: 22px; letter-spacing: -.03em; } .adm-top h1 span { color: var(--sun); }
+    .adm-top .sp { flex: 1; }
+    .adm-top a, .adm-top button { color: #fff; font-weight: 700; font-size: 14px; background: rgba(255,255,255,.1); border: 0; padding: 9px 16px; border-radius: 99px; }
+    .adm-top a:hover, .adm-top button:hover { background: rgba(255,255,255,.2); }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin: 24px 0; }
+    .kpi { padding: 18px 20px; border-radius: var(--radius-lg); background: var(--bg-card); border: 1px solid var(--border-light); }
+    .kpi b { display: block; font: 800 28px var(--font-display); letter-spacing: -.03em; } .kpi span { color: var(--text-secondary); font-size: 13.5px; }
+    .kpi.hot { background: var(--sun-soft); border-color: var(--sun); }
+    .adm-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+    .adm-tabs button { padding: 13px 18px; border: 0; background: none; font-weight: 800; color: var(--text-muted); border-bottom: 3px solid transparent; margin-bottom: -1px; white-space: nowrap; }
+    .adm-tabs button.on { color: var(--text-primary); border-color: var(--sun); }
+    .adm-tabs .n { display: inline-block; min-width: 20px; padding: 1px 6px; margin-left: 6px; border-radius: 10px; background: var(--flame); color: #fff; font-size: 11.5px; }
+    .bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 20px 0; }
+    .bar .form-input { max-width: 320px; min-height: 44px; border-radius: 99px; }
+    .ords { display: grid; gap: 14px; }
+    .ord { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 20px; display: grid; gap: 14px; }
+    .ord.pending { border-left: 5px solid var(--sun); }
+    .ord-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .ord-head b { font: 800 19px var(--font-display); letter-spacing: -.02em; } .ord-head small { color: var(--text-muted); display: block; font-size: 13px; }
+    .ord-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 20px; font-size: 14.5px; }
+    .ord-grid h4 { font: 800 12px var(--font-body); text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 6px; }
+    .ord-grid p { margin: 0 0 3px; color: var(--text-secondary); } .ord-grid p b { color: var(--text-primary); }
+    .ord-items li { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; color: var(--text-secondary); }
+    .ord-act { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding-top: 14px; border-top: 1px solid var(--border-light); }
+    .status-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 99px; font-weight: 800; font-size: 13px; }
+    .status-pill.pending { background: var(--sun-soft); color: #8A6200; } .status-pill.confirmed { background: rgba(37,99,235,.12); color: var(--primary); }
+    .status-pill.shipped { background: rgba(124,58,237,.12); color: #7C3AED; } .status-pill.completed { background: rgba(31,168,85,.14); color: var(--signal); } .status-pill.cancelled { background: rgba(232,69,44,.12); color: var(--flame); }
+    .tbl { width: 100%; border-collapse: collapse; background: var(--bg-card); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-light); font-size: 14.5px; }
+    .tbl th, .tbl td { text-align: left; padding: 13px 16px; border-bottom: 1px solid var(--border-light); vertical-align: top; }
+    .tbl th { background: var(--bg-surface); font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+    .tbl tr:last-child td { border: 0; }
+    .panel-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; padding: 20px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-lg); margin-bottom: 18px; align-items: end; }
+    .panel-form .form-group { margin: 0; }
+    .tbl-wrap { overflow-x: auto; }
+    .msg { padding: 18px 20px; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-lg); display: grid; gap: 8px; }
+    .msg.new { border-left: 5px solid var(--sun); }
+    .gate { display: grid; place-items: center; min-height: 60vh; text-align: center; color: var(--text-secondary); }
+    @media (max-width: 800px) { .ord-grid { grid-template-columns: 1fr; gap: 14px; } }
+  </style>
+</head>
+<body>
+  <div class="adm-top"><div class="container">
+    <h1>Will's <span>Tech</span> · Orders &amp; Inbox</h1><div class="sp"></div>
+    <a href="admin.html"><i class="fa-solid fa-arrow-left"></i> Back to admin</a>
+    <a href="index.html" target="_blank" rel="noopener"><i class="fa-solid fa-arrow-up-right-from-square"></i> View store</a>
+    <button id="logout"><i class="fa-solid fa-arrow-right-from-bracket"></i> Log out</button>
+  </div></div>
+
+  <main class="container" id="app"><div class="gate"><span class="spinner" style="width:28px;height:28px"></span></div></main>
+
+  <script src="js/api-config.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/utils.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    const TOKEN = localStorage.getItem('willstech_admin_token');
+    const app = document.getElementById('app');
+    const $ = (s, r) => (r || document).querySelector(s);
+    const esc = window.escapeHTML;
+    const FLOW = ['pending', 'confirmed', 'shipped', 'completed'];
+    const LABEL = { pending: 'New', confirmed: 'Confirmed', shipped: 'Out for delivery', completed: 'Delivered', cancelled: 'Cancelled' };
+    const NEXT = { pending: ['confirmed', 'Confirm order', 'fa-circle-check'], confirmed: ['shipped', 'Mark out for delivery', 'fa-truck-fast'], shipped: ['completed', 'Mark delivered', 'fa-box-open'] };
+    const PAY = { momo: 'MTN MoMo', airtel: 'Airtel Money', cod: 'Cash on delivery', whatsapp: 'WhatsApp', bank: 'Bank' };
+    const state = { tab: 'orders', filter: 'all', q: '', orders: [], summary: {}, messages: [], subs: [], coupons: [] };
+
+    async function api(path, opts) {
+      const res = await fetch(`${window.API_BASE}${path}`, Object.assign({}, opts, { headers: Object.assign({ 'Content-Type': 'application/json', Authorization: `Bearer ${TOKEN}` }, (opts && opts.headers) || {}) }));
+      let data = null; try { data = await res.json(); } catch (e) { /* none */ }
+      if (res.status === 401 || res.status === 403) { localStorage.removeItem('willstech_admin_token'); location.href = 'admin-login.html'; throw new Error('Signed out'); }
+      if (!res.ok) throw new Error((data && data.error) || `Request failed (${res.status})`);
+      return data;
+    }
+    const wa = (phone, text) => { let d = String(phone || '').replace(/\D/g, ''); if (d.startsWith('0')) d = '256' + d.slice(1); return `https://wa.me/${d}?text=${encodeURIComponent(text)}`; };
+    const waText = (o) => {
+      const first = String(o.customerName || '').split(' ')[0] || 'there';
+      const t = { pending: `Hi ${first}, thanks for your order ${o.orderNumber} (${formatPrice(o.total)}). We're checking stock and will confirm shortly.`,
+        confirmed: `Hi ${first}, your order ${o.orderNumber} is confirmed. Total ${formatPrice(o.total)}, delivering to ${o.deliveryZone || 'you'}. Payment: ${PAY[o.paymentMethod] || o.paymentMethod}.`,
+        shipped: `Hi ${first}, your order ${o.orderNumber} is out for delivery. Our rider will call you on arrival.`,
+        completed: `Hi ${first}, thanks for shopping with Will's Tech! If anything isn't right with ${o.orderNumber}, just reply here.`,
+        cancelled: `Hi ${first}, your order ${o.orderNumber} has been cancelled. Message us if you'd like to place it again.` };
+      return t[o.status] || t.pending;
+    };
+
+    async function boot() {
+      if (!TOKEN) { location.href = 'admin-login.html'; return; }
+      try { await api('/admin/me'); } catch (e) { return; }
+      app.innerHTML = `
+        <div class="kpis" id="kpis"></div>
+        <div class="adm-tabs" id="tabs" role="tablist">
+          <button data-t="orders" class="on">Orders</button><button data-t="messages">Messages <span class="n" id="n-msg" hidden></span></button>
+          <button data-t="subs">Newsletter</button><button data-t="coupons">Discount codes</button>
+        </div>
+        <div id="view"></div>`;
+      $('#tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-t]'); if (!b) return; state.tab = b.dataset.t; document.querySelectorAll('#tabs button').forEach((x) => x.classList.toggle('on', x === b)); render(); });
+      await refresh(); setInterval(() => { if (!document.hidden && state.tab === 'orders') refresh(true); }, 60000);
+    }
+
+    async function refresh(quiet) {
+      try {
+        const [s, o, m] = await Promise.all([api('/admin/summary'), api('/orders'), api('/admin/messages')]);
+        state.summary = s; state.orders = o.orders; state.messages = m.messages;
+        if (state.tab === 'subs') state.subs = (await api('/admin/subscribers')).subscribers;
+        if (state.tab === 'coupons') state.coupons = (await api('/admin/coupons')).coupons;
+      } catch (e) { if (!quiet) showNotification(e.message, 'error'); }
+      kpis(); render();
+    }
+    function kpis() {
+      const s = state.summary;
+      $('#kpis').innerHTML = `
+        <div class="kpi ${s.pending ? 'hot' : ''}"><b>${s.pending || 0}</b><span>New orders waiting</span></div>
+        <div class="kpi"><b>${s.in_progress || 0}</b><span>Confirmed or out for delivery</span></div>
+        <div class="kpi"><b>${s.today || 0}</b><span>Orders today</span></div>
+        <div class="kpi"><b>${formatPrice(s.month_revenue || 0)}</b><span>Delivered this month</span></div>
+        <div class="kpi"><b>${s.subscribers || 0}</b><span>Newsletter subscribers</span></div>`;
+      const n = $('#n-msg'); n.hidden = !s.newMessages; n.textContent = s.newMessages || '';
+    }
+
+    function render() { ({ orders, messages, subs, coupons })[state.tab](); }
+
+    // ── Orders ─────────────────────────────────────────
+    function orders() {
+      const counts = { all: state.orders.length }; FLOW.concat('cancelled').forEach((s) => { counts[s] = state.orders.filter((o) => o.status === s).length; });
+      const q = state.q.toLowerCase();
+      const list = state.orders.filter((o) => (state.filter === 'all' || o.status === state.filter) && (!q || `${o.orderNumber} ${o.customerName} ${o.customerPhone} ${o.customerEmail || ''}`.toLowerCase().includes(q)));
+      $('#view').innerHTML = `
+        <div class="bar">${['all', ...FLOW, 'cancelled'].map((s) => `<button class="chip${state.filter === s ? ' active' : ''}" data-f="${s}">${s === 'all' ? 'All' : LABEL[s]} (${counts[s]})</button>`).join('')}
+          <input class="form-input" id="oq" placeholder="Search number, name, phone…" value="${esc(state.q)}"><button class="btn btn-secondary btn-sm" id="refresh"><i class="fa-solid fa-rotate"></i> Refresh</button></div>
+        <div class="ords">${list.length ? list.map(card).join('') : '<div class="empty-state"><i class="fa-solid fa-inbox"></i><h3>No orders here</h3></div>'}</div>`;
+      $('#view').onclick = async (e) => {
+        const f = e.target.closest('[data-f]'); if (f) { state.filter = f.dataset.f; return orders(); }
+        if (e.target.closest('#refresh')) return refresh();
+        const adv = e.target.closest('[data-adv]'); if (adv) return setStatus(adv.dataset.id, adv.dataset.adv);
+        const cx = e.target.closest('[data-cancel]'); if (cx && confirm('Cancel this order?')) return setStatus(cx.dataset.cancel, 'cancelled');
+      };
+      const oq = $('#oq'); oq.oninput = () => { state.q = oq.value; const pos = oq.selectionStart; orders(); const n = $('#oq'); n.focus(); n.setSelectionRange(pos, pos); };
+    }
+    function card(o) {
+      const nx = NEXT[o.status], a = o.shippingAddress || {};
+      return `<article class="ord ${o.status}">
+        <div class="ord-head"><div><b>${esc(o.orderNumber || o.id)}</b><small>${WT.date(o.createdAt)} · ${WT.time(o.createdAt)}</small></div><span class="status-pill ${o.status}">${LABEL[o.status] || o.status}</span></div>
+        <div class="ord-grid">
+          <div><h4>Customer</h4><p><b>${esc(o.customerName)}</b></p><p><a href="tel:${esc(o.customerPhone)}">${esc(o.customerPhone)}</a></p>${o.customerEmail ? `<p>${esc(o.customerEmail)}</p>` : ''}${o.userId ? '<p><span class="badge badge-soft">Has account</span></p>' : ''}</div>
+          <div><h4>Delivery &amp; payment</h4><p><b>${esc(o.deliveryZone || '')}</b></p><p>${esc(a.street || '')}</p>${o.notes ? `<p><i>“${esc(o.notes)}”</i></p>` : ''}<p>${esc(PAY[o.paymentMethod] || o.paymentMethod)}</p></div>
+          <div><h4>Items</h4><ul class="ord-items">${(o.items || []).map((i) => `<li><span>${i.quantity} × ${esc(i.name)}</span><b>${formatPrice(i.price * i.quantity)}</b></li>`).join('')}</ul>
+            ${o.discount ? `<p style="color:var(--signal)">Discount ${esc(o.couponCode || '')}: −${formatPrice(o.discount)}</p>` : ''}${o.deliveryFee ? `<p>Delivery: ${formatPrice(o.deliveryFee)}</p>` : ''}
+            <p style="font-size:17px;margin-top:6px"><b>Total ${formatPrice(o.total)}</b></p></div>
+        </div>
+        <div class="ord-act">
+          ${nx ? `<button class="btn btn-primary btn-sm" data-adv="${nx[0]}" data-id="${o.id}"><i class="fa-solid ${nx[2]}"></i> ${nx[1]}</button>` : ''}
+          <a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${wa(o.customerPhone, waText(o))}"><i class="fa-brands fa-whatsapp"></i> Message customer</a>
+          ${['pending', 'confirmed'].includes(o.status) ? `<button class="btn btn-outline-danger btn-sm" data-cancel="${o.id}">Cancel</button>` : ''}
+        </div></article>`;
+    }
+    async function setStatus(id, status) {
+      try { await api(`/orders/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }); showNotification(`Order marked: ${LABEL[status]}`, 'success'); await refresh(true); }
+      catch (e) { showNotification(e.message, 'error'); }
+    }
+
+    // ── Messages ───────────────────────────────────────
+    function messages() {
+      $('#view').innerHTML = `<div class="ords" style="margin-top:20px">${state.messages.length ? state.messages.map((m) => `
+        <div class="msg ${m.status}"><div class="ord-head"><div><b>${esc(m.name)}</b><small>${esc(m.subject || 'Message')} · ${WT.date(m.created_at)}</small></div>
+          <span class="badge ${m.status === 'new' ? 'badge-sun' : 'badge-soft'}">${m.status}</span></div>
+          <p style="white-space:pre-wrap;color:var(--text-secondary)">${esc(m.message)}</p>
+          <div class="ord-act" style="border:0;padding:0">${m.phone ? `<a class="btn btn-wa btn-sm" target="_blank" rel="noopener" href="${wa(m.phone, `Hi ${m.name.split(' ')[0]}, thanks for your message to Will's Tech.`)}"><i class="fa-brands fa-whatsapp"></i> Reply on WhatsApp</a>` : ''}
+            ${m.email ? `<a class="btn btn-secondary btn-sm" href="mailto:${esc(m.email)}?subject=${encodeURIComponent('Re: ' + (m.subject || 'Your message'))}"><i class="fa-regular fa-envelope"></i> Reply by email</a>` : ''}
+            ${m.status !== 'done' ? `<button class="btn btn-ghost btn-sm" data-m="${m.id}" data-s="done"><i class="fa-solid fa-check"></i> Mark done</button>` : `<button class="btn btn-ghost btn-sm" data-m="${m.id}" data-s="new">Reopen</button>`}</div></div>`).join('')
+        : '<div class="empty-state"><i class="fa-regular fa-envelope-open"></i><h3>No messages yet</h3></div>'}</div>`;
+      $('#view').onclick = async (e) => { const b = e.target.closest('[data-m]'); if (!b) return; try { await api(`/admin/messages/${b.dataset.m}`, { method: 'PATCH', body: JSON.stringify({ status: b.dataset.s }) }); await refresh(true); } catch (x) { showNotification(x.message, 'error'); } };
+    }
+
+    // ── Newsletter ─────────────────────────────────────
+    async function subs() {
+      try { state.subs = (await api('/admin/subscribers')).subscribers; } catch (e) { showNotification(e.message, 'error'); }
+      $('#view').innerHTML = `<div class="bar"><b>${state.subs.length} subscriber${state.subs.length === 1 ? '' : 's'}</b><button class="btn btn-secondary btn-sm" id="csv"><i class="fa-solid fa-download"></i> Download CSV</button></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Email</th><th>Source</th><th>Joined</th></tr></thead><tbody>${state.subs.map((s) => `<tr><td>${esc(s.email)}</td><td>${esc(s.source || '')}</td><td>${WT.date(s.created_at)}</td></tr>`).join('') || '<tr><td colspan="3">No subscribers yet.</td></tr>'}</tbody></table></div>`;
+      $('#csv').onclick = async () => { const r = await fetch(`${window.API_BASE}/admin/subscribers?format=csv`, { headers: { Authorization: `Bearer ${TOKEN}` } }); const b = await r.blob(); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'subscribers.csv'; a.click(); };
+    }
+
+    // ── Coupons ────────────────────────────────────────
+    async function coupons() {
+      try { state.coupons = (await api('/admin/coupons')).coupons; } catch (e) { showNotification(e.message, 'error'); }
+      $('#view').innerHTML = `<form class="panel-form" id="cf" style="margin-top:20px">
+          <div class="form-group"><label class="form-label">Code</label><input class="form-input" id="c-code" placeholder="EID10" required maxlength="20"></div>
+          <div class="form-group"><label class="form-label">Type</label><select class="form-input" id="c-type"><option value="percent">Percent off</option><option value="fixed">Fixed amount (UGX)</option></select></div>
+          <div class="form-group"><label class="form-label">Value</label><input class="form-input" id="c-val" type="number" min="1" placeholder="10" required></div>
+          <div class="form-group"><label class="form-label">Min. spend (UGX)</label><input class="form-input" id="c-min" type="number" min="0" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Max uses</label><input class="form-input" id="c-max" type="number" min="1" placeholder="Unlimited"></div>
+          <div class="form-group"><label class="form-label">Expires</label><input class="form-input" id="c-exp" type="date"></div>
+          <button class="btn btn-primary" type="submit"><i class="fa-solid fa-plus"></i> Create code</button></form>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Code</th><th>Discount</th><th>Min spend</th><th>Used</th><th>Expires</th><th></th></tr></thead><tbody>${state.coupons.map((c) => `
+          <tr><td><b>${esc(c.code)}</b>${c.active ? '' : ' <span class="badge badge-soft">off</span>'}</td><td>${c.type === 'percent' ? Number(c.value) + '%' : formatPrice(c.value)}</td><td>${Number(c.min_subtotal) ? formatPrice(c.min_subtotal) : '–'}</td>
+          <td>${c.used_count}${c.max_uses ? ' / ' + c.max_uses : ''}</td><td>${c.expires_at ? WT.date(c.expires_at) : 'Never'}</td>
+          <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" data-tg="${esc(c.code)}" data-on="${c.active}">${c.active ? 'Turn off' : 'Turn on'}</button><button class="btn btn-ghost btn-sm" data-del="${esc(c.code)}" style="color:var(--flame)">Delete</button></td></tr>`).join('') || '<tr><td colspan="6">No codes yet.</td></tr>'}</tbody></table></div>`;
+      $('#cf').onsubmit = async (e) => {
+        e.preventDefault();
+        try { await api('/admin/coupons', { method: 'POST', body: JSON.stringify({ code: $('#c-code').value, type: $('#c-type').value, value: $('#c-val').value, minSubtotal: $('#c-min').value, maxUses: $('#c-max').value, expiresAt: $('#c-exp').value ? new Date($('#c-exp').value + 'T23:59:59').toISOString() : null }) }); showNotification('Code created', 'success'); coupons(); }
+        catch (x) { showNotification(x.message, 'error'); }
+      };
+      $('#view').onclick = async (e) => {
+        const t = e.target.closest('[data-tg]'), d = e.target.closest('[data-del]');
+        try { if (t) { await api(`/admin/coupons/${t.dataset.tg}`, { method: 'PATCH', body: JSON.stringify({ active: t.dataset.on !== 'true' }) }); coupons(); }
+          else if (d && confirm(`Delete code ${d.dataset.del}?`)) { await api(`/admin/coupons/${d.dataset.del}`, { method: 'DELETE' }); coupons(); } } catch (x) { showNotification(x.message, 'error'); }
+      };
+    }
+
+    document.getElementById('logout').onclick = () => { localStorage.removeItem('willstech_admin_token'); localStorage.removeItem('willstech_admin_user'); location.href = 'admin-login.html'; };
+    boot();
+  })();
+  </script>
+</body>
+</html>

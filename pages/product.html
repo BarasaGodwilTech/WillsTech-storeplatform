@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Product | Will's Tech Store</title>
+  <meta name="description" content="Product details at Will's Tech Store.">
+  <meta name="theme-color" content="#F4F5F7">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Will's Tech Store">
+  <meta property="og:title" content="Product | Will's Tech Store">
+  <meta property="og:description" content="Product details at Will's Tech Store.">
+  <meta property="og:image" content="../IMAGES/social-share.jpg">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="icon" type="image/png" href="../favicon-96x96.png" sizes="96x96">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Public+Sans:wght@400..800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/store.css">
+  <link rel="stylesheet" href="../css/pages.css">
+  <script>try{var t=localStorage.getItem('wt-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+
+<main id="main-content" class="container">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><i class="fa-solid fa-chevron-right"></i><a href="shop.html">Shop</a><i class="fa-solid fa-chevron-right"></i><a href="shop.html" id="crumb-cat">Category</a><i class="fa-solid fa-chevron-right"></i><span id="crumb-name">Product</span></nav>
+  <div id="pdp-root"><div class="pdp"><div class="skeleton" style="aspect-ratio:1;border-radius:32px"></div><div style="display:grid;gap:14px"><div class="skeleton" style="height:18px;width:30%"></div><div class="skeleton" style="height:48px"></div><div class="skeleton" style="height:48px;width:60%"></div><div class="skeleton" style="height:120px"></div></div></div></div>
+
+  <section class="section" id="related-section" hidden>
+    <div class="section-head"><div><h2>You might also like</h2></div>
+      <div class="rail-ctrl"><button class="round-btn" id="rel-prev" aria-label="Scroll left"><i class="fa-solid fa-arrow-left"></i></button><button class="round-btn" id="rel-next" aria-label="Scroll right"><i class="fa-solid fa-arrow-right"></i></button></div></div>
+    <div class="rail-track" id="related-track"></div>
+  </section>
+</main>
+<div class="buy-bar" id="buy-bar" aria-hidden="true"><div class="bb-price" id="bb-price"></div><button class="btn btn-primary" id="bb-add"><i class="fa-solid fa-bag-shopping"></i> Add to cart</button></div>
+<div id="site-footer"></div>
+  <script src="../js/api-config.js"></script>
+  <script src="../js/site.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/cart.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/products.js"></script>
+  <script src="../js/compare.js"></script>
+  <script src="../js/wishlist.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/pages/product.js"></script>
+  <script type="module" src="../js/auth-init.js"></script>
+</body>
+</html>

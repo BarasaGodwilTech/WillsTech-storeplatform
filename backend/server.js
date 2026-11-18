@@ -1,0 +1,168 @@
+// server.js — Will's Tech Store backend.
+// Serves the storefront (an explicit allowlist of public files/folders) AND
+// the JSON API under /api from one Node process/port.
+require('dotenv').config();
+
+const path = require('path');
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
+
+const isProd = process.env.NODE_ENV === 'production';
+
+// ── Fail fast on unsafe secrets ─────────────────────────
+const jwtSecret = process.env.JWT_SECRET || '';
+if (!jwtSecret || jwtSecret.startsWith('replace_this') || jwtSecret.length < 32) {
+  const msg = '[server] JWT_SECRET is missing, too short (<32 chars) or still the example value.\n' +
+    '        Generate one: node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"';
+  if (isProd) { console.error(msg); process.exit(1); }
+  console.warn('\n' + msg + '\n        (allowed in development only)\n');
+}
+if (isProd && process.env.ADMIN_PASSWORD === 'ChangeMe123!') {
+  console.warn('[server] WARNING: ADMIN_PASSWORD is still the default. Change it from the admin panel.');
+}
+
+const { pool } = require('./src/db');
+const { rateLimit } = require('./src/middleware/rateLimit');
+
+const authRoutes = require('./src/routes/auth.routes');
+const adminRoutes = require('./src/routes/admin.routes');
+const adminShopRoutes = require('./src/routes/admin.shop.routes');
+const productRoutes = require('./src/routes/products.routes');
+const configRoutes = require('./src/routes/config.routes');
+const orderRoutes = require('./src/routes/orders.routes');
+const uploadRoutes = require('./src/routes/uploads.routes');
+const accountRoutes = require('./src/routes/account.routes');
+const shopRoutes = require('./src/routes/shop.routes');
+
+const app = express();
+const PORT = process.env.PORT || 4000;
+const FRONTEND_ROOT = path.join(__dirname, '..');
+
+app.disable('x-powered-by');
+app.set('trust proxy', 1); // correct client IPs behind Railway/Render/nginx
+
+app.use(morgan(isProd ? 'combined' : 'dev'));
+
+// Basic security headers (no extra dependency needed).
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  if (isProd) res.setHeader('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
+  next();
+});
+
+// CORS: same-origin by default. Set CORS_ORIGIN (comma-separated) only if the
+// frontend is hosted on a different origin.
+const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',').map((s) => s.trim()).filter(Boolean);
+app.use('/api', cors({
+  origin: allowedOrigins.length ? allowedOrigins : false,
+  credentials: true,
+}));
+
+app.use(express.json({ limit: '1mb' }));
+app.use(cookieParser());
+
+// ── API ─────────────────────────────────────────────────
+app.get('/api/health', async (req, res) => {
+  try {
+    await pool.query('SELECT 1');
+    res.json({ status: 'ok', db: 'up', time: new Date().toISOString() });
+  } catch (e) {
+    res.status(503).json({ status: 'degraded', db: 'down' });
+  }
+});
+
+// Brute-force protection on credential endpoints.
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: 'Too many attempts. Please try again in a few minutes.' });
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+app.use('/api/auth/forgot-password', authLimiter);
+app.use('/api/auth/reset-password', authLimiter);
+app.use('/api/admin/login', authLimiter);
+// Stop spam on public forms.
+['/api/shop/newsletter', '/api/shop/contact'].forEach((route) => app.use(route, (req, res, next) => (req.method === 'POST'
+  ? rateLimit({ windowMs: 10 * 60 * 1000, max: 8, message: 'Too many submissions. Please try again later.' })(req, res, next)
+  : next())));
+// Stop order spam from guests.
+app.use('/api/orders', (req, res, next) => (req.method === 'POST'
+  ? rateLimit({ windowMs: 10 * 60 * 1000, max: 30, message: 'Too many orders. Please slow down.' })(req, res, next)
+  : next()));
+
+app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminShopRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/config', configRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/uploads', uploadRoutes);
+app.use('/api/account', accountRoutes);
+app.use('/api/shop', shopRoutes);
+app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
+
+// ── Static frontend (ALLOWLIST ONLY) ────────────────────
+// Previously the whole project root was served, which exposed backend/ source,
+// backend/.env, firestore.rules and data/images (ID photos). Now only public
+// assets are reachable.
+const staticOpts = { dotfiles: 'ignore', index: false, maxAge: isProd ? '1d' : 0 };
+['css', 'js', 'IMAGES', 'public', 'pages'].forEach((dir) => {
+  app.use('/' + dir, express.static(path.join(FRONTEND_ROOT, dir), staticOpts));
+});
+// Product images get a long cache (filenames are timestamped, never reused).
+app.use('/public/images/products', express.static(path.join(FRONTEND_ROOT, 'public', 'images', 'products'), { maxAge: '30d', dotfiles: 'ignore' }));
+
+const PUBLIC_FILES = [
+  'index.html', 'robots.txt', 'admin.html', 'admin-login.html', 'admin-orders.html', 'admin.js', 'site.webmanifest',
+  'favicon.ico', 'favicon.svg', 'favicon-96x96.png', 'apple-touch-icon.png',
+  'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png',
+];
+PUBLIC_FILES.forEach((f) => app.get('/' + f, (req, res) => res.sendFile(path.join(FRONTEND_ROOT, f))));
+app.get('/', (req, res) => res.sendFile(path.join(FRONTEND_ROOT, 'index.html')));
+// Static fallback used by products.js when the API is unreachable.
+app.get('/data/site-config.json', (req, res) => res.sendFile(path.join(FRONTEND_ROOT, 'data', 'site-config.json')));
+
+// Dynamic sitemap: static pages + every active product.
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const base = (process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
+    const pages = ['', 'pages/shop.html', 'pages/about.html', 'pages/contact.html', 'pages/faq.html', 'pages/shipping.html', 'pages/returns.html', 'pages/track-order.html', 'pages/privacy.html', 'pages/terms.html'];
+    const { rows } = await pool.query("SELECT id, updated_at FROM products WHERE status = 'active'");
+    const urls = [
+      ...pages.map((p) => `<url><loc>${base}/${p}</loc></url>`),
+      ...rows.map((r) => `<url><loc>${base}/pages/product.html?id=${r.id}</loc>${r.updated_at ? `<lastmod>${new Date(r.updated_at).toISOString().slice(0, 10)}</lastmod>` : ''}</url>`),
+    ];
+    res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join('')}</urlset>`);
+  } catch (e) { res.status(500).type('text/plain').send('sitemap unavailable'); }
+});
+
+// Friendly 404 page for browsers; JSON for everything else.
+app.use((req, res) => {
+  if (req.accepts('html')) return res.status(404).sendFile(path.join(FRONTEND_ROOT, 'pages', '404.html'));
+  res.status(404).json({ error: 'Not found' });
+});
+
+// ── Error handler ───────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error('[server] Unhandled error:', err);
+  const status = err.status || (err.code === 'LIMIT_FILE_SIZE' ? 413 : 500);
+  // Don't leak internals on 5xx in production.
+  const message = status >= 500 && isProd ? 'Something went wrong' : (err.message || 'Something went wrong');
+  res.status(status).json({ error: message });
+});
+
+const server = app.listen(PORT, () => {
+  console.log(`\n  Will's Tech Store backend running:`);
+  console.log(`  → http://localhost:${PORT}          (storefront)`);
+  console.log(`  → http://localhost:${PORT}/admin-login.html  (admin panel)`);
+  console.log(`  → http://localhost:${PORT}/api/health         (API health check)\n`);
+});
+
+// Graceful shutdown (Docker/Railway send SIGTERM on deploy).
+['SIGTERM', 'SIGINT'].forEach((sig) => process.on(sig, () => {
+  console.log(`[server] ${sig} received, shutting down...`);
+  server.close(() => pool.end().then(() => process.exit(0)));
+  setTimeout(() => process.exit(1), 10000).unref();
+}));

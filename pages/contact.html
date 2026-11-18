@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Contact us | Will's Tech Store</title>
+  <meta name="description" content="Contact Will's Tech Store by WhatsApp, email or the form. Open Monday to Saturday 8 AM to 8 PM and Sundays 10 AM to 6 PM.">
+  <meta name="theme-color" content="#F4F5F7">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Will's Tech Store">
+  <meta property="og:title" content="Contact us | Will's Tech Store">
+  <meta property="og:description" content="Contact Will's Tech Store by WhatsApp, email or the form. Open Monday to Saturday 8 AM to 8 PM and Sundays 10 AM to 6 PM.">
+  <meta property="og:image" content="../IMAGES/social-share.jpg">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="icon" type="image/png" href="../favicon-96x96.png" sizes="96x96">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Public+Sans:wght@400..800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/store.css">
+  <link rel="stylesheet" href="../css/pages.css">
+  <script>try{var t=localStorage.getItem('wt-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+
+<main id="main-content" class="container">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><i class="fa-solid fa-chevron-right"></i><span>Contact</span></nav>
+  <section class="page-hero t2"><div><h1>Get in touch</h1><p>Questions about a product, an order or a delivery? Pick whichever way suits you.</p><div class="ph-chips"><span><i class="fa-brands fa-whatsapp"></i>Fastest on WhatsApp</span><span><i class="fa-regular fa-clock"></i>Mon to Sat 8 AM to 8 PM</span><span><i class="fa-regular fa-clock"></i>Sun 10 AM to 6 PM</span></div></div><div class="ph-icon" aria-hidden="true"><i class="fa-solid fa-headset"></i></div></section>
+  <div class="contact-grid">
+    <div class="contact-cards">
+      <a class="contact-card wa" target="_blank" rel="noopener" href="https://wa.me/256751924844?text=Hi%20Will's%20Tech!%20I%20have%20a%20question."><i class="fa-brands fa-whatsapp"></i><div><b>WhatsApp</b><span>+256 751 924 844 · fastest reply</span></div></a>
+      <a class="contact-card" href="mailto:willstechstoreug@gmail.com"><i class="fa-regular fa-envelope"></i><div><b>Email</b><span>willstechstoreug@gmail.com</span></div></a>
+      <a class="contact-card" href="tel:+256751924844"><i class="fa-solid fa-phone"></i><div><b>Call</b><span>+256 751 924 844</span></div></a>
+      <div class="contact-card"><i class="fa-solid fa-location-dot"></i><div><b>Where we are</b><span>Kampala &amp; Mbale, Uganda. We deliver everywhere in Uganda.</span></div></div>
+      <div class="contact-card"><i class="fa-regular fa-clock"></i><div><b>Opening hours</b><div class="hours"><span>Mon to Sat: 8:00 AM to 8:00 PM</span><span>Sunday: 10:00 AM to 6:00 PM</span></div></div></div>
+    </div>
+    <form class="contact-form" id="contact-form" novalidate>
+      <h2>Send us a message</h2>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="c-name">Name</label><input class="form-input" id="c-name" autocomplete="name" required></div>
+        <div class="form-group"><label class="form-label" for="c-phone">Phone <span class="optional">(optional)</span></label><input class="form-input" id="c-phone" type="tel" autocomplete="tel"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label" for="c-email">Email <span class="optional">(optional)</span></label><input class="form-input" id="c-email" type="email" autocomplete="email"></div>
+        <div class="form-group"><label class="form-label" for="c-subject">Topic</label><select class="form-input" id="c-subject"><option>General question</option><option>Product question</option><option>Order support</option><option>Return or refund</option><option>Partnership</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label" for="c-message">Message</label><textarea class="form-input" id="c-message" required></textarea></div>
+      <div class="err-box" id="c-error" hidden></div>
+      <div class="form-actions"><button class="btn btn-primary btn-lg" type="submit" id="c-send"><i class="fa-solid fa-paper-plane"></i> Send message</button><button class="btn btn-wa btn-lg" type="button" id="c-wa"><i class="fa-brands fa-whatsapp"></i> Send via WhatsApp</button></div>
+    </form>
+  </div>
+</main>
+<div id="site-footer"></div>
+  <script src="../js/api-config.js"></script>
+  <script src="../js/site.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/cart.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/products.js"></script>
+  <script src="../js/compare.js"></script>
+  <script src="../js/wishlist.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/pages/contact.js"></script>
+  <script type="module" src="../js/auth-init.js"></script>
+</body>
+</html>

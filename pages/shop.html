@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Shop all products | Will's Tech Store</title>
+  <meta name="description" content="Browse authentic smartphones, speakers, power banks and creator gear. Filter by category and price. Delivery in Kampala and Mbale.">
+  <meta name="theme-color" content="#F4F5F7">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Will's Tech Store">
+  <meta property="og:title" content="Shop all products | Will's Tech Store">
+  <meta property="og:description" content="Browse authentic smartphones, speakers, power banks and creator gear. Filter by category and price. Delivery in Kampala and Mbale.">
+  <meta property="og:image" content="../IMAGES/social-share.jpg">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="icon" type="image/png" href="../favicon-96x96.png" sizes="96x96">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="manifest" href="../site.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Public+Sans:wght@400..800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/store.css">
+  <link rel="stylesheet" href="../css/pages.css">
+  <script>try{var t=localStorage.getItem('wt-theme');if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body>
+
+<main id="main-content" class="container">
+  <nav class="breadcrumb" aria-label="Breadcrumb"><a href="../index.html">Home</a><i class="fa-solid fa-chevron-right"></i><span id="crumb">Shop</span></nav>
+  <section class="page-hero t0"><div><h1 id="shop-title">Shop</h1><p id="shop-sub">Authentic gear, honest prices, delivered everywhere in Uganda.</p><div class="ph-chips"><span><i class="fa-solid fa-circle-check"></i>Authentic</span><span><i class="fa-solid fa-circle-check"></i>Delivery nationwide</span><span><i class="fa-solid fa-circle-check"></i>Pay on delivery</span></div></div><div class="ph-icon" aria-hidden="true"><i class="fa-solid fa-bag-shopping"></i></div></section>
+
+  <div class="shop-layout">
+    <aside class="filters" id="filters" aria-label="Filters">
+      <div class="filters-head"><h2>Filters</h2><button class="icon-btn" id="filters-close" aria-label="Close filters"><i class="fa-solid fa-xmark"></i></button></div>
+      <div><h3>Collections</h3><div class="filter-list" id="f-collections"></div></div>
+      <div><h3>Category</h3><div class="filter-list" id="f-categories"><div class="skeleton" style="height:100px"></div></div></div>
+      <div><h3>Brand</h3><div class="filter-list" id="f-brands"></div></div>
+      <div><h3>Price (UGX)</h3>
+        <div class="price-inputs"><input class="form-input" type="number" inputmode="numeric" id="f-min" placeholder="Min" min="0" aria-label="Minimum price"><input class="form-input" type="number" inputmode="numeric" id="f-max" placeholder="Max" min="0" aria-label="Maximum price"></div></div>
+      <label class="check"><input type="checkbox" id="f-stock"> <span>In stock only</span></label>
+      <div class="form-actions" style="margin-top:0"><button class="btn btn-dark btn-block" id="filters-apply">Show results</button><button class="btn btn-ghost btn-block" id="filters-reset">Reset all</button></div>
+    </aside>
+
+    <section aria-label="Products">
+      <div class="quick-chips" id="quick-chips" aria-label="Popular searches"></div>
+      <div class="shop-search"><i class="fa-solid fa-magnifying-glass"></i><input class="form-input" type="search" id="shop-q" placeholder="Search in this list…" aria-label="Search products"></div>
+      <div class="shop-toolbar">
+        <span class="shop-count" id="shop-count" aria-live="polite"></span>
+        <div class="shop-tools">
+          <button class="btn btn-secondary btn-sm filter-open-btn" id="filter-open"><i class="fa-solid fa-sliders"></i> Filters</button>
+          <select class="form-input" id="shop-sort" aria-label="Sort products">
+            <option value="featured">Featured</option><option value="newest">Newest</option><option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option><option value="rating">Top rated</option><option value="discount">Biggest discount</option>
+          </select>
+        </div>
+      </div>
+      <div class="active-filters" id="active-filters"></div>
+      <div class="products-grid" id="shop-grid"><div class="skeleton" style="height:380px;border-radius:22px"></div><div class="skeleton" style="height:380px;border-radius:22px"></div><div class="skeleton" style="height:380px;border-radius:22px"></div><div class="skeleton" style="height:380px;border-radius:22px"></div><div class="skeleton" style="height:380px;border-radius:22px"></div><div class="skeleton" style="height:380px;border-radius:22px"></div></div>
+      <div class="load-more"><button class="btn btn-secondary btn-lg" id="load-more" hidden>Show more products</button></div>
+    </section>
+  </div>
+</main>
+<div id="site-footer"></div>
+  <script src="../js/api-config.js"></script>
+  <script src="../js/site.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/cart.js"></script>
+  <script src="../js/media.js"></script>
+  <script src="../js/products.js"></script>
+  <script src="../js/compare.js"></script>
+  <script src="../js/wishlist.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/search.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/pages/shop.js"></script>
+  <script type="module" src="../js/auth-init.js"></script>
+</body>
+</html>
