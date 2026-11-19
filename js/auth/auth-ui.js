@@ -16,7 +16,7 @@ const AuthUI = {
     const loginForm = document.getElementById('login-form');
     if (!loginForm) return;
 
-    this.redirectIfAuthenticated('pages/account.html');
+    this.redirectIfAuthenticated();
 
     const emailInput = document.getElementById('login-email');
     const passwordInput = document.getElementById('login-password');
@@ -38,8 +38,7 @@ const AuthUI = {
       try {
         await AuthService.signIn(email, password);
         showNotification('Successfully logged in!', 'success');
-        const params = new URLSearchParams(window.location.search);
-        window.location.href = params.get('redirect') || 'pages/account.html';
+        window.location.href = this.afterAuthUrl();
       } catch (error) {
         this.showError(errorDiv, error.message);
       } finally {
@@ -64,7 +63,7 @@ const AuthUI = {
     const registerForm = document.getElementById('register-form');
     if (!registerForm) return;
 
-    this.redirectIfAuthenticated('pages/account.html');
+    this.redirectIfAuthenticated();
 
     const nameInput = document.getElementById('register-name');
     const emailInput = document.getElementById('register-email');
@@ -103,7 +102,7 @@ const AuthUI = {
       try {
         await AuthService.signUp(email, password, displayName);
         showNotification('Account created!', 'success');
-        window.location.href = 'pages/account.html';
+        window.location.href = this.afterAuthUrl();
       } catch (error) {
         this.showError(errorDiv, error.message);
       } finally {
@@ -196,21 +195,24 @@ const AuthUI = {
   _renderOverview(user, stats) {
     const container = document.getElementById('account-overview-stats');
     if (!container) return;
+    // Never let a partial/failed stats response break the whole account page
+    stats = Object.assign({ totalOrders: 0, totalSpent: 0, wishlistItems: 0 }, stats || {});
+    if (!stats.tier) stats.tier = { name: 'Bronze', icon: 'fa-award', color: '#cd7f32' };
 
     container.innerHTML = `
       <div class="account-stats-grid">
         <div class="account-stat-card">
-          <div class="stat-icon" style="background:#3b82f620; color:#3b82f6;"><i class="fa-solid fa-box-open"></i></div>
+          <div class="stat-icon" style="background:#5B3BB01F; color:#5B3BB0;"><i class="fa-solid fa-box-open"></i></div>
           <div class="stat-value">${stats.totalOrders}</div>
           <div class="stat-label">Total Orders</div>
         </div>
         <div class="account-stat-card">
-          <div class="stat-icon" style="background:#10b98120; color:#10b981;"><i class="fa-solid fa-wallet"></i></div>
+          <div class="stat-icon" style="background:#15803D1F; color:#15803D;"><i class="fa-solid fa-wallet"></i></div>
           <div class="stat-value">${formatPrice(stats.totalSpent)}</div>
           <div class="stat-label">Total Spent</div>
         </div>
         <div class="account-stat-card">
-          <div class="stat-icon" style="background:#f59e0b20; color:#f59e0b;"><i class="fa-solid fa-heart"></i></div>
+          <div class="stat-icon" style="background:#FF8A1F26; color:#A84B00;"><i class="fa-solid fa-heart"></i></div>
           <div class="stat-value">${stats.wishlistItems}</div>
           <div class="stat-label">Wishlist Items</div>
         </div>
@@ -874,9 +876,28 @@ const AuthUI = {
     errorDiv.innerHTML = '';
   },
 
+  // Only ever follow redirects that stay on this site (blocks ?redirect=https://evil.example, //evil.example, javascript:...)
+  safeRedirect(target, fallback) {
+    try {
+      const u = new URL(target, window.location.href);
+      if ((u.protocol === 'http:' || u.protocol === 'https:') && u.origin === window.location.origin) return u.pathname + u.search + u.hash;
+    } catch (e) { /* fall through */ }
+    return fallback;
+  },
+
+  accountUrl() { return (window.WT && WT.page) ? WT.page('account.html') : 'account.html'; },
+
+  // Where to go after signing in: a safe ?redirect=… if present, otherwise the account page
+  afterAuthUrl() {
+    const wanted = new URLSearchParams(window.location.search).get('redirect');
+    return wanted ? this.safeRedirect(wanted, this.accountUrl()) : this.accountUrl();
+  },
+
+  // Auth state resolves asynchronously (it calls /auth/me), so wait for it instead of reading it too early
   redirectIfAuthenticated(redirectUrl) {
-    const user = AuthService.getCurrentUser();
-    if (user) window.location.href = redirectUrl;
+    AuthService.onAuthStateChanged((user) => {
+      if (user) window.location.replace(redirectUrl || this.afterAuthUrl());
+    });
   },
 
   requireAuth(loginUrl) {
@@ -1065,7 +1086,9 @@ const AuthUI = {
 
     deleteBtn.addEventListener('click', async () => {
       if (!confirm('WARNING: This will permanently delete your account and all data. Continue?')) return;
-      if (!confirm('FINAL WARNING: Type "DELETE" in the next prompt to confirm.')) return;
+      const typed = prompt('Final step: type DELETE (in capitals) to permanently delete your account.');
+      if (typed === null) return;
+      if (typed.trim() !== 'DELETE') { showNotification('Account not deleted — you need to type DELETE exactly.', 'error'); return; }
 
       try {
         const uid = AuthService.getCurrentUser().uid;

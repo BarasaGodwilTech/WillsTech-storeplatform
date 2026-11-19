@@ -156,6 +156,15 @@ router.delete('/me', requireAuth, async (req, res) => {
 // (Resend, SendGrid, Mailgun, etc.) in the block marked below when you're
 // ready — until then this only helps in development, where the link is
 // returned directly in the response so you can test the flow.
+function isLocalDevRequest(req) {
+  if (process.env.NODE_ENV !== 'development') return false;
+  const addr = req.socket && req.socket.remoteAddress || '';
+  const loopback = addr === '127.0.0.1' || addr === '::1' || addr === '::ffff:127.0.0.1';
+  const proxied = !!(req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.headers['forwarded'] || req.headers['x-forwarded-host']);
+  const localHost = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i.test(req.headers.host || '');
+  return loopback && !proxied && localHost;
+}
+
 router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body || {};
@@ -182,7 +191,10 @@ router.post('/forgot-password', async (req, res) => {
     //   await emailProvider.send({ to: email, subject: 'Reset your password', ... resetLink ... });
     console.log(`[auth] Password reset requested for ${email}. Link: ${resetLink}`);
 
-    if (process.env.NODE_ENV !== 'production') {
+    // SECURITY: the reset link is the only thing protecting the account, so it must never
+    // be returned to a remote caller. It is only echoed back when the server is explicitly in
+    // development mode AND the request really comes from this machine (not via a proxy / public host).
+    if (isLocalDevRequest(req)) {
       return res.json({ ...genericResponse, devResetLink: resetLink });
     }
     res.json(genericResponse);

@@ -1693,7 +1693,7 @@
 .auth-btn-primary:hover:not(:disabled) { background: var(--orange-hover); box-shadow: 0 8px 22px rgba(255,138,31,.45); }
 .auth-links a, .auth-forgot-link, .form-checkbox a { color: var(--text-primary); text-decoration: underline; text-underline-offset: 3px; font-weight: 700; }
 .password-toggle svg { width: 20px; height: 20px; }
-.auth-error { color: var(--flame); border-radius: 14px; }
+.auth-error { color: var(--flame-ink); border-radius: 14px; }
 .auth-success { color: #11823f; border-radius: 14px; }
 .form-checkbox input[type="checkbox"] { accent-color: var(--ink); }
 
@@ -1706,14 +1706,14 @@
 .account-user-card { background: var(--ink); color: #fff; border-radius: var(--radius-xl); }
 .account-user-card::before { background: none; border: 1.5px solid rgba(255,255,255,.12); width: 220px; height: 220px; top: auto; right: -70px; bottom: -90px; border-radius: 50%; }
 .account-user-name { font-family: var(--font-display); font-weight: 800; font-size: 20px; color: #fff; }
-.account-user-email { color: #B9C1D2; }
+.account-user-email { color: #D5CCEB; }
 .account-avatar-placeholder { background: var(--sun); color: var(--ink); font-family: var(--font-display); font-weight: 800; }
 .account-nav { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 8px; }
 .account-nav-item { border-radius: 14px; font-weight: 600; }
 .account-nav-item .nav-icon i { width: 20px; text-align: center; font-size: 16px; }
 .account-nav-item:hover { background: var(--bg-surface); }
 .account-nav-item.active { background: var(--sun-soft); color: var(--text-primary); font-weight: 800; box-shadow: inset 3px 0 0 var(--sun); }
-.account-logout-btn { color: var(--flame); }
+.account-logout-btn { color: var(--flame-ink); }
 .account-panel-header { border-bottom: 1px solid var(--border); }
 .panel-title { font-family: var(--font-display); font-weight: 800; letter-spacing: -.03em; font-size: 28px; }
 .panel-subtitle { color: var(--text-secondary); }
@@ -1773,5 +1773,5 @@
   .account-nav-item { width: auto; flex: 0 0 auto; padding: 10px 16px; border-radius: 99px; white-space: nowrap; scroll-snap-align: center; box-shadow: none !important; }
   .account-nav-item.active { background: var(--sun); color: var(--ink); }
   .account-nav-item .nav-text { display: inline; }
-  .account-nav-item.account-logout-btn { color: var(--flame); }
+  .account-nav-item.account-logout-btn { color: var(--flame-ink); }
 }

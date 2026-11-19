@@ -39,7 +39,7 @@
     const row = (label, fn, cls) => `<tr class="${cls || ''}"><th scope="row">${label}</th>${list.map((p) => `<td>${fn(p)}</td>`).join('')}</tr>`;
     const m = createElement('div', 'wt-modal'); m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); m.setAttribute('aria-label', 'Compare products');
     m.innerHTML = `<div class="wt-modal-card cmp-card"><button class="wt-modal-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button><h2 style="font-size:26px;margin-bottom:18px">Compare</h2>
-      <div class="table-wrap" style="margin:0"><table class="cmp-table"><tbody>
+      <div class="table-wrap" style="margin:0"><table class="cmp-table" style="--n:${list.length}"><tbody>
       ${row('', (p) => `<a href="${Products.href(p)}"><img class="cmp-img" src="${escapeHTML(WT.img((p.images || [])[0]))}" alt=""></a><a class="cmp-name" href="${Products.href(p)}">${escapeHTML(p.name)}</a>`, 'cmp-head')}
       ${row('Price', (p) => `<b>${formatPrice(p.price)}</b>${Products.discountPct(p) ? `<br><s>${formatPrice(p.originalPrice)}</s>` : ''}`)}
       ${row('Brand', (p) => escapeHTML(Products.brand(p)))}${row('Category', (p) => escapeHTML(WT.cap(p.category || '')))}
