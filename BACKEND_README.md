@@ -68,7 +68,7 @@ backend/server.js           Express app (serves the site and /api)
 backend/src/routes/         auth, products, orders, shop, account, admin*
 backend/src/migrate.js      tables (safe to re-run)   seed.js  first-time data
 backend/scripts/            setup-env.js, prepare.js (used by start.bat)
-admin.html, admin-orders.html, admin.js
+admin.html, admin-orders.html (redirect), css/admin.css, js/admin/*
 public/videos, public/images
 ```
 

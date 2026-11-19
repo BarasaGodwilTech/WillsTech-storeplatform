@@ -59,7 +59,7 @@
     <div class="container header-inner">
       <button class="icon-btn menu-toggle" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><i class="fa-solid fa-bars" id="hamburger-icon"></i><i class="fa-solid fa-xmark" id="close-icon" style="display:none"></i></button>
       <a class="brand" href="${R}index.html" aria-label="${S.name} home">
-        <span class="brand-mark"><img src="${R}IMAGES/logo2.png" alt="" onerror="this.replaceWith(Object.assign(document.createElement('i'),{className:'fa-solid fa-bolt'}))"></span>
+        <span class="brand-mark"><img src="${R}favicon.svg?v=4" alt="" width="40" height="40" onerror="this.replaceWith(Object.assign(document.createElement('i'),{className:'fa-solid fa-bolt'}))"></span>
         <span class="brand-text">Will's <span>Tech</span></span>
       </a>
       <button class="cat-btn" id="cat-btn" aria-expanded="false" aria-controls="cat-menu"><i class="fa-solid fa-table-cells-large"></i><span>Categories</span><i class="fa-solid fa-chevron-down chev"></i></button>
@@ -144,7 +144,7 @@
       </div>
       <div class="footer-top">
         <div class="footer-brand">
-          <a class="brand" href="${R}index.html"><span class="brand-text">Will's <span>Tech</span></span></a>
+          <a class="footer-logo" href="${R}index.html" aria-label="${S.name} home"><img src="${R}IMAGES/logo-white.svg?v=4" alt="${S.name}" width="168" height="138" loading="lazy" decoding="async"></a>
           <p class="footer-tag">${S.tagline || ''}</p>
           <p>We are your go-to for authentic tech: genuine smartphones, audio and gadgets, delivered everywhere in Uganda.</p>
           <div class="footer-contact">
@@ -290,7 +290,7 @@
     const dark = effectiveTheme() === 'dark';
     $('theme-toggle').innerHTML = `<i class="fa-solid ${dark ? 'fa-sun' : 'fa-moon'}"></i>`;
     $('theme-toggle-m').innerHTML = `<i class="fa-solid ${dark ? 'fa-sun' : 'fa-moon'}"></i> <span>${dark ? 'Light mode' : 'Dark mode'}</span>`;
-    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = dark ? '#0C111D' : '#F4F5F7';
+    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = dark ? '#120B24' : '#2a1262';
   }
   function toggleTheme() { const next = effectiveTheme() === 'dark' ? 'light' : 'dark'; root.dataset.theme = next; try { localStorage.setItem('wt-theme', next); } catch (e) { /* ignore */ } paintTheme(); document.dispatchEvent(new CustomEvent('wt:theme', { detail: next })); }
   $('theme-toggle').addEventListener('click', toggleTheme); $('theme-toggle-m').addEventListener('click', toggleTheme); paintTheme();

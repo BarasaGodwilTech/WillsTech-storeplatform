@@ -264,7 +264,7 @@ const Search = {
       html += '<div class="search-products-compact">';
       
       searchedAndClickedProducts.slice(0, 6).forEach(p => {
-        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (isSubpage ? '../IMAGES/logo2.png' : 'IMAGES/logo2.png');
+        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (isSubpage ? '../IMAGES/logo-mark-phone-purple.svg' : 'IMAGES/logo-mark-phone-purple.svg');
         const productLink = isSubpage ? `product.html?id=${p.id}` : `pages/product.html?id=${p.id}`;
         
         html += `<a href="${productLink}" class="search-product-compact" title="${escapeHTML(p.name)}">
@@ -389,7 +389,7 @@ const Search = {
         <a href="${isSubpage ? 'shop.html' : 'pages/shop.html'}?q=${encodeURIComponent(query)}" class="search-view-all">View All &rarr;</a>
       </div>
       ${matches.map(p => {
-        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (isSubpage ? '../IMAGES/logo2.png' : 'IMAGES/logo2.png');
+        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (isSubpage ? '../IMAGES/logo-mark-phone-purple.svg' : 'IMAGES/logo-mark-phone-purple.svg');
         const productLink = isSubpage ? `product.html?id=${p.id}` : `pages/product.html?id=${p.id}`;
         const rating = p.rating || 0;
         const starsHTML = WT.stars(rating);

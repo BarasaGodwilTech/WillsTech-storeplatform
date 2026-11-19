@@ -31,7 +31,7 @@
   // Product photos were saved as absolute GitHub URLs; the same files ship in /public/images/products,
   // so prefer the local copy (fast, offline-friendly) and fall back to the original URL if it is missing.
   WT.img = function (url) {
-    if (!url) return WT.root + 'IMAGES/logo2.png';
+    if (!url) return WT.root + 'IMAGES/logo-mark-phone-purple.svg';
     const m = /\/public\/images\/products\/([^/?#]+)$/.exec(url);
     if (m) return WT.root + 'public/images/products/' + m[1];
     if (/^(https?:|data:|blob:)/.test(url)) return url;
@@ -45,7 +45,7 @@
     const img = e.target;
     if (!img || img.tagName !== 'IMG') return;
     if (img.dataset.fallback && !img.dataset.triedFallback) { img.dataset.triedFallback = '1'; img.src = img.dataset.fallback; return; }
-    if (!img.dataset.placeholder) { img.dataset.placeholder = '1'; img.src = WT.root + 'IMAGES/logo2.png'; img.classList.add('img-missing', 'is-loaded'); }
+    if (!img.dataset.placeholder) { img.dataset.placeholder = '1'; img.src = WT.root + 'IMAGES/logo-mark-phone-purple.svg'; img.classList.add('img-missing', 'is-loaded'); }
   }, true);
 
   // ── DOM / timing ───────────────────────────────────────

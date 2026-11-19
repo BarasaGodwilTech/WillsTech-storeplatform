@@ -86,4 +86,74 @@ router.delete('/coupons/:code', async (req, res) => {
   catch (e) { res.status(500).json({ error: 'Could not delete coupon' }); }
 });
 
+// ── Analytics for the dashboard (one round trip) ────────
+router.get('/analytics', async (req, res) => {
+  try {
+    const days = Math.min(Math.max(parseInt(req.query.days, 10) || 30, 7), 180);
+    const daily = await pool.query(
+      `SELECT to_char(d::date,'YYYY-MM-DD') AS day,
+              COALESCE(SUM(o.total) FILTER (WHERE o.status <> 'cancelled'),0)::float AS revenue,
+              COUNT(o.id)::int AS orders
+         FROM generate_series(date_trunc('day', now()) - ($1::int - 1) * interval '1 day', date_trunc('day', now()), interval '1 day') d
+         LEFT JOIN orders o ON date_trunc('day', o.created_at) = d
+        GROUP BY d ORDER BY d`, [days]);
+    const cur = await pool.query(
+      `SELECT COALESCE(SUM(total) FILTER (WHERE status <> 'cancelled' AND created_at >= now() - ($1::int * interval '1 day')),0)::float AS rev,
+              COUNT(*) FILTER (WHERE created_at >= now() - ($1::int * interval '1 day'))::int AS ord,
+              COALESCE(SUM(total) FILTER (WHERE status <> 'cancelled' AND created_at < now() - ($1::int * interval '1 day') AND created_at >= now() - (2 * $1::int * interval '1 day')),0)::float AS prev_rev,
+              COUNT(*) FILTER (WHERE created_at < now() - ($1::int * interval '1 day') AND created_at >= now() - (2 * $1::int * interval '1 day'))::int AS prev_ord
+         FROM orders`, [days]);
+    const status = await pool.query(`SELECT status, COUNT(*)::int AS n FROM orders WHERE created_at >= now() - ($1::int * interval '1 day') GROUP BY status`, [days]);
+    const prod = await pool.query(
+      `SELECT COUNT(*)::int AS total,
+              COUNT(*) FILTER (WHERE stock = 'limited')::int AS low,
+              COUNT(*) FILTER (WHERE stock = 'out-of-stock')::int AS out,
+              COUNT(*) FILTER (WHERE status <> 'active')::int AS hidden FROM products`);
+    const lowList = await pool.query(`SELECT id::text AS id, name, stock FROM products WHERE stock IN ('limited','out-of-stock') ORDER BY stock DESC, name LIMIT 6`);
+    const top = await pool.query(
+      `SELECT COALESCE(i->>'name','Item') AS name, SUM(COALESCE((i->>'quantity')::int,(i->>'qty')::int,1))::int AS units
+         FROM orders o, jsonb_array_elements(COALESCE(o.items,'[]'::jsonb)) i
+        WHERE o.status <> 'cancelled' AND o.created_at >= now() - ($1::int * interval '1 day')
+        GROUP BY 1 ORDER BY units DESC LIMIT 5`, [days]);
+    const msgs = await pool.query(`SELECT COUNT(*)::int AS n FROM contact_messages WHERE status = 'new'`);
+    const exp = await pool.query(`SELECT code, expires_at, used_count, max_uses FROM coupons WHERE active AND expires_at IS NOT NULL AND expires_at > now() AND expires_at < now() + interval '7 days' ORDER BY expires_at LIMIT 3`);
+    res.json({ days, daily: daily.rows, totals: cur.rows[0], status: status.rows, products: prod.rows[0], lowStock: lowList.rows, topProducts: top.rows, newMessages: msgs.rows[0].n, expiringCoupons: exp.rows });
+  } catch (e) { console.error('[admin] analytics:', e.message); res.status(500).json({ error: 'Could not load analytics' }); }
+});
+
+// ── Customers (built from orders, grouped by phone) ─────
+router.get('/customers', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT MAX(customer_name) AS name, MAX(customer_email) AS email, customer_phone AS phone,
+              COUNT(*)::int AS orders, COALESCE(SUM(total) FILTER (WHERE status <> 'cancelled'),0)::float AS spent,
+              MAX(created_at) AS last_order
+         FROM orders WHERE customer_phone IS NOT NULL AND customer_phone <> ''
+        GROUP BY customer_phone ORDER BY spent DESC LIMIT 500`);
+    res.json({ customers: rows });
+  } catch (e) { res.status(500).json({ error: 'Could not load customers' }); }
+});
+
+// ── Order timeline ──────────────────────────────────────
+router.get('/orders/:id/events', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT status, note, created_at FROM order_events WHERE order_id::text = $1 ORDER BY created_at', [req.params.id]);
+    res.json({ events: rows });
+  } catch (e) { res.status(500).json({ error: 'Could not load timeline' }); }
+});
+
+// ── Bulk product actions ────────────────────────────────
+router.post('/products/bulk', async (req, res) => {
+  try {
+    const { ids, action } = req.body || {};
+    if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'No products selected' });
+    const list = ids.map((i) => String(i));
+    if (action === 'delete') await pool.query('DELETE FROM products WHERE id::text = ANY($1)', [list]);
+    else if (action === 'hide' || action === 'show') await pool.query('UPDATE products SET status = $1, date_updated = now() WHERE id::text = ANY($2)', [action === 'hide' ? 'inactive' : 'active', list]);
+    else if (['in-stock', 'limited', 'out-of-stock', 'pre-order'].includes(action)) await pool.query('UPDATE products SET stock = $1, date_updated = now() WHERE id::text = ANY($2)', [action, list]);
+    else return res.status(400).json({ error: 'Unknown action' });
+    res.json({ ok: true, count: list.length });
+  } catch (e) { console.error('[admin] bulk:', e.message); res.status(500).json({ error: 'Bulk action failed' }); }
+});
+
 module.exports = router;

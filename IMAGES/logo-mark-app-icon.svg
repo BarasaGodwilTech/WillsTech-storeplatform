@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#2a1262"/><g transform="translate(256 256) scale(1.0) translate(-256 -256)"><g transform="rotate(-14 256 256)"><rect x="128" y="62" width="256" height="396" rx="62" fill="#fff"/>
+<rect x="206" y="82" width="100" height="30" rx="15" fill="#2a1262"/>
+<g transform="translate(256 296)"><path transform="translate(-91.6 -60.6) scale(0.30233)" d="M2 3 163 515 165 517 184 516 300 237 303 236 423 517 440 517 452 485 603 3 501 3 416 285 408 270 310 23 296 23 294 25 197 272 190 285 187 282 104 3Z" fill="#2a1262" fill-rule="evenodd"/></g>
+<rect x="226" y="428" width="60" height="8" rx="4" fill="#2a1262" opacity=".35"/></g>
+<circle cx="404" cy="104" r="40" fill="#ff8a1f" stroke="#2a1262" stroke-width="10"/></g></svg>

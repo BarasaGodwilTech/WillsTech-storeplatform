@@ -115,9 +115,10 @@ const staticOpts = { dotfiles: 'ignore', index: false, maxAge: isProd ? '1d' : 0
 app.use('/public/images/products', express.static(path.join(FRONTEND_ROOT, 'public', 'images', 'products'), { maxAge: '30d', dotfiles: 'ignore' }));
 
 const PUBLIC_FILES = [
-  'index.html', 'robots.txt', 'admin.html', 'admin-login.html', 'admin-orders.html', 'admin.js', 'site.webmanifest',
-  'favicon.ico', 'favicon.svg', 'favicon-96x96.png', 'apple-touch-icon.png',
-  'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png',
+  'index.html', 'robots.txt', 'admin.html', 'admin-login.html', 'admin-orders.html', 'site.webmanifest',
+  'favicon.ico', 'favicon.svg', 'favicon-16x16.png', 'favicon-32x32.png', 'favicon-48x48.png', 'favicon-96x96.png',
+  'apple-touch-icon.png',
+  'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png', 'web-app-manifest-512x512-maskable.png',
 ];
 PUBLIC_FILES.forEach((f) => app.get('/' + f, (req, res) => res.sendFile(path.join(FRONTEND_ROOT, f))));
 app.get('/', (req, res) => res.sendFile(path.join(FRONTEND_ROOT, 'index.html')));

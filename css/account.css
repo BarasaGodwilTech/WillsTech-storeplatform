@@ -1669,27 +1669,28 @@
 /* ============================================================
    BRAND RE-SKIN: Will's Tech Store (overrides the legacy rules above)
    ============================================================ */
-.auth-page, .account-page, .guest-banner { --primary: var(--ink); --secondary: #2B3654; }
-[data-theme="dark"] .auth-page, [data-theme="dark"] .account-page, [data-theme="dark"] .guest-banner { --primary: var(--sun); --secondary: #B88700; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .auth-page, :root:not([data-theme="light"]) .account-page, :root:not([data-theme="light"]) .guest-banner { --primary: var(--sun); --secondary: #B88700; } }
+.auth-page, .account-page, .guest-banner { --primary: var(--ink); --secondary: var(--purple-mid); }
+[data-theme="dark"] .auth-page, [data-theme="dark"] .account-page, [data-theme="dark"] .guest-banner { --primary: var(--sun); --secondary: var(--orange-text); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .auth-page, :root:not([data-theme="light"]) .account-page, :root:not([data-theme="light"]) .guest-banner { --primary: var(--sun); --secondary: var(--orange-text); } }
 
 /* Sign in / register / reset */
 .auth-page { min-height: calc(100vh - 260px); padding: 40px 16px 24px; background: none; }
 .auth-container { border: 1px solid var(--border-light); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-md); max-width: 1040px; }
-.auth-branding { background: var(--sun); color: var(--ink); position: relative; overflow: hidden; }
-.auth-branding::before { content: ''; position: absolute; inset: auto; right: -140px; bottom: -140px; width: 440px; height: 440px; border-radius: 50%; background: none; border: 1.5px solid rgba(16,21,34,.25); animation: none; box-shadow: 0 0 0 70px rgba(16,21,34,.04), 0 0 0 140px rgba(16,21,34,.03); }
+.auth-branding { background: var(--purple); color: #fff; position: relative; overflow: hidden; }
+.auth-branding::before { content: ''; position: absolute; inset: auto; right: -140px; bottom: -140px; width: 440px; height: 440px; border-radius: 50%; background: none; border: 1.5px solid rgba(255,255,255,.16); animation: none; box-shadow: 0 0 0 70px rgba(255,255,255,.03), 0 0 0 140px rgba(255,255,255,.02); }
+.auth-branding::after { content: ''; position: absolute; top: 56px; right: 64px; width: 30px; height: 30px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 0 8px rgba(255,138,31,.18); }
 .auth-branding-content, .auth-branding > * { position: relative; z-index: 1; }
-.auth-branding-logo { color: var(--ink); font-family: var(--font-display); font-weight: 800; letter-spacing: -.04em; }
-.auth-branding-logo span { color: var(--ink); background: linear-gradient(transparent 62%, rgba(16,21,34,.18) 62%); }
-.auth-branding h2 { font-family: var(--font-display); font-size: clamp(30px, 3.4vw, 42px); color: var(--ink); letter-spacing: -.03em; }
-.auth-branding p { color: rgba(16,21,34,.78); }
-.auth-feature-item { color: var(--ink); font-weight: 600; }
-.auth-feature-item i { width: 34px; height: 34px; border-radius: 50%; background: rgba(16,21,34,.1); display: inline-grid; place-items: center; font-size: 14px; flex-shrink: 0; }
+.auth-branding-logo { display: block; margin: 0 auto var(--space-lg); line-height: 0; }
+.auth-branding-logo img { width: min(260px, 72%); height: auto; margin: 0 auto; }
+.auth-branding h2 { font-family: var(--font-display); font-size: clamp(30px, 3.4vw, 42px); color: #fff; letter-spacing: -.03em; }
+.auth-branding p { color: rgba(255,255,255,.80); }
+.auth-feature-item { color: #fff; font-weight: 600; }
+.auth-feature-item i { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.12); color: var(--orange); display: inline-grid; place-items: center; font-size: 14px; flex-shrink: 0; }
 .auth-form-panel { background: var(--bg-card); }
 .auth-form-header h1 { font-family: var(--font-display); font-size: clamp(28px, 3vw, 36px); letter-spacing: -.03em; }
 .auth-btn { border-radius: var(--radius-pill); min-height: 52px; font-weight: 800; font-size: 16px; }
-.auth-btn-primary { background: var(--sun); color: var(--ink); box-shadow: 0 6px 18px rgba(255,198,41,.35); }
-.auth-btn-primary:hover:not(:disabled) { background: #FFD252; box-shadow: 0 8px 22px rgba(255,198,41,.45); }
+.auth-btn-primary { background: var(--sun); color: var(--ink); box-shadow: 0 6px 18px rgba(255,138,31,.35); }
+.auth-btn-primary:hover:not(:disabled) { background: var(--orange-hover); box-shadow: 0 8px 22px rgba(255,138,31,.45); }
 .auth-links a, .auth-forgot-link, .form-checkbox a { color: var(--text-primary); text-decoration: underline; text-underline-offset: 3px; font-weight: 700; }
 .password-toggle svg { width: 20px; height: 20px; }
 .auth-error { color: var(--flame); border-radius: 14px; }
