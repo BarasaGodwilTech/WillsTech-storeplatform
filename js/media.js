@@ -29,11 +29,11 @@
     return VIDEOS.filter((v) => v.keywords.some((k) => name.includes(k)));
   };
 
-  // Where should the "shop this" button go? A matching catalogue product if there is one, otherwise WhatsApp.
+  // Where should the "shop this" button go? A matching catalogue product if there is one, otherwise the contact form.
   Media.cta = function (v) {
     const hit = (window.Products ? Products.active() : []).find((p) => v.keywords.some((k) => p.name.toLowerCase().includes(k)));
     if (hit) return { label: `View ${hit.name.slice(0, 28)}`, href: Products.href(hit), wa: false, icon: 'fa-bag-shopping' };
-    return { label: `Ask about the ${v.title}`, href: WT.waLink(`Hi! I saw the ${v.title} video on your site. Is it available, and what's the price?`), wa: true, icon: 'fa-whatsapp' };
+    return { label: `Ask about the ${v.title}`, href: `${WT.page('contact.html')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Hi! I saw the ${v.title} video. Is it available, and what's the price?`)}`, wa: false, icon: 'fa-envelope' };
   };
 
   // Clean rounded video card (no device frame) used by the hero slider.

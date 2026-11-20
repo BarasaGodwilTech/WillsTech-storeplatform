@@ -1,7 +1,8 @@
 const express = require('express');
 const { pool } = require('../db');
 const { requireAuth, optionalAuth } = require('../middleware/auth');
-const { getShopConfig, evaluateCoupon } = require('../shopConfig');
+const { getShopConfig, getDeliveryTemplates, evaluateCoupon } = require('../shopConfig');
+const { recalcRating } = require('../lib/ratings');
 
 const router = express.Router();
 const clean = (v, max) => (v === undefined || v === null ? null : String(v).trim().slice(0, max) || null);
@@ -40,7 +41,7 @@ router.post('/contact', async (req, res) => {
     await pool.query('INSERT INTO contact_messages (name, email, phone, subject, message) VALUES ($1,$2,$3,$4,$5)',
       [name, email, clean(b.phone, 40), clean(b.subject, 160), message]);
     res.status(201).json({ ok: true });
-  } catch (e) { res.status(500).json({ error: 'Could not send your message. Please try WhatsApp.' }); }
+  } catch (e) { res.status(500).json({ error: 'Could not send your message right now. Please try again in a moment, or call us.' }); }
 });
 
 // Reviews
@@ -85,6 +86,7 @@ router.post('/reviews/:productId', requireAuth, async (req, res) => {
        ON CONFLICT (product_id, user_id) WHERE user_id IS NOT NULL
        DO UPDATE SET rating = EXCLUDED.rating, title = EXCLUDED.title, body = EXCLUDED.body, created_at = now()`,
       [productId, req.user.id, u[0].name, rating, clean(req.body.title, 120), clean(req.body.body, 2000), bought.length > 0]);
+    await recalcRating(client, productId);
     await client.query('COMMIT');
     res.status(201).json({ ok: true });
   } catch (e) {

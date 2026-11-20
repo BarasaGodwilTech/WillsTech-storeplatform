@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const { pool } = require('./db');
+const { run: migrate } = require('./migrate');
 
 const PRODUCT_IMG_DIR = path.join(__dirname, '..', '..', 'public', 'images', 'products');
 // Product photos were stored as absolute GitHub URLs. If the same file exists in
@@ -43,19 +44,18 @@ async function seedProductsAndSettings() {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,
                COALESCE($18, now()), COALESCE($19, now()))
        ON CONFLICT (id) DO UPDATE SET
-         name = EXCLUDED.name, sku = EXCLUDED.sku, category = EXCLUDED.category,
+         name = EXCLUDED.name, category = EXCLUDED.category,
          description = EXCLUDED.description, price = EXCLUDED.price,
          original_price = EXCLUDED.original_price, images = EXCLUDED.images,
-         videos = EXCLUDED.videos, stock = EXCLUDED.stock, rating = EXCLUDED.rating,
-         review_count = EXCLUDED.review_count, badges = EXCLUDED.badges,
+         videos = EXCLUDED.videos, stock = EXCLUDED.stock, badges = EXCLUDED.badges,
          features = EXCLUDED.features, specifications = EXCLUDED.specifications,
          featured = EXCLUDED.featured, status = EXCLUDED.status,
          date_updated = now()`,
       [
-        p.id, p.name, p.sku || null, p.category || null, p.description || null,
+        p.id, p.name, null, p.category || null, p.description || null,
         p.price || 0, p.originalPrice || null,
         JSON.stringify((p.images || []).map(localImage)), JSON.stringify(p.videos || []),
-        p.stock || 'in-stock', p.rating || 0, p.reviewCount || 0,
+        p.stock || 'in-stock', 0, 0,   // ratings come only from real customer reviews
         JSON.stringify(p.badges || []), JSON.stringify(p.features || []),
         JSON.stringify(p.specifications || {}), !!p.featured, p.status || 'active',
         p.dateAdded || null, p.dateUpdated || null,
@@ -63,21 +63,10 @@ async function seedProductsAndSettings() {
     );
   }
 
-  const settingsMap = {
-    hero: raw.hero || {},
-    content: raw.content || {},
-    social: raw.social || {},
-  };
+  const { backfillSkus } = require('./lib/sku');
+  await backfillSkus(pool);
 
-  for (const [key, value] of Object.entries(settingsMap)) {
-    await pool.query(
-      `INSERT INTO site_settings (key, value, updated_at) VALUES ($1, $2, now())
-       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now()`,
-      [key, JSON.stringify(value)]
-    );
-  }
-
-  console.log('[seed] ✅ Products and site settings imported.');
+  console.log('[seed] ✅ Products imported.');
 }
 
 async function seedCoupons() {
@@ -116,6 +105,7 @@ async function seedAdmin() {
 
 async function main() {
   try {
+    await migrate();   // tables must exist before importing
     await seedProductsAndSettings();
     await seedCoupons();
     await seedAdmin();

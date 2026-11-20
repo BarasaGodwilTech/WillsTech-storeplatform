@@ -37,6 +37,11 @@
     if (/^(https?:|data:|blob:)/.test(url)) return url;
     return WT.root + String(url).replace(/^\//, '');
   };
+  // Small copy for product cards (made automatically at upload as "name-sm.webp"). Older photos have none, so keep their URL.
+  WT.thumb = function (url) {
+    const full = WT.img(url);
+    return /\.webp(\?.*)?$/i.test(full) && !/-sm\.webp/i.test(full) && !/IMAGES\//.test(full) ? full.replace(/\.webp/i, '-sm.webp') : full;
+  };
   WT.imgOriginal = (url) => (url && /^https?:/.test(url) ? url : '');
   // Fade images in once they have loaded (CSS shows a shimmer behind them until then).
   document.addEventListener('load', (e) => { if (e.target && e.target.tagName === 'IMG') e.target.classList.add('is-loaded'); }, true);

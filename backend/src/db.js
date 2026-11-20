@@ -1,7 +1,8 @@
 // db.js — single shared PostgreSQL pool. Works with Neon (recommended),
 // any hosted Postgres, a local install, or Docker.
 require('dotenv').config();
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
+types.setTypeParser(1082, (v) => v);   // DATE columns stay plain 'YYYY-MM-DD' strings
 
 if (!process.env.DATABASE_URL) {
   console.error(

@@ -723,3 +723,10 @@ body { overflow-x: clip; }            /* last-resort guard; wrapping above is wh
   .cmp-table td { padding: 10px 6px; }
   .cmp-img { width: 70px; height: 70px; }
 }
+
+/* v2: text first, photo second */
+.pcard-media img[width] { aspect-ratio: auto; }
+.pcard-stock.low { font-size: 12px; font-weight: 700; color: var(--flame, #d9480f); margin: -2px 0 4px; }
+.pcard { content-visibility: auto; contain-intrinsic-size: 340px 420px; }
+@keyframes wt-shimmer { to { background-position: -200% 0; } }
+.pcard-media:not(:has(img.is-loaded)) { background-size: 200% 100%; animation: wt-shimmer 1.3s linear infinite; }

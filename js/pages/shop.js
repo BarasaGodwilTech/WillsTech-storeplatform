@@ -73,7 +73,7 @@
     $('shop-title').textContent = title; $('crumb').textContent = title; document.title = `${title} | Will's Tech Store`;
     $('shop-count').textContent = `${list.length} product${list.length === 1 ? '' : 's'}`;
     $('filters-apply').textContent = `Show ${list.length} result${list.length === 1 ? '' : 's'}`;
-    const empty = `<div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><h3>No matches</h3><p>Try removing a filter, or tell us what you're after on WhatsApp.</p>
+    const empty = `<div class="empty-state"><i class="fa-solid fa-magnifying-glass"></i><h3>No matches</h3><p>Try removing a filter, or tell us what you're after.</p>
       <div class="form-actions" style="justify-content:center"><button class="btn btn-dark" id="empty-reset">Clear filters</button><a class="btn btn-wa" target="_blank" rel="noopener" href="${WT.waLink('Hi! I\'m looking for something I couldn\'t find on your site.')}"><i class="fa-brands fa-whatsapp"></i> Ask on WhatsApp</a></div></div>`;
     Products.render($('shop-grid'), list.slice(0, state.shown), empty);
     const more = $('load-more'); more.hidden = list.length <= state.shown;

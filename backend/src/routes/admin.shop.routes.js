@@ -117,7 +117,8 @@ router.get('/analytics', async (req, res) => {
         GROUP BY 1 ORDER BY units DESC LIMIT 5`, [days]);
     const msgs = await pool.query(`SELECT COUNT(*)::int AS n FROM contact_messages WHERE status = 'new'`);
     const exp = await pool.query(`SELECT code, expires_at, used_count, max_uses FROM coupons WHERE active AND expires_at IS NOT NULL AND expires_at > now() AND expires_at < now() + interval '7 days' ORDER BY expires_at LIMIT 3`);
-    res.json({ days, daily: daily.rows, totals: cur.rows[0], status: status.rows, products: prod.rows[0], lowStock: lowList.rows, topProducts: top.rows, newMessages: msgs.rows[0].n, expiringCoupons: exp.rows });
+    const dl = await pool.query(`SELECT COUNT(*) FILTER (WHERE status IN ('confirmed','shipped') AND delivery_date IS NULL)::int AS unscheduled, COUNT(*) FILTER (WHERE status IN ('confirmed','shipped') AND delivery_date = CURRENT_DATE)::int AS today, COUNT(*) FILTER (WHERE status IN ('confirmed','shipped') AND delivery_date < CURRENT_DATE)::int AS overdue, COUNT(*) FILTER (WHERE status = 'completed' AND payment_status = 'unpaid')::int AS unpaid FROM orders`);
+    res.json({ days, delivery: dl.rows[0], daily: daily.rows, totals: cur.rows[0], status: status.rows, products: prod.rows[0], lowStock: lowList.rows, topProducts: top.rows, newMessages: msgs.rows[0].n, expiringCoupons: exp.rows });
   } catch (e) { console.error('[admin] analytics:', e.message); res.status(500).json({ error: 'Could not load analytics' }); }
 });
 
@@ -150,6 +151,12 @@ router.post('/products/bulk', async (req, res) => {
     const list = ids.map((i) => String(i));
     if (action === 'delete') await pool.query('DELETE FROM products WHERE id::text = ANY($1)', [list]);
     else if (action === 'hide' || action === 'show') await pool.query('UPDATE products SET status = $1, date_updated = now() WHERE id::text = ANY($2)', [action === 'hide' ? 'inactive' : 'active', list]);
+    else if (action === 'feature' || action === 'unfeature') await pool.query('UPDATE products SET featured = $1, date_updated = now() WHERE id::text = ANY($2)', [action === 'feature', list]);
+    else if (action === 'category') {
+      const cat = String((req.body && req.body.value) || '').trim().toLowerCase().slice(0, 60);
+      if (!cat) return res.status(400).json({ error: 'Type the category name' });
+      await pool.query('UPDATE products SET category = $1, date_updated = now() WHERE id::text = ANY($2)', [cat, list]);
+    }
     else if (['in-stock', 'limited', 'out-of-stock', 'pre-order'].includes(action)) await pool.query('UPDATE products SET stock = $1, date_updated = now() WHERE id::text = ANY($2)', [action, list]);
     else return res.status(400).json({ error: 'Unknown action' });
     res.json({ ok: true, count: list.length });

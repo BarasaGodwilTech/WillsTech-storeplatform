@@ -264,17 +264,9 @@ import GuestMode from './account/guest-mode.js';
         return;
       }
 
-      // Proceed with checkout via WhatsApp
       if (typeof Cart !== 'undefined' && Cart.items.length === 0) {
+        e.preventDefault();
         showNotification('Your cart is empty!', 'error');
-        return;
-      }
-
-      if (typeof Cart !== 'undefined') {
-        const total = formatPrice(Cart.getTotal());
-        const itemList = Cart.items.map(i => `• ${i.name} x${i.quantity} — ${formatPrice(i.price * i.quantity)}`).join('%0A');
-        const msg = `Hi! I'd like to order:%0A${itemList}%0A%0ATotal: ${total}`;
-        window.open(`https://wa.me/256751924844?text=${msg}`, '_blank');
       }
     });
   }

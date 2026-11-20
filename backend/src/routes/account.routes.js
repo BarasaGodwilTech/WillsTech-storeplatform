@@ -90,6 +90,9 @@ function toClientAddress(row) {
     country: row.country,
     type: row.type,
     isDefault: row.is_default,
+    lat: row.lat == null ? null : Number(row.lat),
+    lng: row.lng == null ? null : Number(row.lng),
+    landmark: row.landmark || '',
     createdAt: row.created_at,
   };
 }
@@ -108,7 +111,9 @@ router.get('/addresses', async (req, res) => {
 
 router.post('/addresses', async (req, res) => {
   try {
-    const { name, phone, street, city, state, postalCode, country, type, isDefault } = req.body || {};
+    const { name, phone, street, city, state, postalCode, country, type, isDefault, landmark } = req.body || {};
+    const lat = Number(req.body && req.body.lat), lng = Number(req.body && req.body.lng);
+    const pin = req.body && req.body.lat !== '' && req.body.lat != null && Number.isFinite(lat) && Number.isFinite(lng) && lat > -1.6 && lat < 4.4 && lng > 29.4 && lng < 35.1;
     if (!name || !phone || !street || !city) {
       return res.status(400).json({ error: 'name, phone, street and city are required' });
     }
@@ -125,9 +130,9 @@ router.post('/addresses', async (req, res) => {
     }
 
     const { rows } = await pool.query(
-      `INSERT INTO addresses (user_id, name, phone, street, city, state, postal_code, country, type, is_default)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-      [req.user.id, name, phone, street, city, state || null, postalCode || null, country || 'Uganda', addrType, makeDefault]
+      `INSERT INTO addresses (user_id, name, phone, street, city, state, postal_code, country, type, is_default, lat, lng, landmark)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
+      [req.user.id, String(name).slice(0, 120), String(phone).slice(0, 40), String(street).slice(0, 300), String(city).slice(0, 100), state || null, postalCode || null, country || 'Uganda', addrType, makeDefault, pin ? lat : null, pin ? lng : null, landmark ? String(landmark).slice(0, 200) : null]
     );
     res.status(201).json({ address: toClientAddress(rows[0]) });
   } catch (err) {

@@ -32,16 +32,24 @@
 
   function stockHTML() {
     return { 'in-stock': '<span class="stock in"><i class="fa-solid fa-circle"></i> In stock, ships from Kampala</span>', limited: '<span class="stock low"><i class="fa-solid fa-circle"></i> Low stock, order soon</span>',
-      'pre-order': '<span class="stock pre"><i class="fa-solid fa-circle"></i> Pre-order, we confirm arrival time on WhatsApp</span>', 'out-of-stock': '<span class="stock out"><i class="fa-solid fa-circle"></i> Sold out</span>' }[product.stock] || '';
+      'pre-order': '<span class="stock pre"><i class="fa-solid fa-circle"></i> ' + escapeHTML(product.leadTime || 'Pre-order. We will show the arrival date on your order') + '</span>', 'out-of-stock': '<span class="stock out"><i class="fa-solid fa-circle"></i> Sold out</span>' }[product.stock] || '';
+  }
+
+  // YouTube and Vimeo links must be shown in their own player (an <iframe>); only real video files go in a <video> tag.
+  function videoItem(u) {
+    const yt = /(?:youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/))([A-Za-z0-9_-]{11})/.exec(u);
+    if (yt) return { type: 'video', kind: 'embed', src: `https://www.youtube-nocookie.com/embed/${yt[1]}?rel=0&modestbranding=1&playsinline=1`, poster: `https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg` };
+    const vm = /vimeo\.com\/(?:video\/)?(\d{6,12})/.exec(u);
+    if (vm) return { type: 'video', kind: 'embed', src: `https://player.vimeo.com/video/${vm[1]}`, poster: '' };
+    return { type: 'video', kind: 'file', src: /^https?:/.test(u) ? u : WT.root + u.replace(/^\//, ''), poster: '' };
   }
 
   function build() {
     const p = product, pct = Products.discountPct(p), out = Products.isOut(p);
     media = (p.images || []).map((u) => ({ type: 'img', src: WT.img(u), fb: WT.imgOriginal(u) }));
-    (Array.isArray(p.videos) ? p.videos : []).filter(Boolean).forEach((u) => media.push({ type: 'video', src: /^https?:/.test(u) ? u : WT.root + u.replace(/^\//, ''), poster: '' }));
+    (Array.isArray(p.videos) ? p.videos : []).filter(Boolean).forEach((u) => media.push(videoItem(u)));
     Media.forProduct(p).forEach((v) => media.push({ type: 'video', src: Media.url(v), poster: Media.url(v, 'poster'), title: v.title }));
     if (!media.length) media = [{ type: 'img', src: WT.img(''), fb: '' }];
-    const waText = `Hi! I'd like to order: ${p.name} (${formatPrice(p.price)}). Is it available?`;
     const desc = String(p.description || '').split(/\n+/).filter(Boolean);
     const lead = (desc[0] || '').slice(0, 220) + ((desc[0] || '').length > 220 ? '…' : '');
     const features = Array.isArray(p.features) ? p.features.filter(Boolean) : [];
@@ -55,20 +63,20 @@
           ${media.length > 1 ? '<button class="gallery-nav prev" id="g-prev" aria-label="Previous photo"><i class="fa-solid fa-chevron-left"></i></button><button class="gallery-nav next" id="g-next" aria-label="Next photo"><i class="fa-solid fa-chevron-right"></i></button>' : ''}
           <div id="g-view" style="display:contents"></div>
         </div>
-        ${media.length > 1 ? `<div class="thumbs" id="g-thumbs" role="tablist">${media.map((m, i) => `<button class="thumb${m.type === 'video' ? ' video' : ''}${i === 0 ? ' active' : ''}" data-i="${i}" aria-label="${m.type === 'video' ? 'Play video' : 'Photo ' + (i + 1)}">${m.type === 'video' ? `<img src="${escapeHTML(m.poster || WT.img(''))}" alt="">` : `<img src="${escapeHTML(m.src)}" data-fallback="${escapeHTML(m.fb)}" alt="">`}</button>`).join('')}</div>` : ''}
+        ${media.length > 1 ? `<div class="thumbs" id="g-thumbs" role="tablist">${media.map((m, i) => `<button class="thumb${m.type === 'video' ? ' video' : ''}${i === 0 ? ' active' : ''}" data-i="${i}" aria-label="${m.type === 'video' ? 'Play video' : 'Photo ' + (i + 1)}">${m.type === 'video' ? `<img src="${escapeHTML(m.poster || WT.img(''))}" alt="" data-fallback="${escapeHTML(WT.img(''))}"><i class="fa-solid fa-circle-play" style="position:absolute;inset:0;margin:auto;width:24px;height:24px;color:#fff;font-size:24px;text-shadow:0 1px 6px rgba(0,0,0,.6)"></i>` : `<img src="${escapeHTML(m.src)}" data-fallback="${escapeHTML(m.fb)}" alt="">`}</button>`).join('')}</div>` : ''}
       </div>
 
       <div class="pdp-info">
         <span class="pdp-cat">${escapeHTML(p.category || '')}</span>
         <h1 class="pdp-title">${escapeHTML(p.name)}</h1>
-        ${p.rating ? `<div class="pdp-rating">${WT.stars(p.rating)}<b>${Number(p.rating).toFixed(1)}</b><a href="#reviews" data-tab="reviews">${p.reviewCount || 0} reviews</a></div>` : ''}
+        ${p.rating && p.reviewCount > 0 ? `<div class="pdp-rating">${WT.stars(p.rating)}<b>${Number(p.rating).toFixed(1)}</b><a href="#reviews" data-tab="reviews">${p.reviewCount || 0} reviews</a></div>` : ''}
         <div class="pdp-price"><strong>${formatPrice(p.price)}</strong>${pct > 0 ? `<s>${formatPrice(p.originalPrice)}</s><span class="badge badge-flame">Save ${formatPrice(p.originalPrice - p.price)}</span>` : ''}</div>
         ${stockHTML()}
         ${lead ? `<p class="pdp-lead">${escapeHTML(lead)}</p>` : ''}
         ${features.length ? `<ul class="why">${features.slice(0, 3).map((f) => `<li><i class="fa-solid fa-circle-check"></i><span>${escapeHTML(f)}</span></li>`).join('')}</ul>` : ''}
         ${specs.length ? `<div class="keyspecs">${specs.slice(0, 4).map(([k, v]) => `<div class="keyspec"><small>${escapeHTML(humanize(k))}</small><b>${escapeHTML(typeof v === 'object' ? '' : String(v).slice(0, 38))}</b></div>`).join('')}</div>` : ''}
         <div class="buy-row" id="buy-row">
-          ${out ? `<a class="btn btn-wa btn-lg" style="flex:1" target="_blank" rel="noopener" href="${WT.waLink(`Hi! Please tell me when ${p.name} is back in stock.`)}"><i class="fa-brands fa-whatsapp"></i> Ask when it's back</a>`
+          ${out ? `<a class="btn btn-secondary btn-lg" style="flex:1" href="${WT.page('contact.html')}?subject=${encodeURIComponent('Back in stock')}&message=${encodeURIComponent(`Please let me know when "${p.name}" is back in stock.`)}"><i class="fa-regular fa-bell"></i> Ask when it's back</a>`
             : `<div class="qty" aria-label="Quantity"><button id="q-dec" aria-label="Decrease quantity"><i class="fa-solid fa-minus"></i></button><span id="q-val">1</span><button id="q-inc" aria-label="Increase quantity"><i class="fa-solid fa-plus"></i></button></div>
                <button class="btn btn-primary btn-lg" id="add-btn"><i class="fa-solid fa-bag-shopping"></i> ${p.stock === 'pre-order' ? 'Pre-order now' : 'Add to cart'}</button>`}
           <button class="wishlist-btn-detail" data-product-id="${p.id}" aria-pressed="false"><i class="fa-regular fa-heart"></i><span class="wl-label">Save to wishlist</span></button>
@@ -93,7 +101,7 @@
       <button class="tab" role="tab" data-tab="reviews" id="reviews">Reviews${p.reviewCount ? ` (${p.reviewCount})` : ''}</button>
     </div>
     <div class="tab-panel" id="tp-desc">
-      ${desc.map((d) => `<p class="pdp-lead" style="margin-bottom:14px">${escapeHTML(d)}</p>`).join('') || '<p class="text-muted">No description yet. Message us on WhatsApp for details.</p>'}
+      ${desc.map((d) => `<p class="pdp-lead" style="margin-bottom:14px">${escapeHTML(d)}</p>`).join('') || '<p class="text-muted">No description yet. Send us a message and we will tell you more.</p>'}
       ${features.length ? `<ul class="feature-list">${features.map((f) => `<li><i class="fa-solid fa-circle-check"></i><span>${escapeHTML(f)}</span></li>`).join('')}</ul>` : ''}
     </div>
     ${specs.length ? `<div class="tab-panel" id="tp-specs" hidden><table class="spec-table"><tbody>${specs.map(([k, v]) => `<tr><th>${escapeHTML(humanize(k))}</th><td>${escapeHTML(typeof v === 'object' ? JSON.stringify(v) : v)}</td></tr>`).join('')}</tbody></table></div>` : ''}
@@ -119,7 +127,7 @@
   // ── Gallery ────────────────────────────────────────────
   function show(i) {
     cur = (i + media.length) % media.length; const m = media[cur], v = $('g-view');
-    v.innerHTML = m.type === 'video' ? `<video src="${escapeHTML(m.src)}" ${m.poster ? `poster="${escapeHTML(m.poster)}"` : ''} controls playsinline autoplay muted loop></video>` : `<img src="${escapeHTML(m.src)}" data-fallback="${escapeHTML(m.fb || '')}" alt="${escapeHTML(product.name)}" fetchpriority="high">`;
+    v.innerHTML = m.kind === 'embed' ? `<iframe src="${escapeHTML(m.src)}" title="${escapeHTML(product.name)} video" allow="accelerometer; autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin" style="width:100%;height:100%;border:0;border-radius:inherit;background:#000"></iframe>` : m.type === 'video' ? `<video src="${escapeHTML(m.src)}" ${m.poster ? `poster="${escapeHTML(m.poster)}"` : ''} controls playsinline autoplay muted loop></video>` : `<img src="${escapeHTML(m.src)}" data-fallback="${escapeHTML(m.fb || '')}" alt="${escapeHTML(product.name)}" fetchpriority="high">`;
     document.querySelectorAll('#g-thumbs .thumb').forEach((t, k) => t.classList.toggle('active', k === cur));
     $('g-main').style.cursor = m.type === 'video' ? 'default' : 'zoom-in';
   }
@@ -133,7 +141,7 @@
 
   function wire() {
     const g = $('g-main');
-    g.addEventListener('click', (e) => { if (!e.target.closest('button') && !e.target.closest('video')) lightbox(); });
+    g.addEventListener('click', (e) => { if (!e.target.closest('button') && !e.target.closest('video') && !e.target.closest('iframe')) lightbox(); });
     if ($('g-prev')) { $('g-prev').addEventListener('click', (e) => { e.stopPropagation(); show(cur - 1); }); $('g-next').addEventListener('click', (e) => { e.stopPropagation(); show(cur + 1); }); }
     if ($('g-thumbs')) $('g-thumbs').addEventListener('click', (e) => { const t = e.target.closest('.thumb'); if (t) show(+t.dataset.i); });
     let sx = 0; g.addEventListener('touchstart', (e) => { sx = e.touches[0].clientX; }, { passive: true });

@@ -195,19 +195,72 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   status     TEXT NOT NULL DEFAULT 'new',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+-- ── v2: complete admin platform ─────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS sku_counters (prefix TEXT PRIMARY KEY, last_n INTEGER NOT NULL DEFAULT 0);
+
+ALTER TABLE products ADD COLUMN IF NOT EXISTS brand       TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS legacy_sku  TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS stock_qty   INTEGER;      -- NULL = status is set by hand
+ALTER TABLE products ADD COLUMN IF NOT EXISTS lead_time   TEXT;          -- shown for pre-order items
+ALTER TABLE products ADD COLUMN IF NOT EXISTS short_description TEXT;
+
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_date    DATE;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_window  TEXT;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_note    TEXT;       -- message the customer sees when tracking
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS rider_name       TEXT;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS rider_phone      TEXT;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_fee_pending BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status   TEXT NOT NULL DEFAULT 'unpaid';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_ref      TEXT;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS paid_at          TIMESTAMPTZ;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS internal_note    TEXT;       -- staff only
+ALTER TABLE orders ALTER COLUMN payment_method SET DEFAULT 'cod';
+
+ALTER TABLE addresses ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION;
+ALTER TABLE addresses ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION;
+ALTER TABLE addresses ADD COLUMN IF NOT EXISTS landmark TEXT;
 `;
 
-async function migrate() {
-  console.log('[migrate] Connecting to database...');
-  try {
-    await pool.query(SQL);
-    console.log('[migrate] ✅ Tables are up to date.');
-  } catch (err) {
-    console.error('[migrate] ❌ Migration failed:', err.message);
-    process.exitCode = 1;
-  } finally {
-    await pool.end();
-  }
+// One-time data steps; each is recorded in site_settings so it never runs twice.
+async function once(key, fn) {
+  const { rows } = await pool.query(`SELECT 1 FROM site_settings WHERE key = $1`, ['migration:' + key]);
+  if (rows.length) return false;
+  await fn();
+  await pool.query(`INSERT INTO site_settings (key, value) VALUES ($1, '{"done":true}') ON CONFLICT (key) DO NOTHING`, ['migration:' + key]);
+  return true;
 }
 
-migrate();
+async function run() {
+  await pool.query(SQL);
+  await pool.query(`UPDATE orders SET payment_method = 'cod' WHERE payment_method = 'whatsapp'`);
+
+  // SKUs: every product gets an automatic SKU. Old hand-typed codes are converted once and kept in legacy_sku.
+  const { backfillSkus } = require('./lib/sku');
+  await once('sku-v1', async () => {
+    const n = await backfillSkus(pool, { renumberAll: true });
+    if (n) console.log(`[migrate] Generated SKUs for ${n} existing product(s).`);
+  });
+  await backfillSkus(pool);   // always fill any gaps
+  await pool.query(`CREATE UNIQUE INDEX IF NOT EXISTS idx_products_sku ON products(sku) WHERE sku IS NOT NULL`)
+    .catch((e) => console.warn('[migrate] could not add unique SKU index:', e.message));
+
+  // Ratings: the old stars were typed in by hand. Clear them once; from now on they come only from real reviews.
+  await once('ratings-reset-v1', async () => {
+    const { recalcAll } = require('./lib/ratings');
+    await recalcAll(pool);
+    console.log('[migrate] Cleared the old hand-entered product ratings.');
+  });
+
+  // The old "coming soon" landing-page settings are not used any more.
+  await pool.query(`DELETE FROM site_settings WHERE key IN ('hero', 'content', 'social')`);
+}
+
+module.exports = { run, SQL };
+
+if (require.main === module) {
+  console.log('[migrate] Connecting to database...');
+  run()
+    .then(() => console.log('[migrate] ✅ Tables are up to date.'))
+    .catch((err) => { console.error('[migrate] ❌ Migration failed:', err.message); process.exitCode = 1; })
+    .finally(() => pool.end());
+}

@@ -375,7 +375,8 @@ const AuthUI = {
         <div class="address-card-body">
           <p>${this._escapeHtml(addr.street)}</p>
           <p>${this._escapeHtml(addr.city)}${addr.state ? ', ' + this._escapeHtml(addr.state) : ''} ${this._escapeHtml(addr.postalCode || '')}</p>
-          <p>${this._escapeHtml(addr.country)}</p>
+          ${addr.landmark ? `<p>${this._escapeHtml(addr.landmark)}</p>` : ''}
+          <p>${this._escapeHtml(addr.country)}${addr.lat != null ? ' · <i class="fa-solid fa-location-dot" title="Map pin saved"></i> pinned' : ''}</p>
           <p style="color:var(--text-muted);"><i class="fa-solid fa-phone"></i> ${this._escapeHtml(addr.phone)}</p>
         </div>
         <div class="address-card-actions">
@@ -429,7 +430,9 @@ const AuthUI = {
         <form id="address-form">
           <div class="form-group"><label class="form-label">Full Name *</label><input type="text" class="form-input" name="name" required></div>
           <div class="form-group"><label class="form-label">Phone *</label><input type="tel" class="form-input" name="phone" required placeholder="+256..."></div>
+          <div class="form-group"><button type="button" class="btn btn-secondary" id="addr-pin"><i class="fa-solid fa-map-location-dot"></i> <span id="addr-pin-txt">Choose on map</span></button><input type="hidden" name="lat"><input type="hidden" name="lng"><small id="addr-pin-note" style="display:block;margin-top:6px;color:var(--text-muted)">Optional. Drop a pin so riders find you faster.</small></div>
           <div class="form-group"><label class="form-label">Street Address *</label><input type="text" class="form-input" name="street" required></div>
+          <div class="form-group"><label class="form-label">Landmark <span style="font-weight:400">(optional)</span></label><input type="text" class="form-input" name="landmark" maxlength="200" placeholder="e.g. Blue gate opposite the pharmacy"></div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md);">
             <div class="form-group"><label class="form-label">City *</label><input type="text" class="form-input" name="city" required></div>
             <div class="form-group"><label class="form-label">State/Region</label><input type="text" class="form-input" name="state"></div>
@@ -453,6 +456,19 @@ const AuthUI = {
     const closeModal = () => { modal.classList.remove('active'); setTimeout(() => modal.remove(), 300); };
     modal.querySelector('.modal-close').addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    modal.querySelector('#addr-pin').addEventListener('click', async () => {
+      const form = modal.querySelector('#address-form'); let zones = [];
+      try { zones = (await window.apiFetch('/shop/config')).zones || []; } catch (x) { /* zones are optional */ }
+      const pick = await WT.pickLocation({ lat: form.lat.value || null, lng: form.lng.value || null, zones });
+      if (!pick) return;
+      form.lat.value = pick.lat; form.lng.value = pick.lng;
+      const z = zones.find((x) => x.id === pick.zoneId);
+      if (pick.label && !form.street.value.trim()) form.street.value = pick.label;
+      if (z && !form.city.value.trim() && z.id !== 'other') form.city.value = z.name;
+      modal.querySelector('#addr-pin-txt').textContent = 'Change pin on map';
+      modal.querySelector('#addr-pin-note').innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--success,#1fa855)"></i> Pin saved' + (z ? ' (' + z.name + ')' : '') + '.';
+    });
 
     modal.querySelector('#address-form').addEventListener('submit', async (e) => {
       e.preventDefault();

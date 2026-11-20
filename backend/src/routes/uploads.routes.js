@@ -1,38 +1,26 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const { requireAdmin } = require('../middleware/auth');
+const storage = require('../lib/storage');
 
 const router = express.Router();
 
-// Images are written straight into the existing frontend folder
-// (public/images/products) so they're served as normal static files,
-// just like the product photos already shipped with the site.
-const UPLOAD_DIR = path.join(__dirname, '..', '..', '..', 'public', 'images', 'products');
-fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
-  filename: (req, file, cb) => {
-    const EXT = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/webp': '.webp', 'image/gif': '.gif' };
-    const rand = require('crypto').randomBytes(3).toString('hex');
-    cb(null, `product-${Date.now()}-${rand}${EXT[file.mimetype] || '.jpg'}`);
-  },
-});
-
+// Photos are read into memory, optimised, then sent to Cloudflare R2 (or the local folder if R2 is not set up).
 const upload = multer({
-  storage,
-  limits: { fileSize: 8 * 1024 * 1024 }, // 8MB
-  fileFilter: (req, file, cb) => {
-    if (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype)) cb(null, true);
-    else cb(new Error('Only JPG, PNG, WEBP or GIF images are allowed'));
-  },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 12 * 1024 * 1024 },   // phone photos are big; we shrink them
+  fileFilter: (req, file, cb) => (/^image\/(jpeg|png|webp|gif)$/.test(file.mimetype) ? cb(null, true) : cb(new Error('Only JPG, PNG, WEBP or GIF images are allowed'))),
 });
 
-router.post('/', requireAdmin, upload.single('image'), (req, res) => {
+router.post('/', requireAdmin, upload.single('image'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No image file received' });
-  res.status(201).json({ url: `/public/images/products/${req.file.filename}` });
+  try {
+    const out = await storage.saveProductImage(req.file.buffer, req.file.mimetype);
+    res.status(201).json({ url: out.url, thumbUrl: out.thumbUrl, storage: out.storage });
+  } catch (e) {
+    console.error('[uploads] failed:', e.message);
+    res.status(500).json({ error: (storage.isR2() ? 'Could not save the photo to Cloudflare R2: ' : 'Could not save the photo: ') + e.message });
+  }
 });
 
 module.exports = router;

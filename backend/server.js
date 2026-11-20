@@ -8,6 +8,8 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
+const fs = require('fs');
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -29,8 +31,9 @@ const { rateLimit } = require('./src/middleware/rateLimit');
 const authRoutes = require('./src/routes/auth.routes');
 const adminRoutes = require('./src/routes/admin.routes');
 const adminShopRoutes = require('./src/routes/admin.shop.routes');
+const adminCatalogRoutes = require('./src/routes/admin.catalog.routes');
+const { getStoreSettings } = require('./src/shopConfig');
 const productRoutes = require('./src/routes/products.routes');
-const configRoutes = require('./src/routes/config.routes');
 const orderRoutes = require('./src/routes/orders.routes');
 const uploadRoutes = require('./src/routes/uploads.routes');
 const accountRoutes = require('./src/routes/account.routes');
@@ -43,6 +46,7 @@ const FRONTEND_ROOT = path.join(__dirname, '..');
 app.disable('x-powered-by');
 app.set('trust proxy', 1); // correct client IPs behind Railway/Render/nginx
 
+app.use(compression());   // gzip JSON/JS/CSS
 app.use(morgan(isProd ? 'combined' : 'dev'));
 
 // Basic security headers (no extra dependency needed).
@@ -50,7 +54,7 @@ app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
   if (isProd) res.setHeader('Strict-Transport-Security', 'max-age=15552000; includeSubDomains');
   next();
 });
@@ -95,13 +99,25 @@ app.use('/api/orders', (req, res, next) => (req.method === 'POST'
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin', adminShopRoutes);
+app.use('/api/admin', adminCatalogRoutes);
 app.use('/api/products', productRoutes);
-app.use('/api/config', configRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/account', accountRoutes);
 app.use('/api/shop', shopRoutes);
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
+
+// /js/site.js = the static constants file PLUS whatever the owner saved in Admin → Store settings,
+// so phone, email and social-link changes show up on every page without editing code.
+app.get('/js/site.js', async (req, res, next) => {
+  try {
+    const base = fs.readFileSync(path.join(FRONTEND_ROOT, 'js', 'site.js'), 'utf8');
+    const o = await getStoreSettings();
+    const extra = Object.keys(o).length
+      ? `\n;(function(o){var S=window.SITE;Object.keys(o).forEach(function(k){if(k==='social'){S.social=Object.assign({},S.social,o.social)}else{S[k]=o[k]}})})(${JSON.stringify(o).replace(/</g, '\\u003c')});\n` : '';
+    res.type('application/javascript').set('Cache-Control', 'no-cache').send(base + extra);
+  } catch (e) { next(); }
+});
 
 // ── Static frontend (ALLOWLIST ONLY) ────────────────────
 // Previously the whole project root was served, which exposed backend/ source,
@@ -122,9 +138,6 @@ const PUBLIC_FILES = [
 ];
 PUBLIC_FILES.forEach((f) => app.get('/' + f, (req, res) => res.sendFile(path.join(FRONTEND_ROOT, f))));
 app.get('/', (req, res) => res.sendFile(path.join(FRONTEND_ROOT, 'index.html')));
-// Static fallback used by products.js when the API is unreachable.
-app.get('/data/site-config.json', (req, res) => res.sendFile(path.join(FRONTEND_ROOT, 'data', 'site-config.json')));
-
 // Dynamic sitemap: static pages + every active product.
 app.get('/sitemap.xml', async (req, res) => {
   try {

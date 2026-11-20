@@ -7,7 +7,16 @@ const Products = {
   loaded: false,
 
   async init() {
-    try { this.allProducts = await this.loadProducts(); }
+    // Show the last catalogue we saw straight away (names, prices and stock appear instantly), then refresh quietly.
+    const CK = 'wt-catalog-v2'; let cached = null;
+    try { const c = JSON.parse(localStorage.getItem(CK) || 'null'); if (c && Array.isArray(c.p) && c.p.length && Date.now() - c.t < 10 * 60 * 1000) cached = c.p; } catch (e) { /* no cache */ }
+    const fresh = this.loadProducts().then((list) => { try { localStorage.setItem(CK, JSON.stringify({ t: Date.now(), p: list })); } catch (e) { /* storage full */ } return list; });
+    if (cached) {
+      this.allProducts = cached; this.loaded = true; WT._flush();
+      fresh.then((list) => { this.allProducts.splice(0, this.allProducts.length, ...list); document.dispatchEvent(new CustomEvent('wt:products-refreshed')); }).catch(() => {});
+      return;
+    }
+    try { this.allProducts = await fresh; }
     catch (e) { console.error('[Products] Failed to load products:', e); this.allProducts = []; }
     this.loaded = true;
     WT._flush();
@@ -79,7 +88,7 @@ const Products = {
       if (p.stock === 'pre-order') badges.push('<span class="badge badge-soft">Pre-order</span>');
     }
     const imgs = (p.images || []).filter(Boolean).slice(0, 8), multi = imgs.length > 1;
-    const slidesHTML = (imgs.length ? imgs : ['']).map((u, i) => `<a class="slide" href="${this.href(p)}" tabindex="-1" aria-hidden="true"><img src="${escapeHTML(WT.img(u))}" data-fallback="${escapeHTML(WT.imgOriginal(u))}" alt="${i === 0 ? escapeHTML(p.name) : ''}" loading="lazy" decoding="async"></a>`).join('');
+    const slidesHTML = (imgs.length ? imgs : ['']).map((u, i) => `<a class="slide" href="${this.href(p)}" tabindex="-1" aria-hidden="true"><img src="${escapeHTML(WT.thumb(u))}" data-fallback="${escapeHTML(WT.img(u))}" alt="${i === 0 ? escapeHTML(p.name) : ''}" loading="lazy" decoding="async" width="480" height="480"></a>`).join('');
     const dotsHTML = multi ? `<div class="pcard-dots" aria-hidden="true">${imgs.map((_, i) => `<i${i === 0 ? ' class="on"' : ''}></i>`).join('')}</div>` : '';
     const link = this.href(p);
     const ask = `${WT.page('contact.html')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Please let me know when "${p.name}" is back in stock.`)}`;
@@ -96,7 +105,7 @@ const Products = {
       <div class="pcard-body">
         <span class="pcard-cat">${escapeHTML(this.brand(p))} · ${escapeHTML(p.category || '')}</span>
         <h3 class="pcard-name"><a href="${link}">${escapeHTML(p.name)}</a></h3>
-        <div class="rating">${p.rating ? `${WT.stars(p.rating)}<span>${Number(p.rating).toFixed(1)}${p.reviewCount ? ` (${p.reviewCount})` : ''}</span>` : '<span>New</span>'}</div>
+        ${p.reviewCount > 0 && p.rating ? `<div class="rating">${WT.stars(p.rating)}<span>${Number(p.rating).toFixed(1)} (${p.reviewCount})</span></div>` : ''}${p.stock === 'limited' ? '<div class="pcard-stock low">Only a few left</div>' : ''}
         <div class="pcard-price">
           <span class="price-now">${formatPrice(p.price)}</span>
           <span class="price-meta">${pct > 0 ? `<s>${formatPrice(p.originalPrice)}</s><b>Save ${pct}%</b>` : '<i class="fa-solid fa-shield-halved"></i> Authentic · Pay on delivery'}</span>
@@ -120,6 +129,7 @@ const Products = {
     const frag = document.createDocumentFragment();
     list.forEach((p) => frag.appendChild(this._buildCard(p)));
     container.appendChild(frag);
+    container.querySelectorAll('.pcard:nth-child(-n+4) .slide:first-child img').forEach((im) => { im.loading = 'eager'; im.setAttribute('fetchpriority', 'high'); });
     WT.markLoaded(container);
     document.dispatchEvent(new CustomEvent('wt:cards-rendered', { detail: { container } }));
   },

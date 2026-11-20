@@ -9,13 +9,11 @@
   }
   const o = data.order, first = String(o.customerName || '').split(' ')[0];
   const addr = o.shippingAddress || {};
-  const msg = `Hi Will's Tech! I just placed order ${o.orderNumber}.\n` +
-    o.items.map((i) => `• ${i.quantity} × ${i.name}`).join('\n') + `\nTotal: ${formatPrice(o.total)}\nDeliver to: ${o.deliveryZone}${addr.street ? ', ' + addr.street : ''}\nPayment: ${WT.payLabel(o.paymentMethod)}\nPlease confirm. Thank you!`;
-  const next = {
-    momo: ['fa-brands fa-whatsapp', 'We confirm on WhatsApp', 'We message you to confirm stock and delivery time.', 'fa-mobile-screen-button', 'Pay with MTN MoMo', 'Pay when it arrives, or send first if we ask you to.'],
-    airtel: ['fa-brands fa-whatsapp', 'We confirm on WhatsApp', 'We message you to confirm stock and delivery time.', 'fa-mobile-screen-button', 'Pay with Airtel Money', 'Pay when it arrives, or send first if we ask you to.'],
-    cod: ['fa-brands fa-whatsapp', 'We confirm on WhatsApp', 'We message you to confirm stock and delivery time.', 'fa-money-bill-wave', 'Pay the rider', 'Have cash ready when your order arrives.'],
-    whatsapp: ['fa-brands fa-whatsapp', 'Chat with us', 'Send the message below so we can confirm everything.', 'fa-wallet', 'Pay your way', 'We\'ll agree how you\'d like to pay when we chat.'],
+  const pay = {
+    momo: ['fa-mobile-screen-button', 'Pay with MTN MoMo', 'Pay when your order arrives. We will tell you if we need anything first.'],
+    airtel: ['fa-mobile-screen-button', 'Pay with Airtel Money', 'Pay when your order arrives. We will tell you if we need anything first.'],
+    cod: ['fa-money-bill-wave', 'Pay the rider', 'Have cash ready when your order arrives.'],
+    bank: ['fa-building-columns', 'Bank transfer', 'We will show the account details on your tracking page.'],
   }[o.paymentMethod] || [];
   const ic = (c) => (c.startsWith('fa-brands') ? c : 'fa-solid ' + c);
 
@@ -26,15 +24,11 @@
       <p class="text-muted" style="font-size:18px">Your order is in. Your order number is</p>
       <div class="order-no"><span id="ono">${escapeHTML(o.orderNumber)}</span><button id="copy-ono" aria-label="Copy order number"><i class="fa-regular fa-copy"></i></button></div>
     </div>
-    <div class="panel" style="text-align:center;display:grid;gap:14px;justify-items:center">
-      <h2 style="margin:0">One last step: confirm on WhatsApp</h2>
-      <p class="text-muted" style="max-width:52ch">It lets us check stock, agree a delivery time and answer any questions straight away.</p>
-      <a class="btn btn-wa btn-lg" target="_blank" rel="noopener" href="${WT.waLink(msg)}"><i class="fa-brands fa-whatsapp"></i> Send my order on WhatsApp</a>
-    </div>
-    ${data.quote ? '<div class="callout"><i class="fa-solid fa-truck"></i><span>You chose delivery outside Kampala and Mbale. We\'ll message you the courier fee before you pay anything.</span></div>' : ''}
+    ${data.quote ? '<div class="callout"><i class="fa-solid fa-truck"></i><span>We will confirm your delivery fee and show it on your tracking page before anything is paid.</span></div>' : ''}
     <div class="panel"><h2>What happens next</h2><ul class="next-steps">
-      ${next.length ? `<li><i class="${ic(next[0])}"></i><div><b>${next[1]}</b><br><span class="text-muted">${next[2]}</span></div></li><li><i class="${ic(next[3])}"></i><div><b>${next[4]}</b><br><span class="text-muted">${next[5]}</span></div></li>` : ''}
-      <li><i class="fa-solid fa-truck-fast"></i><div><b>We deliver</b><br><span class="text-muted">Track it any time with your order number.</span></div></li></ul></div>
+      <li><i class="fa-solid fa-circle-check"></i><div><b>We confirm your order</b><br><span class="text-muted">We check stock and set your delivery date. You will see every update on your tracking page.</span></div></li>
+      ${pay.length ? `<li><i class="${ic(pay[0])}"></i><div><b>${pay[1]}</b><br><span class="text-muted">${pay[2]}</span></div></li>` : ''}
+      <li><i class="fa-solid fa-truck-fast"></i><div><b>We deliver</b><br><span class="text-muted">Track it any time with your order number and phone. No need to message us.</span></div></li></ul></div>
     <div class="panel"><h2>Your order</h2>${WT.orderLines(o.items)}${WT.orderTotals(o)}
       <div style="display:grid;gap:6px;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);font-size:15px;color:var(--text-secondary)">
         <div><b style="color:var(--text-primary)">Deliver to:</b> ${escapeHTML(o.customerName)}, ${escapeHTML(o.customerPhone)}</div>

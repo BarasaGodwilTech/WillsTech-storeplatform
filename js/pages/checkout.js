@@ -5,10 +5,10 @@
   const DRAFT = 'wt-checkout-draft', SAVED = 'wt-checkout-saved';
   const FALLBACK_CFG = {
     freeDeliveryThreshold: SITE.freeDeliveryThreshold,
-    zones: [{ id: 'kampala', name: 'Kampala', fee: 0, quote: true, eta: 'Same day for orders before 3 pm', freeOverThreshold: true }, { id: 'mbale', name: 'Mbale', fee: 0, quote: true, eta: 'Next day', freeOverThreshold: true }, { id: 'other', name: 'Elsewhere in Uganda', fee: 0, quote: true, eta: 'Courier. We confirm the fee on WhatsApp' }],
-    paymentMethods: [{ id: 'momo', name: 'MTN MoMo', hint: 'Pay on delivery or send first' }, { id: 'airtel', name: 'Airtel Money', hint: 'Pay on delivery or send first' }, { id: 'cod', name: 'Cash on delivery', hint: 'Pay the rider when it arrives' }, { id: 'whatsapp', name: 'Confirm on WhatsApp', hint: 'Talk to a person first' }],
+    zones: [{ id: 'kampala', name: 'Kampala', fee: 0, quote: true, eta: 'Same day for orders before 3 pm', freeOverThreshold: true }, { id: 'mbale', name: 'Mbale', fee: 0, quote: true, eta: 'Next day', freeOverThreshold: true }, { id: 'other', name: 'Elsewhere in Uganda', fee: 0, quote: true, eta: 'Courier, usually 2 to 3 days' }],
+    paymentMethods: [{ id: 'momo', name: 'MTN MoMo', hint: 'Pay when it arrives' }, { id: 'airtel', name: 'Airtel Money', hint: 'Pay when it arrives' }, { id: 'cod', name: 'Cash on delivery', hint: 'Pay the rider when it arrives' }, ],
   };
-  const PAY_ICON = { momo: ['mtn', 'fa-mobile-screen-button'], airtel: ['airtel', 'fa-mobile-screen-button'], cod: ['cod', 'fa-money-bill-wave'], whatsapp: ['wa', 'fa-brands fa-whatsapp'], bank: ['', 'fa-building-columns'] };
+  const PAY_ICON = { momo: ['mtn', 'fa-mobile-screen-button'], airtel: ['airtel', 'fa-mobile-screen-button'], cod: ['cod', 'fa-money-bill-wave'], bank: ['', 'fa-building-columns'] };
   let cfg = FALLBACK_CFG, coupon = null, busy = false;
   const f = {};   // form state
 
@@ -18,7 +18,7 @@
     try { cfg = Object.assign({}, FALLBACK_CFG, await window.apiFetch('/shop/config')); } catch (e) { /* backend offline: use defaults */ }
     const saved = (() => { try { return JSON.parse(localStorage.getItem(SAVED) || '{}'); } catch (e) { return {}; } })();
     const draft = (() => { try { return JSON.parse(sessionStorage.getItem(DRAFT) || '{}'); } catch (e) { return {}; } })();
-    Object.assign(f, { name: '', phone: '', email: '', zone: cfg.zones[0].id, street: '', notes: '', pay: cfg.paymentMethods[0].id }, saved, draft);
+    Object.assign(f, { name: '', phone: '', email: '', zone: cfg.zones[0].id, street: '', notes: '', lat: null, lng: null, pay: cfg.paymentMethods[0].id }, saved, draft);
     if (!cfg.zones.find((z) => z.id === f.zone)) f.zone = cfg.zones[0].id;
     if (!cfg.paymentMethods.find((p) => p.id === f.pay)) f.pay = cfg.paymentMethods[0].id;
     draw(r);
@@ -38,7 +38,7 @@
     try {
       const addrs = await FirestoreService.getAddresses(user.uid);
       const a = (addrs || []).find((x) => x.isDefault) || (addrs || [])[0];
-      if (a) { set('f-street', 'street', [a.street, a.city].filter(Boolean).join(', ')); set('f-phone', 'phone', a.phone); }
+      if (a) { if (f.lat == null && a.lat != null) { f.lat = a.lat; f.lng = a.lng; const pt = document.getElementById('pin-txt'); if (pt) pt.textContent = 'Change pin on map'; } set('f-street', 'street', [a.street, a.city].filter(Boolean).join(', ')); set('f-phone', 'phone', a.phone); }
     } catch (e) { /* optional */ }
   }
 
@@ -53,20 +53,21 @@
         <section class="co-card"><h2><span class="n">1</span> Your details</h2>
           <div class="form-row">
             <div class="form-group"><label class="form-label" for="f-name">Full name</label><input class="form-input" id="f-name" autocomplete="name" value="${escapeHTML(f.name)}" required><span class="form-error" id="e-name"></span></div>
-            <div class="form-group"><label class="form-label" for="f-phone">Phone (WhatsApp)</label><input class="form-input" id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="07XX XXX XXX" value="${escapeHTML(f.phone)}" required><span class="form-error" id="e-phone"></span></div>
+            <div class="form-group"><label class="form-label" for="f-phone">Phone</label><input class="form-input" id="f-phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="07XX XXX XXX" value="${escapeHTML(f.phone)}" required><span class="form-error" id="e-phone"></span></div>
           </div>
           <div class="form-group"><label class="form-label" for="f-email">Email <span class="optional">(optional, for your receipt)</span></label><input class="form-input" id="f-email" type="email" autocomplete="email" value="${escapeHTML(f.email)}"><span class="form-error" id="e-email"></span></div>
         </section>
         <section class="co-card"><h2><span class="n">2</span> Delivery</h2>
           <div class="opts" role="radiogroup" aria-label="Delivery area">${cfg.zones.map((z) => `
             <label class="opt"><input type="radio" name="zone" value="${z.id}" ${f.zone === z.id ? 'checked' : ''}><span class="opt-box"><b><i class="fa-solid fa-location-dot"></i>${escapeHTML(z.name)}</b><span>${escapeHTML(z.eta || '')}</span><em data-fee="${z.id}"></em></span></label>`).join('')}</div>
+          <div class="form-group"><button type="button" class="btn btn-secondary" id="pin-btn"><i class="fa-solid fa-map-location-dot"></i> <span id="pin-txt">${f.lat != null ? 'Change pin on map' : 'Pin my location on the map'}</span></button><span class="form-hint" id="pin-note" style="display:block;margin-top:6px">${f.lat != null ? '<i class="fa-solid fa-circle-check" style="color:var(--success,#1fa855)"></i> Pin saved. The rider will see your exact spot.' : 'Optional, but it helps the rider find you faster.'}</span></div>
           <div class="form-group"><label class="form-label" for="f-street">Street, area or landmark</label><input class="form-input" id="f-street" autocomplete="street-address" placeholder="e.g. Ntinda, near Capital Shoppers" value="${escapeHTML(f.street)}" required><span class="form-error" id="e-street"></span></div>
           <div class="form-group"><label class="form-label" for="f-notes">Notes for the rider <span class="optional">(optional)</span></label><input class="form-input" id="f-notes" maxlength="300" value="${escapeHTML(f.notes)}"></div>
         </section>
         <section class="co-card"><h2><span class="n">3</span> Payment</h2>
           <div class="opts" role="radiogroup" aria-label="Payment method">${cfg.paymentMethods.map((m) => { const ic = PAY_ICON[m.id] || ['', 'fa-wallet']; const brand = ic[1].startsWith('fa-brands'); return `
             <label class="opt"><input type="radio" name="pay" value="${m.id}" ${f.pay === m.id ? 'checked' : ''}><span class="opt-box"><b><span class="pay-ic ${ic[0]}"><i class="${brand ? ic[1] : 'fa-solid ' + ic[1]}"></i></span>${escapeHTML(m.name)}</b><span>${escapeHTML(m.hint || '')}</span></span></label>`; }).join('')}</div>
-          <p class="form-hint"><i class="fa-solid fa-lock"></i> You won't pay on this page. We confirm your order with you first, then you pay by mobile money or cash.</p>
+          <p class="form-hint"><i class="fa-solid fa-lock"></i> You won't pay on this page. We confirm your order, set your delivery date, and you pay when it arrives. Every step shows on your tracking page.</p>
         </section>
         <div class="err-box" id="co-error" hidden></div>
         <button class="btn btn-primary btn-lg btn-block" type="submit" id="place-btn" ${gone ? 'disabled' : ''}><i class="fa-solid fa-lock"></i> Place order · <span id="btn-total"></span></button>
@@ -105,11 +106,11 @@
     el.innerHTML = `
       <div class="sum-row"><span>Subtotal</span><b>${formatPrice(sub)}</b></div>
       ${disc ? `<div class="sum-row disc"><span>Code ${escapeHTML(coupon.code)}</span><b>− ${formatPrice(disc)}</b></div>` : ''}
-      <div class="sum-row"><span>Delivery (${escapeHTML(zone().name)})</span><b>${fee === null ? 'Quoted on WhatsApp' : fee === 0 ? 'Free' : formatPrice(fee)}</b></div>
+      <div class="sum-row"><span>Delivery (${escapeHTML(zone().name)})</span><b>${fee === null ? 'We set the fee after you order' : fee === 0 ? 'Free' : formatPrice(fee)}</b></div>
       <div class="sum-total"><span>Total</span><strong>${formatPrice(total)}</strong></div>
-      ${fee === null ? '<p class="fine">We\'ll message you the courier fee before you pay anything.</p>' : ''}`;
+      ${fee === null ? '<p class="fine">We will set the delivery fee and show it on your tracking page before you pay.</p>' : ''}`;
     const bt = document.getElementById('btn-total'); if (bt) bt.textContent = formatPrice(total);
-    cfg.zones.forEach((z) => { const e = document.querySelector(`[data-fee="${z.id}"]`); if (!e) return; const fz = z.quote ? 'Fee on WhatsApp' : (z.freeOverThreshold && sub >= cfg.freeDeliveryThreshold ? 'Free' : formatPrice(z.fee)); e.textContent = fz; });
+    cfg.zones.forEach((z) => { const e = document.querySelector(`[data-fee="${z.id}"]`); if (!e) return; const fz = z.quote ? 'Fee set after you order' : (z.freeOverThreshold && sub >= cfg.freeDeliveryThreshold ? 'Free' : formatPrice(z.fee)); e.textContent = fz; });
   }
 
   function saveDraft() { try { sessionStorage.setItem(DRAFT, JSON.stringify(f)); } catch (e) { /* ignore */ } }
@@ -118,6 +119,15 @@
     Object.entries(map).forEach(([id, key]) => document.getElementById(id).addEventListener('input', (e) => { f[key] = e.target.value; e.target.classList.remove('invalid'); const er = document.getElementById('e-' + key); if (er) er.textContent = ''; saveDraft(); }));
     document.querySelectorAll('input[name=zone]').forEach((r) => r.addEventListener('change', () => { f.zone = r.value; saveDraft(); totals(); }));
     document.querySelectorAll('input[name=pay]').forEach((r) => r.addEventListener('change', () => { f.pay = r.value; saveDraft(); }));
+    document.getElementById('pin-btn').addEventListener('click', async () => {
+      const pick = await WT.pickLocation({ lat: f.lat, lng: f.lng, zones: cfg.zones }); if (!pick) return;
+      f.lat = pick.lat; f.lng = pick.lng;
+      if (pick.zoneId && pick.zoneId !== f.zone) { f.zone = pick.zoneId; const rd = document.querySelector(`input[name=zone][value="${pick.zoneId}"]`); if (rd) rd.checked = true; totals(); }
+      const st = document.getElementById('f-street'); if (pick.label && !st.value.trim()) { st.value = pick.label; f.street = pick.label; }
+      document.getElementById('pin-txt').textContent = 'Change pin on map';
+      document.getElementById('pin-note').innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--success,#1fa855)"></i> Pin saved' + (pick.zoneId ? ' and delivery area set.' : '.') + ' Add a landmark below so the rider can find the gate.';
+      saveDraft();
+    });
     document.getElementById('coupon-btn').addEventListener('click', applyCoupon);
     document.getElementById('f-coupon').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyCoupon(); } });
     document.getElementById('co-form').addEventListener('submit', submit);
@@ -146,11 +156,6 @@
     return !first;
   }
 
-  function waFallback() {
-    const lines = Cart.getAvailableItems().map((i) => `• ${i.quantity} × ${i.name} (${formatPrice(i.price * i.quantity)})`);
-    return WT.waLink(`Hi Will's Tech! I tried to order on the website:\n${lines.join('\n')}\nName: ${f.name}\nPhone: ${f.phone}\nDeliver to: ${zone().name}, ${f.street}\nTotal: ${formatPrice(calc().total)}`);
-  }
-
   async function submit(e) {
     e.preventDefault(); if (busy || !validate()) return;
     const btn = document.getElementById('place-btn'), err = document.getElementById('co-error'); err.hidden = true;
@@ -159,14 +164,14 @@
       const data = await window.apiFetch('/orders', { method: 'POST', body: JSON.stringify({
         items: Cart.getAvailableItems().map((i) => ({ productId: i.productId, quantity: i.quantity })),
         customerName: f.name.trim(), customerPhone: f.phone.trim(), customerEmail: f.email.trim() || undefined,
-        deliveryZone: f.zone, shippingAddress: { street: f.street.trim(), city: zone().name }, paymentMethod: f.pay, couponCode: coupon ? coupon.code : undefined, notes: f.notes.trim() || undefined }) });
-      try { sessionStorage.setItem('wt-last-order', JSON.stringify({ order: data.order, quote: !!data.deliveryQuote })); sessionStorage.removeItem(DRAFT); localStorage.setItem(SAVED, JSON.stringify({ name: f.name, phone: f.phone, email: f.email, zone: f.zone, street: f.street, pay: f.pay })); } catch (x) { /* ignore */ }
+        deliveryZone: f.zone, shippingAddress: { street: f.street.trim(), city: zone().name, ...(f.lat != null ? { lat: f.lat, lng: f.lng } : {}) }, paymentMethod: f.pay, couponCode: coupon ? coupon.code : undefined, notes: f.notes.trim() || undefined }) });
+      try { sessionStorage.setItem('wt-last-order', JSON.stringify({ order: data.order, quote: !!data.deliveryQuote })); sessionStorage.removeItem(DRAFT); localStorage.setItem(SAVED, JSON.stringify({ name: f.name, phone: f.phone, email: f.email, zone: f.zone, street: f.street, pay: f.pay, lat: f.lat, lng: f.lng })); } catch (x) { /* ignore */ }
       Cart.clear(); location.href = 'order-confirmation.html';
     } catch (ex) {
       busy = false; btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-lock"></i> Place order · <span id="btn-total"></span>'; totals();
       const offline = !ex.status; // network failure / backend down
       err.hidden = false;
-      err.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><span>${escapeHTML(offline ? 'We couldn\'t reach our server just now.' : ex.message || 'Something went wrong.')} ${offline || (ex.status >= 500) ? `You can send the same order on WhatsApp instead: <a href="${waFallback()}" target="_blank" rel="noopener" style="text-decoration:underline;font-weight:800">Order on WhatsApp</a>.` : ''}</span>`;
+      err.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><span>${escapeHTML(offline ? 'We couldn\'t reach our server just now. Your details are saved, please try again in a moment.' : ex.message || 'Something went wrong.')}</span>`;
       err.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }

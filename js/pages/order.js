@@ -1,9 +1,9 @@
-/** pages/order.js — shared order helpers: status timeline, line items, WhatsApp message. */
+/** pages/order.js — shared order helpers: status timeline, line items, totals. */
 (function () {
   'use strict';
   const STEPS = [
     ['pending', 'Order placed', 'We have your order'],
-    ['confirmed', 'Confirmed', 'Confirmed with you on WhatsApp or phone'],
+    ['confirmed', 'Confirmed', 'We have confirmed your order and are planning delivery'],
     ['shipped', 'Out for delivery', 'On its way to you'],
     ['completed', 'Delivered', 'Enjoy your new gear'],
   ];
@@ -29,5 +29,5 @@
     <div class="sum-row"><span>Delivery${o.deliveryZone ? ` (${escapeHTML(o.deliveryZone)})` : ''}</span><b>${o.deliveryFee ? formatPrice(o.deliveryFee) : 'To be confirmed'}</b></div>
     <div class="sum-total"><span>Total</span><strong>${formatPrice(o.total)}</strong></div></div>`;
 
-  WT.payLabel = (m) => ({ momo: 'MTN MoMo', airtel: 'Airtel Money', cod: 'Cash on delivery', whatsapp: 'Confirm on WhatsApp', bank: 'Bank transfer' }[m] || WT.cap(m));
+  WT.payLabel = (m) => ({ momo: 'MTN MoMo', airtel: 'Airtel Money', cod: 'Cash on delivery', bank: 'Bank transfer' }[m] || WT.cap(m));
 })();
