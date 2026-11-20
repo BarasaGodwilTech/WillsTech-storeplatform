@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Keep Render awake 24/7  —  Will's Tech Store
+#
+# WHERE TO PUT THIS FILE (the only step):
+#   Add it to your GitHub repo at exactly this path, then commit:
+#       .github/workflows/keep-render-awake.yml
+#   No changes to your store/backend code are needed.
+#
+# WHAT IT DOES:
+#   Render's free web services go to sleep after ~15 minutes without traffic.
+#   This workflow visits your site's /api/health endpoint every 5 minutes,
+#   around the clock, so Render never gets the chance to sleep. That endpoint
+#   also does a tiny "SELECT 1" on your Neon database, which keeps it warm too.
+#
+# WHICH URL IT PINGS:
+#   By default:  https://willstech.store
+#   If your Render address is different (e.g. https://willstech-store.onrender.com):
+#     GitHub repo → Settings → Secrets and variables → Actions → Variables tab
+#     → New repository variable → Name: RENDER_URL  Value: your Render URL
+#   (Still no code change — just a setting.)
+#
+# You can also test it right away: repo → Actions tab → "Keep Render Awake"
+# → Run workflow.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: Keep Render Awake
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # every 5 minutes (GitHub's minimum), 24 hours a day
+  workflow_dispatch:         # lets you run it manually from the Actions tab
+
+permissions: {}              # this job needs no access to your repo
+
+concurrency:
+  group: keep-render-awake
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ping /api/health (with retries for cold starts)
+        env:
+          RENDER_URL: ${{ vars.RENDER_URL }}
+        run: |
+          BASE="${RENDER_URL:-https://willstech.store}"
+          BASE="${BASE%/}"
+          URL="$BASE/api/health"
+          echo "Pinging $URL"
+
+          CODE="000"
+          for ATTEMPT in 1 2 3 4; do
+            # Render cold starts can take 30–60s, so allow a long timeout.
+            CODE=$(curl -sS -o /tmp/body.txt -w "%{http_code}" \
+                        --max-time 75 --connect-timeout 20 \
+                        -H "User-Agent: willstech-keepalive/1.0" \
+                        "$URL" || echo "000")
+            echo "Attempt $ATTEMPT → HTTP $CODE"
+
+            if [ "$CODE" = "200" ]; then
+              echo "OK: service and database are awake."
+              cat /tmp/body.txt; echo
+              exit 0
+            fi
+            sleep 20
+          done
+
+          # 503 means the web service answered (so it is awake) but the
+          # database was still waking up — not a failure of this keep-alive.
+          if [ "$CODE" = "503" ]; then
+            echo "::warning::Web service is awake, but /api/health reported the database as down."
+            exit 0
+          fi
+
+          echo "::error::No healthy response from $URL (last HTTP code: $CODE)"
+          exit 1
