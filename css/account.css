@@ -47,7 +47,7 @@
   color: white;
   position: relative;
   overflow: hidden;
-}
+} 
 
 .auth-branding::before {
   content: '';
