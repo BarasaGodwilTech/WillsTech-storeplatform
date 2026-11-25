@@ -28,6 +28,16 @@
   // Product id from the current URL (/product/some-name-123456) with a fallback for old ?id= links.
   WT.productIdFromUrl = () => { if (window.__PRODUCT_ID__) return window.__PRODUCT_ID__; const m = /\/product\/(?:[^/]*-)?(\d+)\/?$/.exec(location.pathname); return m ? m[1] : new URLSearchParams(location.search).get('id'); };
   WT.waLink = (text) => `https://wa.me/${(window.SITE && SITE.whatsapp) || '256751924844'}${text ? '?text=' + encodeURIComponent(text) : ''}`;
+  // Same rule as the server's category addresses (/shop/<slug>).
+  WT.catSlug = (s) => String(s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  // Share something with a friend. NO phone number in the address, so WhatsApp opens its "choose a chat" screen
+  // (waLink above is for messaging the STORE, so it always goes to the store's number).
+  WT.waShare = (text) => `https://wa.me/?text=${encodeURIComponent(text)}`;
+  // Phones and tablets: open the device's own share sheet (WhatsApp, Telegram, SMS, Instagram…). Returns false when unsupported.
+  WT.nativeShare = async (data) => {
+    if (!navigator.share) return false;
+    try { await navigator.share(data); return true; } catch (e) { return e && e.name === 'AbortError'; }   // closing the sheet is not an error
+  };
 
   // ── Formatting ─────────────────────────────────────────
   window.formatPrice = function formatPrice(amount) {

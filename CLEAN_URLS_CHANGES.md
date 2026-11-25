@@ -13,7 +13,7 @@ Pages no longer show the `pages/` folder or `.html`.
 
 ## Link previews (WhatsApp, X, Facebook, Telegram…)
 Crawlers do not run JavaScript, so the server now writes the title, description, price and image
-into the HTML of every page. Product links use /share/product/<id>.jpg (1200x630, cover photo in a circle).
+into the HTML of every page. Product links use /share/product/<id>.jpg (1200x630, full-width photo, see SEO_AND_SHARING.md).
 Set `PUBLIC_URL=https://willstech.store` in backend/.env so preview URLs are always https.
 After deploying, refresh caches: https://developers.facebook.com/tools/debug/ (also fixes WhatsApp)
 and https://cards-dev.x.com/validator if X still shows an old card.

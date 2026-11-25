@@ -5,6 +5,8 @@ const { nextSku } = require('../lib/sku');
 const { normalizeVideos } = require('../lib/video');
 const { deriveStock } = require('../lib/stock');
 
+const seo = require('../lib/seo');
+
 const router = express.Router();
 
 function toClientProduct(row, admin) {
@@ -107,6 +109,7 @@ router.post('/', requireAdmin, async (req, res) => {
     const sku = p.sku || await nextSku(pool, p.category);
     const { rows } = await pool.query(`INSERT INTO products (id, ${COLS}) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19) RETURNING *`,
       [Number(req.body.id) || Date.now(), ...vals(p, sku)]);
+    seo.notifyProduct(rows[0]);   // tell Bing/IndexNow about the new page
     res.status(201).json({ product: toClientProduct(rows[0], true) });
   } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message });
@@ -126,6 +129,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
       `UPDATE products SET name=$1, sku=$2, brand=$3, category=$4, description=$5, short_description=$6, price=$7, original_price=$8,
          images=$9, videos=$10, stock=$11, stock_qty=$12, lead_time=$13, badges=$14, features=$15, specifications=$16,
          featured=$17, status=$18, date_updated=now() WHERE id::text = $19 RETURNING *`, [...vals(p, sku), req.params.id]);
+    seo.notifyProduct(rows[0]);
     res.json({ product: toClientProduct(rows[0], true) });
   } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message });
@@ -153,6 +157,7 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
     const status = req.body && req.body.status === 'inactive' ? 'inactive' : 'active';
     const { rows } = await pool.query('UPDATE products SET status = $1, date_updated = now() WHERE id::text = $2 RETURNING *', [status, req.params.id]);
     if (!rows.length) return res.status(404).json({ error: 'Product not found' });
+    seo.notifyProduct(rows[0]);
     res.json({ product: toClientProduct(rows[0], true) });
   } catch (err) { res.status(500).json({ error: 'Could not update product status' }); }
 });

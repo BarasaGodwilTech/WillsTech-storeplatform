@@ -42,6 +42,7 @@ function origin(req) {
 const abs = (req, u) => (/^https?:\/\//i.test(u) ? u : origin(req) + (u.startsWith('/') ? u : '/' + u));
 
 const { stamp } = require('./build');
+const seo = require('./seo');
 const cache = new Map();
 function readFile(rel) {
   if (isProd && cache.has(rel)) return cache.get(rel);
@@ -51,19 +52,29 @@ function readFile(rel) {
 }
 
 // Replace every title/description/Open Graph/Twitter/canonical tag in the page with a fresh, complete set.
+//   m.ogTitle / m.ogDescription  what WhatsApp, Facebook, X and Telegram show (can differ from the Google title)
+//   m.jsonld                     structured-data objects (schema.org) added to the page
+//   m.dropLd                     remove the page's own hard-coded structured data first
+//   m.beforeMainEnd              extra HTML placed at the end of <main> (used for the crawlable catalogue)
 function withMeta(html, m) {
   const own = (re) => { const x = re.exec(html); return x ? x[1] : ''; };
   const title = m.title || own(/<title>([^<]*)<\/title>/i).replace(/&amp;/g, '&') || "Will's Tech Store";
   const desc = m.description || own(/<meta\s+name="description"\s+content="([^"]*)"/i).replace(/&amp;/g, '&') || 'Authentic smartphones, audio and gadgets in Uganda. Pay on delivery with MTN MoMo, Airtel Money or cash.';
+  const ogDesc = m.ogDescription || desc;
   const tags = [
     `<meta name="description" content="${esc(desc)}">`,
     `<link rel="canonical" href="${esc(m.url)}">`,
+    ...(m.noindex ? ['<meta name="robots" content="noindex, follow">'] : [
+      '<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">',
+      `<link rel="alternate" hreflang="en-ug" href="${esc(m.url)}">`, `<link rel="alternate" hreflang="x-default" href="${esc(m.url)}">`]),
+    `<meta name="application-name" content="Will's Tech Store">`,
+    `<meta name="apple-mobile-web-app-title" content="Will's Tech">`,
     `<meta property="og:type" content="${m.type || 'website'}">`,
     `<meta property="og:site_name" content="Will's Tech Store">`,
     `<meta property="og:locale" content="en_UG">`,
     `<meta property="og:url" content="${esc(m.url)}">`,
     `<meta property="og:title" content="${esc(m.ogTitle || title)}">`,
-    `<meta property="og:description" content="${esc(desc)}">`,
+    `<meta property="og:description" content="${esc(ogDesc)}">`,
     `<meta property="og:image" content="${esc(m.image)}">`,
     `<meta property="og:image:secure_url" content="${esc(m.image)}">`,
     `<meta property="og:image:type" content="${m.imageType || 'image/jpeg'}">`,
@@ -72,17 +83,20 @@ function withMeta(html, m) {
     `<meta property="og:image:alt" content="${esc(m.imageAlt || title)}">`,
     `<meta name="twitter:card" content="summary_large_image">`,
     `<meta name="twitter:title" content="${esc(m.ogTitle || title)}">`,
-    `<meta name="twitter:description" content="${esc(desc)}">`,
+    `<meta name="twitter:description" content="${esc(ogDesc)}">`,
     `<meta name="twitter:image" content="${esc(m.image)}">`,
     `<meta name="twitter:image:alt" content="${esc(m.imageAlt || title)}">`,
     ...(m.extra || []),
-    ...(m.noindex ? ['<meta name="robots" content="noindex">'] : []),
+    ...(m.jsonld || []).map((o) => `<script type="application/ld+json">${seo.ldJson(o)}</script>`),
   ].join('\n  ');
-  return html
+  let out = html
     .replace(/<title>[^<]*<\/title>/i, `<title>${esc(title)}</title>`)
     .replace(/\s*<meta\s+(?:name|property)="(?:description|og:[^"]*|twitter:[^"]*|robots)"[^>]*>/gi, '')
-    .replace(/\s*<link\s+rel="canonical"[^>]*>/gi, '')
-    .replace(/<\/head>/i, `  ${tags}\n</head>`);
+    .replace(/\s*<link\s+rel="canonical"[^>]*>/gi, '');
+  if (m.dropLd) out = out.replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, '');
+  out = out.replace(/<\/head>/i, `  ${tags}\n</head>`);
+  if (m.beforeMainEnd) out = out.replace(/<\/main>/i, () => `${m.beforeMainEnd}\n</main>`);
+  return out;
 }
 
 function sendHtml(res, html, status) {
@@ -99,6 +113,17 @@ async function loadProduct(id) {
 }
 
 const DEFAULT_IMAGE = '/IMAGES/social-share.jpg';
+const HOME_TITLE = "Will's Tech Store | Authentic Phones, Laptops & Gadgets in Uganda";
+const HOME_DESC = 'Authentic smartphones, laptops, consoles and gadgets in Uganda. Delivery in Kampala, Mbale and nationwide. Pay on delivery with MTN MoMo, Airtel Money or cash.';
+
+// Share-card size. 1200x630 is the size WhatsApp, Facebook, X, Telegram and LinkedIn all show as a full-width preview.
+const CARD_W = 1200, CARD_H = 630;
+const CARD_VERSION = 3;   // bump to make every platform fetch a fresh share image
+
+async function loadCategoryRows(slug) {
+  const rows = await seo.activeProducts();
+  return rows.filter((r) => seo.catSlug(r.category) === slug);
+}
 
 function install(app) {
   // ── Old addresses → clean ones (301, query string kept) ─────────────
@@ -127,15 +152,68 @@ function install(app) {
   });
 
   // ── Home ────────────────────────────────────────────────────────────
-  app.get('/', (req, res) => {
-    sendHtml(res, withMeta(readFile('index.html'), { url: origin(req) + '/', image: abs(req, DEFAULT_IMAGE), imageAlt: "Will's Tech Store" }));
+  app.get('/', async (req, res) => {
+    const base = origin(req);
+    const [info, rows] = await Promise.all([seo.siteInfo(), seo.activeProducts()]);
+    sendHtml(res, withMeta(readFile('index.html'), {
+      title: HOME_TITLE, description: HOME_DESC, ogTitle: "Will's Tech Store · Authentic phones, laptops & gadgets in Uganda",
+      ogDescription: 'Genuine, sealed tech delivered across Uganda. Pay on delivery with MTN MoMo, Airtel Money or cash.',
+      url: base + '/', image: abs(req, DEFAULT_IMAGE), imageAlt: "Will's Tech Store: authentic phones, audio and gadgets in Uganda",
+      dropLd: true, jsonld: [seo.orgGraph(base, info)],
+      beforeMainEnd: rows.length ? seo.catalogueHtml(rows, 'Browse all products by category') : '',
+    }));
   });
 
   // ── Plain pages ─────────────────────────────────────────────────────
   Object.keys(PAGES).forEach((route) => {
-    app.get(route, (req, res) => {
-      sendHtml(res, withMeta(readFile(PAGES[route]), { url: origin(req) + route, image: abs(req, DEFAULT_IMAGE), noindex: PRIVATE.has(route) }));
+    app.get(route, async (req, res) => {
+      const base = origin(req);
+      const html = readFile(PAGES[route]);
+      const meta = { url: base + route, image: abs(req, DEFAULT_IMAGE), noindex: PRIVATE.has(route) };
+
+      if (route === '/shop') {
+        // /shop?category=audio → /shop/audio (one clean address per category, so each can rank on its own)
+        const wanted = seo.catSlug(req.query.category);
+        if (wanted) {
+          const rows = await loadCategoryRows(wanted);
+          if (rows.length) {
+            const rest = new URLSearchParams(qsOf(req)); rest.delete('category');
+            return res.redirect(301, '/shop/' + wanted + (rest.toString() ? '?' + rest : ''));
+          }
+        }
+        const rows = await seo.activeProducts();
+        meta.title = "Shop Phones, Laptops, Speakers & Gadgets in Uganda | Will's Tech Store";
+        meta.description = `Browse ${rows.length || 'all our'} authentic smartphones, speakers, power banks and creator gear in Uganda. Filter by category, brand and price. Pay on delivery.`;
+        meta.jsonld = [seo.breadcrumbLd([['Home', base + '/'], ['Shop', base + '/shop']])];
+        meta.beforeMainEnd = rows.length ? seo.catalogueHtml(rows, 'All products') : '';
+      } else if (!meta.noindex) {
+        const t = (/<title>([^<]*)<\/title>/i.exec(html) || [])[1] || '';
+        const label = t.split('|')[0].replace(/&amp;/g, '&').trim();
+        if (label) meta.jsonld = [seo.breadcrumbLd([['Home', base + '/'], [label, base + route]])];
+      }
+      sendHtml(res, withMeta(html, meta));
     });
+  });
+
+  // ── Category pages: /shop/<category> ────────────────────────────────
+  app.get('/shop/:category', async (req, res) => {
+    const base = origin(req), slug = seo.catSlug(req.params.category);
+    if (slug !== req.params.category) return res.redirect(301, '/shop/' + slug + qsOf(req));
+    const rows = await loadCategoryRows(slug);
+    if (!rows.length) return res.redirect(302, '/shop');
+    const cm = seo.categoryMeta(rows[0].category, rows), path = '/shop/' + slug;
+    let html = readFile('pages/shop.html')
+      .replace(/(<h1 id="shop-title">)[^<]*(<\/h1>)/, `$1${esc(cm.label)}$2`)
+      .replace(/(<p id="shop-sub">)[^<]*(<\/p>)/, `$1${esc(`Authentic ${cm.label.toLowerCase()} in Uganda, delivered to your door. Pay on delivery.`)}$2`)
+      .replace(/(<span id="crumb">)[^<]*(<\/span>)/, `$1${esc(cm.label)}$2`);
+    const first = rows.find((r) => (r.images || [])[0]);
+    sendHtml(res, withMeta(html, {
+      title: cm.title, description: cm.description, ogTitle: `${cm.label} in Uganda · Will's Tech Store`, ogDescription: `${rows.length} authentic ${cm.label.toLowerCase()} with delivery across Uganda. Pay on delivery.`,
+      url: base + path, image: first ? `${base}/share/product/${first.id}.jpg?c=${CARD_VERSION}` : abs(req, DEFAULT_IMAGE), imageAlt: `${cm.label} at Will's Tech Store`,
+      extra: [`<script>window.__CATEGORY__=${JSON.stringify(slug)};window.__SEO_TITLE__=${JSON.stringify(cm.title)}</script>`],
+      jsonld: [seo.breadcrumbLd([['Home', base + '/'], ['Shop', base + '/shop'], [cm.label, base + path]]), seo.collectionLd(base, path, cm.label, rows)],
+      beforeMainEnd: seo.catalogueHtml(rows, `${cm.label} in Uganda`),
+    }));
   });
 
   // ── Product pages ───────────────────────────────────────────────────
@@ -146,35 +224,37 @@ function install(app) {
     if (!row || row.status !== 'active') {
       return sendHtml(res, withMeta(html, { title: "Product not found | Will's Tech Store", url: origin(req) + req.path, image: abs(req, DEFAULT_IMAGE), noindex: true }), 404);
     }
-    const canonical = productPath(row);
+    const base = origin(req), canonical = productPath(row);
     if (decodeURIComponent(req.path) !== canonical) return res.redirect(301, canonical + qsOf(req));   // old/short link → full link
 
-    const price = Number(row.price), was = row.original_price != null ? Number(row.original_price) : 0;
-    const money = (n) => 'UGX ' + Math.round(n).toLocaleString('en-UG');
-    const first = oneLine(row.short_description || row.description, 150);
-    const description = `${money(price)}${was > price ? ` (was ${money(was)})` : ''}. ${first || 'Authentic, brand-new, delivered anywhere in Uganda. Pay on delivery.'}`;
     const v = row.date_updated ? new Date(row.date_updated).getTime() : 1;
-    const image = `${origin(req)}/share/product/${row.id}.jpg?v=${v}`;
-    const inStock = !['out-of-stock'].includes(row.stock);
-    const ld = {
-      '@context': 'https://schema.org', '@type': 'Product', name: row.name, image: [image], description: oneLine(row.description, 300) || undefined,
-      sku: row.sku || undefined, brand: row.brand ? { '@type': 'Brand', name: row.brand } : undefined,
-      offers: { '@type': 'Offer', url: origin(req) + canonical, priceCurrency: 'UGX', price, availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' },
-      ...(row.rating > 0 && row.review_count > 0 ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: Number(row.rating), reviewCount: row.review_count } } : {}),
-    };
-    sendHtml(res, withMeta(html, {
-      title: `${row.name} | Will's Tech Store`, ogTitle: `${row.name} · ${money(price)}`, description, type: 'product',
-      url: origin(req) + canonical, image, imageAlt: row.name,
+    const image = `${base}/share/product/${row.id}.jpg?v=${v}&c=${CARD_VERSION}`;
+    const crumbs = [['Home', base + '/'], ['Shop', base + '/shop']];
+    if (row.category) crumbs.push([seo.cap(row.category), `${base}/shop/${seo.catSlug(row.category)}`]);
+    crumbs.push([row.name, base + canonical]);
+
+    // Put the real product content into the HTML (the storefront script swaps it for the interactive page once it loads).
+    const a = html.indexOf('<div id="pdp-root">'), b = html.indexOf('<section class="section" id="related-section"');
+    const withContent = a > -1 && b > a ? html.slice(0, a) + `<div id="pdp-root">${seo.productHtml(base, row, canonical)}</div>\n\n  ` + html.slice(b) : html;
+
+    sendHtml(res, withMeta(withContent, {
+      title: seo.productTitle(row.name), description: seo.productDescription(row),
+      ogTitle: `${row.name} · ${seo.money(row.price)}`, ogDescription: seo.productShareDescription(row), type: 'product',
+      url: base + canonical, image, imageAlt: row.name,
       extra: [
-        `<meta property="product:price:amount" content="${price}">`, `<meta property="product:price:currency" content="UGX">`,
-        `<meta property="product:availability" content="${inStock ? 'in stock' : 'out of stock'}">`,
+        `<meta property="product:price:amount" content="${Number(row.price)}">`, `<meta property="product:price:currency" content="UGX">`,
+        `<meta property="product:availability" content="${row.stock === 'out-of-stock' ? 'out of stock' : 'in stock'}">`,
+        `<meta property="product:condition" content="new">`,
+        ...(row.brand ? [`<meta property="product:brand" content="${esc(row.brand)}">`] : []),
         `<script>window.__PRODUCT_ID__=${JSON.stringify(String(row.id))}</script>`,
-        `<script type="application/ld+json" id="ld-product">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`,
       ],
+      jsonld: [seo.productLd(base, row, canonical), seo.breadcrumbLd(crumbs)],
     }));
   });
 
-  // ── Share card: the product's cover photo in a circle on a 1200×630 canvas ──
+  // ── Share card ──────────────────────────────────────────────────────
+  // A full-width 1200×630 picture: the product photo, edge to edge in height (no circle, no frame), with a blurred copy of the
+  // same photo filling the sides and a small logo badge. The sharp photo and the logo stay inside the area WhatsApp never crops.
   let sharp = null; try { sharp = require('sharp'); } catch (e) { /* falls back to the raw cover photo */ }
   const cards = new Map();
   async function sourceBuffer(url) {
@@ -190,6 +270,29 @@ function install(app) {
     }
     throw new Error('no image');
   }
+  let badge = null;   // the logo on a purple pill, built once
+  async function logoBadge() {
+    if (badge !== null) return badge;
+    try {
+      const logo = await sharp(path.join(ROOT, 'IMAGES', 'logo-white.png')).resize({ width: 124 }).png().toBuffer();
+      const meta = await sharp(logo).metadata(), w = meta.width + 40, h = meta.height + 32;
+      const pill = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="${w}" height="${h}" rx="24" fill="#2a1262"/></svg>`);
+      badge = { input: await sharp(pill).composite([{ input: logo, left: 20, top: 16 }]).png().toBuffer(), w, h };
+    } catch (e) { badge = false; }
+    return badge;
+  }
+  async function buildCard(coverUrl) {
+    const side = (CARD_W - CARD_H) / 2;
+    const photo = sharp(await sourceBuffer(coverUrl), { failOn: 'none' }).rotate().flatten({ background: '#ffffff' });
+    const square = await photo.resize(CARD_H, CARD_H, { fit: 'contain', background: '#ffffff' }).jpeg({ quality: 88 }).toBuffer();
+    // Fill the sides by continuing the photo's own edge colours outwards (seamless on white backgrounds, a soft wash on dark ones),
+    // then lay the sharp photo back over the middle. No circle, no frame.
+    const wide = await sharp(square).extend({ left: side, right: side, extendWith: 'copy' }).blur(45).jpeg({ quality: 80 }).toBuffer();
+    const pill = await logoBadge();
+    const layers = [{ input: square, left: side, top: 0 }];
+    if (pill) layers.push({ input: pill.input, left: 36, top: CARD_H - pill.h - 36 });
+    return sharp(wide).composite(layers).jpeg({ quality: 84, mozjpeg: true }).toBuffer();
+  }
   app.get('/share/product/:file', async (req, res) => {
     const m = /^(\d+)\.jpg$/.exec(req.params.file);
     const fallback = () => res.redirect(302, DEFAULT_IMAGE);
@@ -198,21 +301,32 @@ function install(app) {
       const row = await loadProduct(m[1]);
       if (!row || row.status !== 'active') return fallback();
       const cover = (row.images || [])[0];
-      if (!cover || !sharp) return cover ? res.redirect(302, /^https?:/i.test(cover) ? cover : cover) : fallback();
-      const key = `${row.id}:${row.date_updated}:${cover}`;
+      if (!cover || !sharp) return cover ? res.redirect(302, cover) : fallback();
+      const key = `${CARD_VERSION}:${row.id}:${row.date_updated}:${cover}`;
       let jpg = cards.get(key);
       if (!jpg) {
-        const S = 540;
-        const photo = await sharp(await sourceBuffer(cover), { failOn: 'none' }).rotate().flatten({ background: '#ffffff' })
-          .resize(S, S, { fit: 'contain', background: '#ffffff' })
-          .composite([{ input: Buffer.from(`<svg width="${S}" height="${S}"><circle cx="${S / 2}" cy="${S / 2}" r="${S / 2}"/></svg>`), blend: 'dest-in' }]).png().toBuffer();
-        const bg = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3efff"/><stop offset="1" stop-color="#ddd2fb"/></linearGradient></defs><rect width="1200" height="630" fill="url(#g)"/><circle cx="600" cy="315" r="292" fill="#ffffff"/><circle cx="600" cy="315" r="292" fill="none" stroke="#2a1262" stroke-opacity=".12" stroke-width="3"/></svg>`);
-        jpg = await sharp(bg).composite([{ input: photo, left: 330, top: 45 }]).jpeg({ quality: 84, mozjpeg: true }).toBuffer();
+        jpg = await buildCard(cover);
         if (cards.size > 300) cards.delete(cards.keys().next().value);
         cards.set(key, jpg);
       }
       res.type('image/jpeg').set('Cache-Control', 'public, max-age=86400').send(jpg);
     } catch (e) { console.warn('[share] card failed:', e.message); fallback(); }
+  });
+
+  // ── Files for search engines and AI assistants ──────────────────────
+  app.get('/llms.txt', async (req, res) => {
+    try { res.type('text/plain; charset=utf-8').set('Cache-Control', 'public, max-age=3600').send(await seo.llmsTxt(origin(req))); }
+    catch (e) { res.status(500).type('text/plain').send('unavailable'); }
+  });
+  app.get('/feeds/google-merchant.xml', async (req, res) => {
+    try { res.type('application/xml').set('Cache-Control', 'public, max-age=3600').send(await seo.merchantFeed(origin(req))); }
+    catch (e) { res.status(500).type('text/plain').send('unavailable'); }
+  });
+  // IndexNow ownership file: /<INDEXNOW_KEY>.txt must contain the key itself.
+  app.get(/^\/([A-Za-z0-9-]{8,128})\.txt$/, (req, res, next) => {
+    const key = seo.indexNowKey();
+    if (key && req.params[0] === key) return res.type('text/plain').send(key);
+    next();
   });
 
   // ── Admin ───────────────────────────────────────────────────────────

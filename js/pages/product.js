@@ -32,7 +32,7 @@
     document.title = `${product.name} | Will's Tech Store`;
     const d = String(product.description || '').replace(/\s+/g, ' ').slice(0, 155);
     let m = document.querySelector('meta[name="description"]'); if (m) m.content = d;
-    $('crumb-cat').textContent = WT.cap(product.category); $('crumb-cat').href = `/shop?category=${encodeURIComponent(product.category)}`; $('crumb-name').textContent = product.name.slice(0, 40);
+    $('crumb-cat').textContent = WT.cap(product.category); $('crumb-cat').href = `/shop/${WT.catSlug(product.category)}`; $('crumb-name').textContent = product.name.slice(0, 40);
     if (document.getElementById('ld-product')) return;   // the server already added the structured data
     const ld = document.createElement('script'); ld.type = 'application/ld+json';
     ld.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'Product', name: product.name, image: (product.images || []).map(WT.img), description: d, sku: product.sku,
@@ -57,6 +57,9 @@
 
   // The clean address people should share (no query string or #hash).
   const shareUrl = () => location.origin + WT.productPath(product);
+  // "JBL Flip 6 · UGX 404,500" then the link on its own line, so the chat app shows the link preview card under it.
+  const shareLine = () => `${product.name} · ${formatPrice(product.price)}`;
+  const shareText = () => `${shareLine()}\n${shareUrl()}`;
 
   function build() {
     const p = product, pct = Products.discountPct(p), out = Products.isOut(p);
@@ -103,8 +106,11 @@
           <div><i class="fa-solid fa-rotate-left"></i><p><b>Easy returns if it's faulty</b><span><a href="/returns" style="text-decoration:underline">Read our returns policy</a></span></p></div>
         </div>
         <div class="share-row"><span>Share</span>
-          <a href="${WT.waLink(`${p.name}: ${shareUrl()}`)}" target="_blank" rel="noopener" aria-label="Share on WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-          <a href="https://x.com/intent/post?text=${encodeURIComponent(p.name)}&url=${encodeURIComponent(shareUrl())}" target="_blank" rel="noopener" aria-label="Share on X"><i class="fa-brands fa-x-twitter"></i></a>
+          <button id="native-share" hidden aria-label="Share this product"><i class="fa-solid fa-share-nodes"></i></button>
+          <a href="${WT.waShare(shareText())}" target="_blank" rel="noopener" aria-label="Share on WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl())}" target="_blank" rel="noopener" aria-label="Share on Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="https://t.me/share/url?url=${encodeURIComponent(shareUrl())}&text=${encodeURIComponent(shareLine())}" target="_blank" rel="noopener" aria-label="Share on Telegram"><i class="fa-brands fa-telegram"></i></a>
+          <a href="https://x.com/intent/post?text=${encodeURIComponent(shareLine())}&url=${encodeURIComponent(shareUrl())}" target="_blank" rel="noopener" aria-label="Share on X"><i class="fa-brands fa-x-twitter"></i></a>
           <button id="copy-link" aria-label="Copy link"><i class="fa-solid fa-link"></i></button></div>
       </div>
     </div>
@@ -165,6 +171,11 @@
     if ($('q-dec')) { $('q-dec').addEventListener('click', () => { qty = Math.max(1, qty - 1); upd(); }); $('q-inc').addEventListener('click', () => { qty = Math.min(Cart.MAX_QTY, qty + 1); upd(); }); }
     const add = () => Cart.addItem(product, qty);
     if ($('add-btn')) $('add-btn').addEventListener('click', add); if ($('bb-add')) $('bb-add').addEventListener('click', add);
+    // Phones: the share button opens the device's share sheet, so the person picks any app and any contact.
+    if (navigator.share && $('native-share')) {
+      $('native-share').hidden = false;
+      $('native-share').addEventListener('click', () => WT.nativeShare({ title: product.name, text: shareLine(), url: shareUrl() }));
+    }
     $('copy-link').addEventListener('click', async () => { try { await navigator.clipboard.writeText(shareUrl()); showNotification('Link copied', 'success'); } catch (e) { showNotification(shareUrl(), 'info'); } });
 
     const tabs = $('tabs');

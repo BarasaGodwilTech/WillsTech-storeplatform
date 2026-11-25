@@ -237,13 +237,13 @@
 
   function buildCategoryMenus() {
     const cats = Products.categories(), total = Products.active().length, bud = Products.budgets().filter((b) => b.count > 0);
-    const catLink = (c) => `<a class="cm-cat" href="${SHOP}?category=${encodeURIComponent(c.name)}"><span class="ic"><i class="fa-solid ${WT.categoryIcon(c.name)}"></i></span><span><b>${escapeHTML(WT.cap(c.name))}</b><small>${c.count} item${c.count === 1 ? '' : 's'}</small></span></a>`;
+    const catLink = (c) => `<a class="cm-cat" href="${SHOP}/${WT.catSlug(c.name)}"><span class="ic"><i class="fa-solid ${WT.categoryIcon(c.name)}"></i></span><span><b>${escapeHTML(WT.cap(c.name))}</b><small>${c.count} item${c.count === 1 ? '' : 's'}</small></span></a>`;
     $('cat-menu-inner').innerHTML = `
       <div class="cm-col"><h4>Categories</h4><div class="cm-grid"><a class="cm-cat all" href="${SHOP}"><span class="ic"><i class="fa-solid fa-bag-shopping"></i></span><span><b>All products</b><small>${total} items</small></span></a>${cats.map(catLink).join('')}</div></div>
       <div class="cm-col"><h4>Shop by budget</h4><div class="cm-list">${bud.map((b) => `<a href="${b.href}"><span>${b.label}</span><small>${b.count}</small></a>`).join('')}</div></div>
       <div class="cm-col"><h4>Popular</h4><div class="cm-list"><a href="${SHOP}?filter=new"><span>New in</span><i class="fa-solid fa-arrow-right"></i></a><a href="${SHOP}?filter=bestseller"><span>Best sellers</span><i class="fa-solid fa-arrow-right"></i></a><a href="${SHOP}?filter=sale"><span>Deals</span><i class="fa-solid fa-arrow-right"></i></a>${Products.brands().slice(0, 3).map((b) => `<a href="${SHOP}?brand=${encodeURIComponent(b.name)}"><span>${escapeHTML(b.name)}</span><small>${b.count}</small></a>`).join('')}</div></div>`;
-    $('m-cat-list').innerHTML = `<a href="${SHOP}">All products <small>${total}</small></a>` + cats.map((c) => `<a href="${SHOP}?category=${encodeURIComponent(c.name)}">${escapeHTML(WT.cap(c.name))} <small>${c.count}</small></a>`).join('');
-    const fc = document.querySelector('.f-cats'); if (fc) fc.outerHTML = cats.map((c) => `<li><a href="${SHOP}?category=${encodeURIComponent(c.name)}">${escapeHTML(WT.cap(c.name))}</a></li>`).join('');
+    $('m-cat-list').innerHTML = `<a href="${SHOP}">All products <small>${total}</small></a>` + cats.map((c) => `<a href="${SHOP}/${WT.catSlug(c.name)}">${escapeHTML(WT.cap(c.name))} <small>${c.count}</small></a>`).join('');
+    const fc = document.querySelector('.f-cats'); if (fc) fc.outerHTML = cats.map((c) => `<li><a href="${SHOP}/${WT.catSlug(c.name)}">${escapeHTML(WT.cap(c.name))}</a></li>`).join('');
   }
 
   // mini cart

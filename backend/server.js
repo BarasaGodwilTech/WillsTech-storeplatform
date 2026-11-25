@@ -39,6 +39,7 @@ const uploadRoutes = require('./src/routes/uploads.routes');
 const accountRoutes = require('./src/routes/account.routes');
 const shopRoutes = require('./src/routes/shop.routes');
 const pagesLib = require('./src/lib/pages');
+const seoLib = require('./src/lib/seo');
 
 // Express 4 does not catch rejected promises. Log them instead of letting Node (v15+) kill the whole server.
 process.on('unhandledRejection', (err) => console.error('[server] Unhandled rejection:', err && err.stack || err));
@@ -153,17 +154,26 @@ PUBLIC_FILES.forEach((f) => app.get('/' + f, (req, res) => res.sendFile(path.joi
 app.get('/data/site-config.json', (req, res) => res.set('Cache-Control', 'no-cache').sendFile(path.join(FRONTEND_ROOT, 'data', 'site-config.json')));
 // Clean URLs (/shop, /product/<name>-<id>, /admin …), old .html redirects and link-preview tags live in src/lib/pages.js.
 pagesLib.install(app);
-// Dynamic sitemap: static pages + every active product.
+// Dynamic sitemap: static pages + category pages + every active product (with its photos, for Google Images).
 app.get('/sitemap.xml', async (req, res) => {
   try {
     const base = pagesLib.origin(req);
-    const pages = ['', 'shop', 'about', 'contact', 'faq', 'shipping', 'returns', 'track-order', 'privacy', 'terms'];
-    const { rows } = await pool.query("SELECT id, name, date_updated AS updated_at FROM products WHERE status = 'active'");
+    const rows = await seoLib.activeProducts();
+    const day = (d) => new Date(d).toISOString().slice(0, 10);
+    const newest = rows.reduce((m, r) => (r.date_updated && new Date(r.date_updated) > m ? new Date(r.date_updated) : m), new Date(0));
+    const lastmod = (d) => (d && new Date(d).getTime() > 0 ? `<lastmod>${day(d)}</lastmod>` : '');
+    const entry = (loc, d, freq, prio, extra) => `<url><loc>${seoLib.escXml(loc)}</loc>${lastmod(d)}<changefreq>${freq}</changefreq><priority>${prio}</priority>${extra || ''}</url>`;
+    const cats = new Map();
+    rows.forEach((r) => { if (!r.category) return; const k = seoLib.catSlug(r.category); const d = r.date_updated ? new Date(r.date_updated) : new Date(0); if (!cats.has(k) || d > cats.get(k)) cats.set(k, d); });
+    const staticPages = [['', 'daily', '1.0', newest], ['shop', 'daily', '0.9', newest], ['about', 'monthly', '0.5'], ['contact', 'monthly', '0.5'], ['faq', 'monthly', '0.6'], ['shipping', 'monthly', '0.5'], ['returns', 'monthly', '0.4'], ['privacy', 'yearly', '0.2'], ['terms', 'yearly', '0.2']];
     const urls = [
-      ...pages.map((p) => `<url><loc>${base}/${p}</loc></url>`),
-      ...rows.map((r) => `<url><loc>${base}${pagesLib.productPath(r)}</loc>${r.updated_at ? `<lastmod>${new Date(r.updated_at).toISOString().slice(0, 10)}</lastmod>` : ''}</url>`),
+      ...staticPages.map(([p, f, pr, d]) => entry(`${base}/${p}`, d, f, pr)),
+      ...[...cats.entries()].map(([slug, d]) => entry(`${base}/shop/${slug}`, d, 'daily', '0.8')),
+      ...rows.map((r) => entry(`${base}${pagesLib.productPath(r)}`, r.date_updated, 'weekly', '0.7',
+        (r.images || []).filter(Boolean).slice(0, 6).map((u) => `<image:image><image:loc>${seoLib.escXml(seoLib.absUrl(base, u))}</image:loc><image:title>${seoLib.escXml(r.name)}</image:title></image:image>`).join(''))),
     ];
-    res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join('')}</urlset>`);
+    res.type('application/xml').set('Cache-Control', 'public, max-age=1800')
+      .send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">${urls.join('')}</urlset>`);
   } catch (e) { res.status(500).type('text/plain').send('sitemap unavailable'); }
 });
 

@@ -66,7 +66,7 @@
     const first = P.find((x) => (x.images || [])[0]);
     $('cats-grid').innerHTML = `
       <a class="cat-tile big" href="${SHOP}"><i class="fa-solid fa-arrow-right go"></i><span class="ic"><i class="fa-solid fa-bag-shopping"></i></span><div><h3>Shop everything</h3><p>${P.length} products to browse</p></div>${first ? `<span class="cat-img"><img src="${escapeHTML(WT.img(first.images[0]))}" data-fallback="${escapeHTML(WT.imgOriginal(first.images[0]))}" alt="" loading="lazy"></span>` : ''}</a>` +
-      cats.map((c) => `<a class="cat-tile" href="${SHOP}?category=${encodeURIComponent(c.name)}"><i class="fa-solid fa-arrow-right go"></i><span class="ic"><i class="fa-solid ${WT.categoryIcon(c.name)}"></i></span><div><h3>${escapeHTML(WT.cap(c.name))}</h3><p>${c.count} item${c.count === 1 ? '' : 's'}</p></div>${photo(c.name)}</a>`).join('');
+      cats.map((c) => `<a class="cat-tile" href="${SHOP}/${WT.catSlug(c.name)}"><i class="fa-solid fa-arrow-right go"></i><span class="ic"><i class="fa-solid ${WT.categoryIcon(c.name)}"></i></span><div><h3>${escapeHTML(WT.cap(c.name))}</h3><p>${c.count} item${c.count === 1 ? '' : 's'}</p></div>${photo(c.name)}</a>`).join('');
     WT.markLoaded($('cats-grid'));
   }
 
