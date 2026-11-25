@@ -5,15 +5,20 @@
 const Products = {
   allProducts: [],
   loaded: false,
+  fromFallback: false,   // true when the live API was unreachable and data/site-config.json was used
 
   async init() {
     // Show the last catalogue we saw straight away (names, prices and stock appear instantly), then refresh quietly.
     const CK = 'wt-catalog-v2'; let cached = null;
     try { const c = JSON.parse(localStorage.getItem(CK) || 'null'); if (c && Array.isArray(c.p) && c.p.length && Date.now() - c.t < 10 * 60 * 1000) cached = c.p; } catch (e) { /* no cache */ }
-    const fresh = this.loadProducts().then((list) => { try { localStorage.setItem(CK, JSON.stringify({ t: Date.now(), p: list })); } catch (e) { /* storage full */ } return list; });
+    const fresh = this.loadProducts().then((list) => { if (!this.fromFallback) { try { localStorage.setItem(CK, JSON.stringify({ t: Date.now(), p: list })); } catch (e) { /* storage full */ } } return list; });
     if (cached) {
       this.allProducts = cached; this.loaded = true; WT._flush();
-      fresh.then((list) => { this.allProducts.splice(0, this.allProducts.length, ...list); document.dispatchEvent(new CustomEvent('wt:products-refreshed')); }).catch(() => {});
+      fresh.then((list) => {
+        this.allProducts.splice(0, this.allProducts.length, ...list);
+        if (window.Cart && list.length && !this.fromFallback) Cart.reconcile(this.allProducts);   // prices/stock may have changed since the cached copy
+        document.dispatchEvent(new CustomEvent('wt:products-refreshed'));
+      }).catch(() => {});
       return;
     }
     try { this.allProducts = await fresh; }
@@ -23,11 +28,14 @@ const Products = {
   },
 
   async loadProducts() {
+    this.fromFallback = false;
     try {
       const base = typeof window.API_BASE === 'string' ? window.API_BASE : '/api';
       const res = await fetch(`${base}/products`);
       if (res.ok) { const data = await res.json(); if (Array.isArray(data.products)) return data.products; }
-    } catch (e) { console.warn('[Products] Backend unreachable, using data/site-config.json'); }
+    } catch (e) { /* handled below */ }
+    console.warn('[Products] Live catalogue unavailable, using data/site-config.json');
+    this.fromFallback = true;
     const res = await fetch(WT.root + 'data/site-config.json');
     if (!res.ok) throw new Error(`HTTP ${res.status} loading catalogue`);
     const data = await res.json();

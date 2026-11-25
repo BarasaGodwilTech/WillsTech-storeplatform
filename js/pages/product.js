@@ -11,6 +11,16 @@
     if (!product || product.status !== 'active') return notFound();
     WT.recent.add(product.id);
     seo(); build(); related(); document.dispatchEvent(new CustomEvent('wt:sync-wishlist'));
+    // This page may have been drawn from the cached catalogue. If the live one disagrees on price/stock/name, reload once
+    // (the cache is already refreshed by then, so the reload shows the live data and cannot loop).
+    const drawn = JSON.stringify([product.name, product.price, product.originalPrice, product.stock, product.status]);
+    document.addEventListener('wt:products-refreshed', () => {
+      const now = Products.getProductById(product.id);
+      const live = now ? JSON.stringify([now.name, now.price, now.originalPrice, now.stock, now.status]) : null;
+      if (live === drawn) return;
+      try { if (Date.now() - Number(sessionStorage.getItem('wt-pdp-reload') || 0) < 30000) return; sessionStorage.setItem('wt-pdp-reload', String(Date.now())); } catch (e) { /* ignore */ }
+      location.reload();
+    });
   });
 
   function notFound() {

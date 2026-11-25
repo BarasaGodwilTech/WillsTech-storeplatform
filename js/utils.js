@@ -81,7 +81,12 @@
   // Run fn once products are loaded (immediately if they already are).
   const queue = [];
   WT.productsReady = false;
-  WT.ready = (fn) => (WT.productsReady ? fn() : queue.push(fn));
+  // When the catalogue is already loaded (cached visit) the callback is deferred to a microtask, so it runs only AFTER the calling
+  // page script has finished evaluating (otherwise a page's later `const` declarations are not initialised yet and it crashes).
+  WT.ready = (fn) => {
+    if (!WT.productsReady) { queue.push(fn); return; }
+    Promise.resolve().then(() => { try { fn(); } catch (e) { console.error(e); } });
+  };
   WT._flush = () => { WT.productsReady = true; while (queue.length) { try { queue.shift()(); } catch (e) { console.error(e); } } };
 
   // ── Icons ──────────────────────────────────────────────

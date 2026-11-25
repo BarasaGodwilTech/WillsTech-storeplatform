@@ -85,6 +85,7 @@
     readURL();
     $('shop-q').value = state.q; $('shop-sort').value = state.sort; $('f-min').value = state.min; $('f-max').value = state.max; $('f-stock').checked = state.instock;
     render();
+    document.addEventListener('wt:products-refreshed', render);   // cached catalogue was replaced by the live one
 
     $('f-collections').addEventListener('click', (e) => { const b = e.target.closest('[data-col]'); if (b) change(() => { state.collection = b.dataset.col; }); });
     $('f-categories').addEventListener('click', (e) => { const b = e.target.closest('[data-cat]'); if (b) change(() => { state.category = b.dataset.cat; }); });

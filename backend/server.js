@@ -40,6 +40,10 @@ const accountRoutes = require('./src/routes/account.routes');
 const shopRoutes = require('./src/routes/shop.routes');
 const pagesLib = require('./src/lib/pages');
 
+// Express 4 does not catch rejected promises. Log them instead of letting Node (v15+) kill the whole server.
+process.on('unhandledRejection', (err) => console.error('[server] Unhandled rejection:', err && err.stack || err));
+process.on('uncaughtException', (err) => console.error('[server] Uncaught exception:', err && err.stack || err));
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 const FRONTEND_ROOT = path.join(__dirname, '..');
@@ -142,6 +146,8 @@ const PUBLIC_FILES = [
   'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png', 'web-app-manifest-512x512-maskable.png',
 ];
 PUBLIC_FILES.forEach((f) => app.get('/' + f, (req, res) => res.sendFile(path.join(FRONTEND_ROOT, f))));
+// Static catalogue the storefront falls back to when /api/products is unreachable (js/products.js). Only this one file of data/ is public.
+app.get('/data/site-config.json', (req, res) => res.set('Cache-Control', 'no-cache').sendFile(path.join(FRONTEND_ROOT, 'data', 'site-config.json')));
 // Clean URLs (/shop, /product/<name>-<id>, /admin …), old .html redirects and link-preview tags live in src/lib/pages.js.
 pagesLib.install(app);
 // Dynamic sitemap: static pages + every active product.

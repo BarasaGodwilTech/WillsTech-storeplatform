@@ -44,6 +44,7 @@ router.post('/register', async (req, res) => {
     const token = signToken({ id: user.id, role: user.role, email: user.email });
     res.status(201).json({ token, user: publicUser(user) });
   } catch (err) {
+    if (err && err.code === '23505') return res.status(409).json({ error: 'An account with this email already exists' });
     console.error('[auth] register error:', err.message);
     res.status(500).json({ error: 'Could not create account' });
   }

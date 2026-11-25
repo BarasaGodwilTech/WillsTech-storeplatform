@@ -85,7 +85,7 @@ router.get('/storage', async (req, res) => {
     res.json({ ...st, photos: { total, onR2, toMove: total - onR2 }, job: job.public() });
   } catch (e) { res.status(500).json({ error: 'Could not read storage status' }); }
 });
-router.post('/storage/test', async (req, res) => { res.json(await storage.testConnection()); });
+router.post('/storage/test', async (req, res) => { try { res.json(await storage.testConnection()); } catch (e) { res.status(500).json({ ok: false, message: 'Could not run the storage test: ' + e.message }); } });
 // The move runs in the background; the admin page polls GET /storage for progress.
 router.post('/storage/migrate', (req, res) => {
   if (!storage.isR2()) return res.status(400).json({ error: 'R2 is not set up yet. Add the R2_* values to backend/.env and restart the server.' });

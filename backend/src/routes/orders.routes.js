@@ -87,11 +87,12 @@ function cleanPin(a) {
 // POST /api/orders — create an order (guests and signed-in customers).
 // Prices, delivery fees, discounts and stock are ALWAYS checked here; nothing the browser sends is trusted.
 router.post('/', optionalAuth, async (req, res) => {
-  const cfg = await getShopConfig();   // read BEFORE taking the transaction's connection (never hold one while waiting for another)
-  const client = await pool.connect();
+  let client = null;
   let began = false;
-  const fail = async (code, message) => { if (began) { try { await client.query('ROLLBACK'); } catch (e) { /* ignore */ } began = false; } return res.status(code).json({ error: message }); };
+  const fail = async (code, message) => { if (began && client) { try { await client.query('ROLLBACK'); } catch (e) { /* ignore */ } began = false; } return res.status(code).json({ error: message }); };
   try {
+    const cfg = await getShopConfig();   // read BEFORE taking the transaction's connection (never hold one while waiting for another)
+    client = await pool.connect();
     const b = req.body || {};
     const { items, shippingAddress, notes, couponCode, deliveryZone } = b;
     if (!Array.isArray(items) || items.length === 0) return fail(400, 'Your cart is empty');
@@ -162,10 +163,10 @@ router.post('/', optionalAuth, async (req, res) => {
     await client.query('COMMIT'); began = false;
     res.status(201).json({ order: toClientOrder(rows[0]), deliveryQuote: delivery.quote });
   } catch (err) {
-    if (began) { try { await client.query('ROLLBACK'); } catch (e) { /* ignore */ } }
+    if (began && client) { try { await client.query('ROLLBACK'); } catch (e) { /* ignore */ } }
     console.error('[orders] create error:', err.message);
-    res.status(500).json({ error: 'We could not place your order just now. Please try again in a moment.' });
-  } finally { client.release(); }
+    if (!res.headersSent) res.status(500).json({ error: 'We could not place your order just now. Please try again in a moment.' });
+  } finally { if (client) client.release(); }
 });
 
 // GET /api/orders/track?number=WT-2026-00042&contact=0751924844  (phone or email used at checkout)
@@ -219,14 +220,17 @@ router.get('/', requireAdmin, async (req, res) => {
 });
 
 router.get('/:id', requireAdmin, async (req, res) => {
-  const { rows } = await pool.query('SELECT * FROM orders WHERE id::text = $1', [req.params.id]);
-  if (!rows.length) return res.status(404).json({ error: 'Order not found' });
-  res.json({ order: toClientOrder(rows[0], true) });
+  try {
+    const { rows } = await pool.query('SELECT * FROM orders WHERE id::text = $1', [req.params.id]);
+    if (!rows.length) return res.status(404).json({ error: 'Order not found' });
+    res.json({ order: toClientOrder(rows[0], true) });
+  } catch (err) { res.status(500).json({ error: 'Could not load that order' }); }
 });
 
 router.patch('/:id/status', requireAdmin, async (req, res) => {
-  const client = await pool.connect();
+  let client = null;
   try {
+    client = await pool.connect();
     const { status, note, markPaid } = req.body || {};
     if (!STATUSES.includes(status)) return res.status(400).json({ error: `status must be one of: ${STATUSES.join(', ')}` });
     await client.query('BEGIN');
@@ -247,16 +251,17 @@ router.patch('/:id/status', requireAdmin, async (req, res) => {
     await client.query('COMMIT');
     res.json({ order: toClientOrder(rows[0], true) });
   } catch (err) {
-    try { await client.query('ROLLBACK'); } catch (e) { /* ignore */ }
+    try { if (client) await client.query('ROLLBACK'); } catch (e) { /* ignore */ }
     console.error('[orders] status error:', err.message);
     res.status(500).json({ error: 'Could not update order status' });
-  } finally { client.release(); }
+  } finally { if (client) client.release(); }
 });
 
 // PATCH /api/orders/:id/delivery — schedule delivery: date, time window, rider, fee, message shown to the customer.
 router.patch('/:id/delivery', requireAdmin, async (req, res) => {
-  const client = await pool.connect();
+  let client = null;
   try {
+    client = await pool.connect();
     const b = req.body || {};
     const date = b.date ? String(b.date).slice(0, 10) : null;
     if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Please pick a valid delivery date' });
@@ -283,10 +288,10 @@ router.patch('/:id/delivery', requireAdmin, async (req, res) => {
     await client.query('COMMIT');
     res.json({ order: toClientOrder(rows[0], true) });
   } catch (err) {
-    try { await client.query('ROLLBACK'); } catch (e) { /* ignore */ }
+    try { if (client) await client.query('ROLLBACK'); } catch (e) { /* ignore */ }
     console.error('[orders] delivery error:', err.message);
     res.status(500).json({ error: 'Could not save delivery details' });
-  } finally { client.release(); }
+  } finally { if (client) client.release(); }
 });
 
 // PATCH /api/orders/:id/payment — record that money came in (or was refunded), with a reference such as a MoMo transaction ID.
@@ -313,23 +318,24 @@ router.patch('/:id/note', requireAdmin, async (req, res) => {
 
 // PATCH /api/orders/:id/cancel — a customer cancelling their own *pending* order.
 router.patch('/:id/cancel', requireAuth, async (req, res) => {
-  const client = await pool.connect();
+  let client = null;
   try {
-    const { rows } = await client.query('SELECT * FROM orders WHERE id::text = $1', [req.params.id]);
-    if (!rows.length) return res.status(404).json({ error: 'Order not found' });
-    if (rows[0].user_id !== req.user.id) return res.status(403).json({ error: 'This is not your order' });
-    if (rows[0].status !== 'pending') return res.status(400).json({ error: 'Only orders we have not confirmed yet can be cancelled here. Please contact us for help with this one.' });
+    client = await pool.connect();
     await client.query('BEGIN');
+    const { rows } = await client.query('SELECT * FROM orders WHERE id::text = $1 FOR UPDATE', [req.params.id]);   // lock: a double click must not restock twice
+    if (!rows.length) { await client.query('ROLLBACK'); return res.status(404).json({ error: 'Order not found' }); }
+    if (rows[0].user_id !== req.user.id) { await client.query('ROLLBACK'); return res.status(403).json({ error: 'This is not your order' }); }
+    if (rows[0].status !== 'pending') { await client.query('ROLLBACK'); return res.status(400).json({ error: 'Only orders we have not confirmed yet can be cancelled here. Please contact us for help with this one.' }); }
     await adjustStock(client, rows[0].items, +1);
     const { rows: updated } = await client.query("UPDATE orders SET status = 'cancelled', updated_at = now() WHERE id = $1 RETURNING *", [rows[0].id]);
     await addEvent(client, rows[0].id, 'cancelled', 'Cancelled by customer');
     await client.query('COMMIT');
     res.json({ order: toClientOrder(updated[0]) });
   } catch (err) {
-    try { await client.query('ROLLBACK'); } catch (e) { /* ignore */ }
+    try { if (client) await client.query('ROLLBACK'); } catch (e) { /* ignore */ }
     console.error('[orders] cancel error:', err.message);
     res.status(500).json({ error: 'Could not cancel order' });
-  } finally { client.release(); }
+  } finally { if (client) client.release(); }
 });
 
 module.exports = router;

@@ -66,8 +66,9 @@ router.get('/reviews/:productId', async (req, res) => {
 });
 
 router.post('/reviews/:productId', requireAuth, async (req, res) => {
-  const client = await pool.connect();
+  let client = null;
   try {
+    client = await pool.connect();
     const productId = Number(req.params.productId);
     const rating = Math.floor(Number(req.body && req.body.rating));
     if (!Number.isFinite(productId) || !(rating >= 1 && rating <= 5)) return res.status(400).json({ error: 'Please choose a star rating' });
@@ -90,10 +91,10 @@ router.post('/reviews/:productId', requireAuth, async (req, res) => {
     await client.query('COMMIT');
     res.status(201).json({ ok: true });
   } catch (e) {
-    try { await client.query('ROLLBACK'); } catch (x) { /* ignore */ }
+    try { if (client) await client.query('ROLLBACK'); } catch (x) { /* ignore */ }
     console.error('[reviews] error:', e.message);
     res.status(500).json({ error: 'Could not save your review' });
-  } finally { client.release(); }
+  } finally { if (client) client.release(); }
 });
 
 module.exports = router;

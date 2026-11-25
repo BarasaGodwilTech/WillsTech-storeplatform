@@ -104,7 +104,7 @@ function deliveryFor(cfg, zoneId, subtotal) {
 async function evaluateCoupon(client, rawCode, subtotal) {
   const code = String(rawCode || '').trim().toUpperCase();
   if (!code) throw new Error('Enter a discount code');
-  const { rows } = await client.query('SELECT * FROM coupons WHERE code = $1', [code]);
+  const { rows } = await client.query('SELECT * FROM coupons WHERE code = $1 FOR UPDATE', [code]);
   const c = rows[0];
   if (!c || !c.active) throw new Error('That code is not valid');
   if (c.expires_at && new Date(c.expires_at) < new Date()) throw new Error('That code has expired');
