@@ -6,7 +6,7 @@
   let product, qty = 1, media = [], cur = 0;
 
   WT.ready(() => {
-    const id = new URLSearchParams(location.search).get('id');
+    const id = WT.productIdFromUrl();
     product = Products.getProductById(id);
     if (!product || product.status !== 'active') return notFound();
     WT.recent.add(product.id);
@@ -14,7 +14,7 @@
   });
 
   function notFound() {
-    $('pdp-root').innerHTML = `<div class="notfound"><h1 style="font-size:40px">We couldn't find that product</h1><p class="text-muted">It may have sold out or moved.</p><div class="form-actions" style="justify-content:center"><a class="btn btn-primary btn-lg" href="shop.html">Browse the shop</a></div></div>`;
+    $('pdp-root').innerHTML = `<div class="notfound"><h1 style="font-size:40px">We couldn't find that product</h1><p class="text-muted">It may have sold out or moved.</p><div class="form-actions" style="justify-content:center"><a class="btn btn-primary btn-lg" href="/shop">Browse the shop</a></div></div>`;
     $('crumb-name').textContent = 'Not found';
   }
 
@@ -22,7 +22,8 @@
     document.title = `${product.name} | Will's Tech Store`;
     const d = String(product.description || '').replace(/\s+/g, ' ').slice(0, 155);
     let m = document.querySelector('meta[name="description"]'); if (m) m.content = d;
-    $('crumb-cat').textContent = WT.cap(product.category); $('crumb-cat').href = `shop.html?category=${encodeURIComponent(product.category)}`; $('crumb-name').textContent = product.name.slice(0, 40);
+    $('crumb-cat').textContent = WT.cap(product.category); $('crumb-cat').href = `/shop?category=${encodeURIComponent(product.category)}`; $('crumb-name').textContent = product.name.slice(0, 40);
+    if (document.getElementById('ld-product')) return;   // the server already added the structured data
     const ld = document.createElement('script'); ld.type = 'application/ld+json';
     ld.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'Product', name: product.name, image: (product.images || []).map(WT.img), description: d, sku: product.sku,
       offers: { '@type': 'Offer', priceCurrency: 'UGX', price: Number(product.price), availability: Products.isOut(product) ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock' },
@@ -43,6 +44,9 @@
     if (vm) return { type: 'video', kind: 'embed', src: `https://player.vimeo.com/video/${vm[1]}`, poster: '' };
     return { type: 'video', kind: 'file', src: /^https?:/.test(u) ? u : WT.root + u.replace(/^\//, ''), poster: '' };
   }
+
+  // The clean address people should share (no query string or #hash).
+  const shareUrl = () => location.origin + WT.productPath(product);
 
   function build() {
     const p = product, pct = Products.discountPct(p), out = Products.isOut(p);
@@ -76,21 +80,21 @@
         ${features.length ? `<ul class="why">${features.slice(0, 3).map((f) => `<li><i class="fa-solid fa-circle-check"></i><span>${escapeHTML(f)}</span></li>`).join('')}</ul>` : ''}
         ${specs.length ? `<div class="keyspecs">${specs.slice(0, 4).map(([k, v]) => `<div class="keyspec"><small>${escapeHTML(humanize(k))}</small><b>${escapeHTML(typeof v === 'object' ? '' : String(v).slice(0, 38))}</b></div>`).join('')}</div>` : ''}
         <div class="buy-row" id="buy-row">
-          ${out ? `<a class="btn btn-secondary btn-lg" style="flex:1" href="${WT.page('contact.html')}?subject=${encodeURIComponent('Back in stock')}&message=${encodeURIComponent(`Please let me know when "${p.name}" is back in stock.`)}"><i class="fa-regular fa-bell"></i> Ask when it's back</a>`
+          ${out ? `<a class="btn btn-secondary btn-lg" style="flex:1" href="${WT.page('/contact')}?subject=${encodeURIComponent('Back in stock')}&message=${encodeURIComponent(`Please let me know when "${p.name}" is back in stock.`)}"><i class="fa-regular fa-bell"></i> Ask when it's back</a>`
             : `<div class="qty" aria-label="Quantity"><button id="q-dec" aria-label="Decrease quantity"><i class="fa-solid fa-minus"></i></button><span id="q-val">1</span><button id="q-inc" aria-label="Increase quantity"><i class="fa-solid fa-plus"></i></button></div>
                <button class="btn btn-primary btn-lg" id="add-btn"><i class="fa-solid fa-bag-shopping"></i> ${p.stock === 'pre-order' ? 'Pre-order now' : 'Add to cart'}</button>`}
           <button class="wishlist-btn-detail" data-product-id="${p.id}" aria-pressed="false"><i class="fa-regular fa-heart"></i><span class="wl-label">Save to wishlist</span></button>
           <button class="wishlist-btn-detail cmp-detail" data-compare="${p.id}" aria-pressed="false"><i class="fa-solid fa-code-compare"></i><span class="cmp-label">Compare</span></button>
         </div>
-        <p class="ask-line"><i class="fa-regular fa-comment-dots"></i> Questions about this product? <a href="${WT.page('contact.html')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Hi! I have a question about ${p.name}.`)}">Ask us</a></p>
+        <p class="ask-line"><i class="fa-regular fa-comment-dots"></i> Questions about this product? <a href="${WT.page('/contact')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Hi! I have a question about ${p.name}.`)}">Ask us</a></p>
         <div class="assure">
           <div><i class="fa-solid fa-shield-halved"></i><p><b>Authentic and sealed</b><span>Brand-new, straight from the supplier.</span></p></div>
-          <div><i class="fa-solid fa-truck-fast"></i><p><b>We deliver everywhere in Uganda</b><span>${SITE.freeDeliveryThreshold > 0 ? `Free over ${formatPrice(SITE.freeDeliveryThreshold)}.` : 'To your door, anywhere in Uganda.'} <a href="shipping.html" style="text-decoration:underline">Delivery details</a></span></p></div>
-          <div><i class="fa-solid fa-rotate-left"></i><p><b>Easy returns if it's faulty</b><span><a href="returns.html" style="text-decoration:underline">Read our returns policy</a></span></p></div>
+          <div><i class="fa-solid fa-truck-fast"></i><p><b>We deliver everywhere in Uganda</b><span>${SITE.freeDeliveryThreshold > 0 ? `Free over ${formatPrice(SITE.freeDeliveryThreshold)}.` : 'To your door, anywhere in Uganda.'} <a href="/shipping" style="text-decoration:underline">Delivery details</a></span></p></div>
+          <div><i class="fa-solid fa-rotate-left"></i><p><b>Easy returns if it's faulty</b><span><a href="/returns" style="text-decoration:underline">Read our returns policy</a></span></p></div>
         </div>
         <div class="share-row"><span>Share</span>
-          <a href="${WT.waLink(`${p.name}: ${location.href}`)}" target="_blank" rel="noopener" aria-label="Share on WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-          <a href="https://x.com/intent/post?text=${encodeURIComponent(p.name)}&url=${encodeURIComponent(location.href)}" target="_blank" rel="noopener" aria-label="Share on X"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="${WT.waLink(`${p.name}: ${shareUrl()}`)}" target="_blank" rel="noopener" aria-label="Share on WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+          <a href="https://x.com/intent/post?text=${encodeURIComponent(p.name)}&url=${encodeURIComponent(shareUrl())}" target="_blank" rel="noopener" aria-label="Share on X"><i class="fa-brands fa-x-twitter"></i></a>
           <button id="copy-link" aria-label="Copy link"><i class="fa-solid fa-link"></i></button></div>
       </div>
     </div>
@@ -151,7 +155,7 @@
     if ($('q-dec')) { $('q-dec').addEventListener('click', () => { qty = Math.max(1, qty - 1); upd(); }); $('q-inc').addEventListener('click', () => { qty = Math.min(Cart.MAX_QTY, qty + 1); upd(); }); }
     const add = () => Cart.addItem(product, qty);
     if ($('add-btn')) $('add-btn').addEventListener('click', add); if ($('bb-add')) $('bb-add').addEventListener('click', add);
-    $('copy-link').addEventListener('click', async () => { try { await navigator.clipboard.writeText(location.href); showNotification('Link copied', 'success'); } catch (e) { showNotification(location.href, 'info'); } });
+    $('copy-link').addEventListener('click', async () => { try { await navigator.clipboard.writeText(shareUrl()); showNotification('Link copied', 'success'); } catch (e) { showNotification(shareUrl(), 'info'); } });
 
     const tabs = $('tabs');
     const openTab = (name) => { tabs.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.tab === name)); ['desc', 'specs', 'reviews'].forEach((n) => { const el = $('tp-' + n); if (el) el.hidden = n !== name; }); if (name === 'reviews') loadReviews(); };
@@ -172,7 +176,7 @@
         <div class="form-group" style="margin:0"><label class="form-label" for="rv-title">Headline <span class="optional">(optional)</span></label><input class="form-input" id="rv-title" maxlength="120"></div>
         <div class="form-group" style="margin:0"><label class="form-label" for="rv-body">Your review</label><textarea class="form-input" id="rv-body" maxlength="2000" placeholder="What did you like? Anything to know before buying?"></textarea></div>
         <button class="btn btn-dark" type="submit" style="justify-self:start">Post review</button></form>`
-      : `<div class="callout"><i class="fa-regular fa-comment-dots"></i><span>Bought this from us? <a href="login.html?redirect=${encodeURIComponent(location.pathname.split('/').pop() + location.search)}">Sign in</a> to leave a review.</span></div>`;
+      : `<div class="callout"><i class="fa-regular fa-comment-dots"></i><span>Bought this from us? <a href="/login?redirect=${encodeURIComponent(location.pathname + location.search)}">Sign in</a> to leave a review.</span></div>`;
     const f = $('review-form');
     if (f) f.addEventListener('submit', async (e) => {
       e.preventDefault(); const rating = (f.querySelector('input[name=rating]:checked') || {}).value;

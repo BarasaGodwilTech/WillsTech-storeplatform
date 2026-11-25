@@ -120,3 +120,12 @@ tr.click{cursor:pointer}tr.click:hover td{background:var(--hover)}td b,td strong
 .prog{height:10px;border-radius:99px;background:var(--surface);margin-top:14px;overflow:hidden}.prog i{display:block;height:100%;background:var(--sun);transition:width .4s}
 .tpl .pad{padding:20px}
 @media(max-width:860px){.zmap{grid-template-columns:1fr 1fr;}.zmap span{grid-column:1/-1}}
+
+/* notifications popover */
+.notes{position:fixed;top:60px;right:20px;width:min(380px,calc(100vw - 24px));max-height:min(70vh,520px);overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 50px rgba(20,8,50,.25);z-index:60}
+.notes .nh{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}.notes .nh small{color:var(--t3)}
+.notes .ni{display:flex;gap:12px;padding:12px 16px;color:var(--t1);text-decoration:none;border-bottom:1px solid var(--line)}.notes .ni:last-child{border-bottom:0}.notes .ni:hover{background:var(--hover)}
+.notes .ni i{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none;font-size:14px}
+.notes .ni span{display:flex;flex-direction:column;min-width:0}.notes .ni small{color:var(--t3)}
+.notes .t-warn{background:var(--warn-s);color:var(--warn)}.notes .t-bad{background:var(--bad-s);color:var(--bad)}.notes .t-info{background:var(--info-s);color:var(--info)}
+.notes .ne{padding:28px 16px;text-align:center;color:var(--t3)}.notes .ne i{display:block;font-size:26px;color:var(--ok);margin-bottom:8px}

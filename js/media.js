@@ -33,7 +33,7 @@
   Media.cta = function (v) {
     const hit = (window.Products ? Products.active() : []).find((p) => v.keywords.some((k) => p.name.toLowerCase().includes(k)));
     if (hit) return { label: `View ${hit.name.slice(0, 28)}`, href: Products.href(hit), wa: false, icon: 'fa-bag-shopping' };
-    return { label: `Ask about the ${v.title}`, href: `${WT.page('contact.html')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Hi! I saw the ${v.title} video. Is it available, and what's the price?`)}`, wa: false, icon: 'fa-envelope' };
+    return { label: `Ask about the ${v.title}`, href: `${WT.page('/contact')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Hi! I saw the ${v.title} video. Is it available, and what's the price?`)}`, wa: false, icon: 'fa-envelope' };
   };
 
   // Clean rounded video card (no device frame) used by the hero slider.
@@ -41,7 +41,7 @@
     return `<div class="vid-card" aria-hidden="true"><video muted loop playsinline preload="none" poster="${WT.root + v.poster}" data-src="${WT.root + v.src}" tabindex="-1"></video></div>`;
   };
   // Where an enquiry about a clip should go when the catalogue has no matching product: the on-site form.
-  Media.enquiryUrl = (v) => `${WT.page('contact.html')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Hi! I'd like the price and availability of the ${v.title}.`)}`;
+  Media.enquiryUrl = (v) => `${WT.page('/contact')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Hi! I'd like the price and availability of the ${v.title}.`)}`;
   Media.play = (video) => { if (!video) return; if (!video.src && video.dataset.src) video.src = video.dataset.src; const p = video.play(); if (p && p.catch) p.catch(() => {}); };
   Media.pause = (video) => { if (video) video.pause(); };
 

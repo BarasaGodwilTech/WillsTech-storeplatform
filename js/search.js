@@ -124,9 +124,7 @@ const Search = {
           // If no item selected, perform search
           const query = this.input.value.trim();
           this.addToHistory(query);
-          const pagePath = window.location.pathname;
-          const isSubpage = pagePath.includes('/pages/');
-          window.location.href = `${isSubpage ? '' : 'pages/'}shop.html?q=${encodeURIComponent(query)}`;
+          window.location.href = `/shop?q=${encodeURIComponent(query)}`;
         }
         break;
       
@@ -256,16 +254,13 @@ const Search = {
 
     // Searched and Clicked Products
     if (searchedAndClickedProducts.length > 0) {
-      const pagePath = window.location.pathname;
-      const isSubpage = pagePath.includes('/pages/');
-      
       html += '<div class="search-section search-section-products">';
       html += '<div class="search-section-header"><span class="search-section-title">Recently Viewed</span><button class="search-clear-history" id="search-clear-viewed">Clear All</button></div>';
       html += '<div class="search-products-compact">';
       
       searchedAndClickedProducts.slice(0, 6).forEach(p => {
-        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (isSubpage ? '../IMAGES/logo-mark-phone-purple.svg' : 'IMAGES/logo-mark-phone-purple.svg');
-        const productLink = isSubpage ? `product.html?id=${p.id}` : `pages/product.html?id=${p.id}`;
+        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : '/IMAGES/logo-mark-phone-purple.svg';
+        const productLink = WT.productPath(p);
         
         html += `<a href="${productLink}" class="search-product-compact" title="${escapeHTML(p.name)}">
           <img src="${escapeHTML(WT.img(img))}" data-fallback="${escapeHTML(WT.imgOriginal(img))}" alt="${escapeHTML(p.name)}" class="search-product-compact-img" loading="lazy">
@@ -380,17 +375,14 @@ const Search = {
       return;
     }
 
-    const pagePath = window.location.pathname;
-    const isSubpage = pagePath.includes('/pages/');
-
     this.results.innerHTML = `
       <div class="search-results-header">
         <span>${matches.length} result${matches.length !== 1 ? 's' : ''} for "${escapeHTML(query)}"</span>
-        <a href="${isSubpage ? 'shop.html' : 'pages/shop.html'}?q=${encodeURIComponent(query)}" class="search-view-all">View All &rarr;</a>
+        <a href="/shop?q=${encodeURIComponent(query)}" class="search-view-all">View All &rarr;</a>
       </div>
       ${matches.map(p => {
-        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : (isSubpage ? '../IMAGES/logo-mark-phone-purple.svg' : 'IMAGES/logo-mark-phone-purple.svg');
-        const productLink = isSubpage ? `product.html?id=${p.id}` : `pages/product.html?id=${p.id}`;
+        const img = Array.isArray(p.images) && p.images.length ? p.images[0] : '/IMAGES/logo-mark-phone-purple.svg';
+        const productLink = WT.productPath(p);
         const rating = p.rating || 0;
         const starsHTML = WT.stars(rating);
         const isDiscounted = p.originalPrice && Number(p.originalPrice) > Number(p.price);
@@ -431,7 +423,7 @@ const Search = {
   },
 
   _shopLink() {
-    return window.location.pathname.includes('/pages/') ? 'shop.html' : 'pages/shop.html';
+    return '/shop';
   }
 };
 

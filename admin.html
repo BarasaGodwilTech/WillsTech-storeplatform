@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin | Will's Tech</title><meta name="robots" content="noindex">
-<link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
-<link rel="icon" href="favicon.ico?v=4" sizes="48x48">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=4">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=4">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=4">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4">
+<link rel="icon" href="/favicon.ico?v=4" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=4">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=4">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
 <meta name="theme-color" content="#2a1262">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="/css/admin.css">
 <script>try{var t=localStorage.getItem('wt_admin_theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;}catch(e){}
-if(!localStorage.getItem('willstech_admin_token'))location.replace('admin-login.html');</script>
+if(!localStorage.getItem('willstech_admin_token'))location.replace('/admin/login');</script>
 </head><body>
 <div class="app">
   <aside class="sb" id="sb"></aside>
@@ -21,7 +21,7 @@ if(!localStorage.getItem('willstech_admin_token'))location.replace('admin-login.
       <button class="search" id="srch" style="border:0;text-align:left;color:var(--t3);cursor:pointer"><i class="fa-solid fa-magnifying-glass"></i><span style="flex:1">Search or jump to…</span><span class="kbd">Ctrl K</span></button>
       <div style="flex:1"></div>
       <button class="ibtn" id="theme" aria-label="Toggle theme"><i class="fa-solid fa-moon"></i></button>
-      <button class="ibtn" id="bell" aria-label="Orders waiting"><i class="fa-regular fa-bell"></i><span class="dot hidden" id="bdot"></span></button>
+      <button class="ibtn" id="bell" aria-label="Notifications"><i class="fa-regular fa-bell"></i><span class="dot hidden" id="bdot"></span></button>
       <div class="av" id="topav">WT</div>
     </div>
     <main class="page" id="view"></main>
@@ -29,7 +29,7 @@ if(!localStorage.getItem('willstech_admin_token'))location.replace('admin-login.
 </div>
 <div class="drawer-bg" id="dbg"></div><aside class="drawer" id="drawer"></aside>
 <div class="toasts" id="toasts"></div><div id="overlay"></div>
-<script src="js/admin/app.js"></script>
-<script src="js/admin/assist.js"></script>
-<script src="js/admin/pages.js"></script>
+<script src="/js/admin/app.js"></script>
+<script src="/js/admin/assist.js"></script>
+<script src="/js/admin/pages.js"></script>
 </body></html>

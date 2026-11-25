@@ -38,6 +38,7 @@ const orderRoutes = require('./src/routes/orders.routes');
 const uploadRoutes = require('./src/routes/uploads.routes');
 const accountRoutes = require('./src/routes/account.routes');
 const shopRoutes = require('./src/routes/shop.routes');
+const pagesLib = require('./src/lib/pages');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -123,40 +124,42 @@ app.get('/js/site.js', async (req, res, next) => {
 // Previously the whole project root was served, which exposed backend/ source,
 // backend/.env, firestore.rules and data/images (ID photos). Now only public
 // assets are reachable.
+// Scripts and styles are re-checked on every load (a cheap 304 when unchanged) so a deploy can never leave a visitor
+// with an old script talking to new pages. Photos and videos are cached for a day.
 const staticOpts = { dotfiles: 'ignore', index: false, maxAge: isProd ? '1d' : 0 };
-['css', 'js', 'IMAGES', 'public', 'pages'].forEach((dir) => {
+const codeOpts = { dotfiles: 'ignore', index: false, etag: true, setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache') };
+['css', 'js'].forEach((dir) => app.use('/' + dir, express.static(path.join(FRONTEND_ROOT, dir), codeOpts)));
+['IMAGES', 'public'].forEach((dir) => {
   app.use('/' + dir, express.static(path.join(FRONTEND_ROOT, dir), staticOpts));
 });
 // Product images get a long cache (filenames are timestamped, never reused).
 app.use('/public/images/products', express.static(path.join(FRONTEND_ROOT, 'public', 'images', 'products'), { maxAge: '30d', dotfiles: 'ignore' }));
 
 const PUBLIC_FILES = [
-  'index.html', 'robots.txt', 'admin.html', 'admin-login.html', 'admin-orders.html', 'site.webmanifest',
+  'robots.txt', 'site.webmanifest',
   'favicon.ico', 'favicon.svg', 'favicon-16x16.png', 'favicon-32x32.png', 'favicon-48x48.png', 'favicon-96x96.png',
   'apple-touch-icon.png',
   'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png', 'web-app-manifest-512x512-maskable.png',
 ];
 PUBLIC_FILES.forEach((f) => app.get('/' + f, (req, res) => res.sendFile(path.join(FRONTEND_ROOT, f))));
-app.get('/', (req, res) => res.sendFile(path.join(FRONTEND_ROOT, 'index.html')));
+// Clean URLs (/shop, /product/<name>-<id>, /admin …), old .html redirects and link-preview tags live in src/lib/pages.js.
+pagesLib.install(app);
 // Dynamic sitemap: static pages + every active product.
 app.get('/sitemap.xml', async (req, res) => {
   try {
-    const base = (process.env.PUBLIC_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
-    const pages = ['', 'pages/shop.html', 'pages/about.html', 'pages/contact.html', 'pages/faq.html', 'pages/shipping.html', 'pages/returns.html', 'pages/track-order.html', 'pages/privacy.html', 'pages/terms.html'];
-    const { rows } = await pool.query("SELECT id, updated_at FROM products WHERE status = 'active'");
+    const base = pagesLib.origin(req);
+    const pages = ['', 'shop', 'about', 'contact', 'faq', 'shipping', 'returns', 'track-order', 'privacy', 'terms'];
+    const { rows } = await pool.query("SELECT id, name, date_updated AS updated_at FROM products WHERE status = 'active'");
     const urls = [
       ...pages.map((p) => `<url><loc>${base}/${p}</loc></url>`),
-      ...rows.map((r) => `<url><loc>${base}/pages/product.html?id=${r.id}</loc>${r.updated_at ? `<lastmod>${new Date(r.updated_at).toISOString().slice(0, 10)}</lastmod>` : ''}</url>`),
+      ...rows.map((r) => `<url><loc>${base}${pagesLib.productPath(r)}</loc>${r.updated_at ? `<lastmod>${new Date(r.updated_at).toISOString().slice(0, 10)}</lastmod>` : ''}</url>`),
     ];
     res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.join('')}</urlset>`);
   } catch (e) { res.status(500).type('text/plain').send('sitemap unavailable'); }
 });
 
 // Friendly 404 page for browsers; JSON for everything else.
-app.use((req, res) => {
-  if (req.accepts('html')) return res.status(404).sendFile(path.join(FRONTEND_ROOT, 'pages', '404.html'));
-  res.status(404).json({ error: 'Not found' });
-});
+app.use(pagesLib.notFound);
 
 // ── Error handler ───────────────────────────────────────
 app.use((err, req, res, next) => {
@@ -170,7 +173,7 @@ app.use((err, req, res, next) => {
 const server = app.listen(PORT, () => {
   console.log(`\n  Will's Tech Store backend running:`);
   console.log(`  → http://localhost:${PORT}          (storefront)`);
-  console.log(`  → http://localhost:${PORT}/admin-login.html  (admin panel)`);
+  console.log(`  → http://localhost:${PORT}/admin/login  (admin panel)`);
   console.log(`  → http://localhost:${PORT}/api/health         (API health check)\n`);
 });
 

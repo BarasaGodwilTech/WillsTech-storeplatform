@@ -12,7 +12,7 @@ A.debounce=function(f,ms){var t;return function(){var a=arguments,c=this;clearTi
 A.api=async function(path,o){o=o||{};var h=Object.assign({},o.headers||{});var tk=localStorage.getItem(TOKEN);if(tk)h.Authorization='Bearer '+tk;
   if(o.body&&!(o.body instanceof FormData)){h['Content-Type']='application/json';if(typeof o.body!=='string')o.body=JSON.stringify(o.body)}
   var r=await fetch('/api'+path,Object.assign({},o,{headers:h}));
-  if(r.status===401||r.status===403){localStorage.removeItem(TOKEN);location.replace('admin-login.html');throw new Error('Session expired')}
+  if(r.status===401||r.status===403){localStorage.removeItem(TOKEN);location.replace('/admin/login');throw new Error('Session expired')}
   var d=null;try{d=await r.json()}catch(e){}
   if(!r.ok)throw new Error((d&&d.error)||'Request failed ('+r.status+')');return d};
 /* cached GET (stale-while-revalidate not needed; explicit invalidate) */
@@ -36,9 +36,27 @@ A.counts={};
 function renderNav(){var cur=(location.hash||'#dashboard').slice(1).split('/')[0],h='<div class="brand"><img class="logo" src="favicon.svg?v=4" alt="" width="38" height="38"><div><b>Will\'s Tech</b><small>ADMIN</small></div></div>';
   NAV.forEach(function(g){h+='<div class="grp">'+g[0].toUpperCase()+'</div>';g[1].forEach(function(i){var c=A.counts[i[0]];h+='<a class="nav'+(cur===i[0]?' on':'')+'" href="#'+i[0]+'"><i class="fa-solid fa-'+i[2]+'"></i>'+i[1]+(c?'<span class="cnt">'+c+'</span>':'')+'</a>'})});
   var u={};try{u=JSON.parse(localStorage.getItem('willstech_admin_user')||'{}')}catch(e){}var ini=(u.name||'WT').split(/\s+/).map(function(x){return x[0]}).join('').slice(0,2).toUpperCase();
-  h+='<div class="sp"></div><a class="nav" href="index.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i>View store</a><div class="acct"><div class="av">'+A.esc(ini)+'</div><div style="flex:1;min-width:0"><b>'+A.esc(u.name||'Admin')+'</b><small>Store owner</small></div><button class="ibtn" id="lo" title="Sign out" style="width:32px;height:32px;color:#fff;border-color:rgba(255,255,255,.2)"><i class="fa-solid fa-right-from-bracket"></i></button></div>';
-  $('#sb').innerHTML=h;$('#topav').textContent=ini;$('#lo').onclick=function(){localStorage.removeItem(TOKEN);location.replace('admin-login.html')}}
-A.refreshCounts=async function(){try{var s=await A.api('/admin/summary');A.counts.orders=s.pending;A.counts.messages=s.newMessages;$('#bdot').classList.toggle('hidden',!s.pending);renderNav()}catch(e){}};
+  h+='<div class="sp"></div><a class="nav" href="/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i>View store</a><div class="acct"><div class="av">'+A.esc(ini)+'</div><div style="flex:1;min-width:0"><b>'+A.esc(u.name||'Admin')+'</b><small>Store owner</small></div><button class="ibtn" id="lo" title="Sign out" style="width:32px;height:32px;color:#fff;border-color:rgba(255,255,255,.2)"><i class="fa-solid fa-right-from-bracket"></i></button></div>';
+  $('#sb').innerHTML=h;$('#topav').textContent=ini;$('#lo').onclick=function(){localStorage.removeItem(TOKEN);location.replace('/admin/login')}}
+/* ---------- notifications (bell): everything that needs the owner, in one list ---------- */
+A.notes=[];
+A.refreshCounts=async function(){try{var r=await Promise.all([A.api('/admin/summary'),A.api('/admin/analytics?days=30')]),s=r[0],a=r[1],d=a.delivery||{},n=[];
+  A.counts.orders=s.pending;A.counts.messages=s.newMessages;
+  var add=function(c,h,ic,tone,t,sub){if(c>0)n.push({h:h,ic:ic,tone:tone,t:t,sub:sub})};
+  add(s.pending,'#orders/pending','bag-shopping','warn',s.pending+' new order'+(s.pending>1?'s':'')+' waiting','Confirm them to start delivery');
+  add(d.overdue,'#orders/overdue','clock','bad',d.overdue+' overdue deliver'+(d.overdue>1?'ies':'y'),'Past the planned delivery date');
+  add(d.unscheduled,'#orders/unscheduled','calendar-day','warn',d.unscheduled+' order'+(d.unscheduled>1?'s':'')+' without a delivery date','Pick a delivery plan');
+  add(d.today,'#orders/today','truck','info',d.today+' deliver'+(d.today>1?'ies':'y')+' planned for today','');
+  add(s.newMessages,'#messages','message','warn',s.newMessages+' new message'+(s.newMessages>1?'s':''),'Customers are waiting for a reply');
+  var out=(a.lowStock||[]).filter(function(x){return x.stock==='out-of-stock'}).length,low=(a.lowStock||[]).length-out;
+  add(out,'#products','box','bad',out+' product'+(out>1?'s':'')+' sold out','Hidden from buying until restocked');
+  add(low,'#products','box','warn',low+' product'+(low>1?'s':'')+' running low','');
+  (a.expiringCoupons||[]).forEach(function(c){n.push({h:'#coupons',ic:'ticket',tone:'info',t:'Code '+c.code+' expires '+A.date(c.expires_at),sub:''})});
+  A.notes=n;$('#bdot').classList.toggle('hidden',!n.length);renderNav();if($('#notes'))A.drawNotes()}catch(e){}};
+A.drawNotes=function(){var p=$('#notes');if(!p)return;p.innerHTML='<div class="nh"><b>Notifications</b><small>'+(A.notes.length?A.notes.length+' need you':'')+'</small></div>'+(A.notes.length?A.notes.map(function(x){return'<a href="'+x.h+'" class="ni"><i class="fa-solid fa-'+x.ic+' t-'+x.tone+'"></i><span><b>'+A.esc(x.t)+'</b>'+(x.sub?'<small>'+A.esc(x.sub)+'</small>':'')+'</span></a>'}).join(''):'<div class="ne"><i class="fa-solid fa-circle-check"></i>You are all caught up</div>')};
+A.toggleNotes=function(e){e&&e.stopPropagation();var p=$('#notes');if(p){p.remove();return}p=document.createElement('div');p.id='notes';p.className='notes';document.body.appendChild(p);A.drawNotes();A.refreshCounts();
+  setTimeout(function(){var off=function(ev){if(!p.contains(ev.target)){p.remove();document.removeEventListener('click',off)}};document.addEventListener('click',off);p.addEventListener('click',function(ev){if(ev.target.closest('a')){p.remove();document.removeEventListener('click',off)}})},0)};
+setInterval(function(){if(!document.hidden)A.refreshCounts()},60000);
 
 /* ---------- router ---------- */
 async function route(){A.closeDrawer();$('#sb').classList.remove('on');var p=(location.hash||'#dashboard').slice(1).split('/'),n=p[0],f=A.pages[n]||A.pages.dashboard;renderNav();var v=$('#view');v.innerHTML='<div class="card"><div class="pad">'+A.skeleton(8)+'</div></div>';
@@ -48,7 +66,7 @@ window.addEventListener('hashchange',route);
 /* ---------- theme / chrome ---------- */
 function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('wt_admin_theme',t)}catch(e){}$('#theme').innerHTML='<i class="fa-solid fa-'+(t==='dark'?'sun':'moon')+'"></i>'}
 $('#theme').onclick=function(){setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark')};
-$('#burger').onclick=function(){$('#sb').classList.toggle('on')};$('#dbg').onclick=A.closeDrawer;$('#bell').onclick=function(){location.hash='#orders/pending'};
+$('#burger').onclick=function(){$('#sb').classList.toggle('on')};$('#dbg').onclick=A.closeDrawer;$('#bell').onclick=A.toggleNotes;
 setTheme(document.documentElement.dataset.theme||'light');
 
 /* ---------- command palette (Ctrl+K) ---------- */

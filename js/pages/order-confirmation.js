@@ -4,7 +4,7 @@
   const root = document.getElementById('confirm-root');
   let data = null; try { data = JSON.parse(sessionStorage.getItem('wt-last-order') || 'null'); } catch (e) { /* ignore */ }
   if (!data || !data.order) {
-    root.innerHTML = `<div class="notfound" style="padding-top:40px"><h1 style="font-size:36px">No recent order here</h1><p class="text-muted">If you just placed one, you can look it up with your order number.</p><div class="form-actions" style="justify-content:center"><a class="btn btn-primary btn-lg" href="track-order.html">Track an order</a><a class="btn btn-secondary btn-lg" href="shop.html">Keep shopping</a></div></div>`;
+    root.innerHTML = `<div class="notfound" style="padding-top:40px"><h1 style="font-size:36px">No recent order here</h1><p class="text-muted">If you just placed one, you can look it up with your order number.</p><div class="form-actions" style="justify-content:center"><a class="btn btn-primary btn-lg" href="/track-order">Track an order</a><a class="btn btn-secondary btn-lg" href="/shop">Keep shopping</a></div></div>`;
     return;
   }
   const o = data.order, first = String(o.customerName || '').split(' ')[0];
@@ -34,6 +34,6 @@
         <div><b style="color:var(--text-primary)">Deliver to:</b> ${escapeHTML(o.customerName)}, ${escapeHTML(o.customerPhone)}</div>
         <div>${escapeHTML(o.deliveryZone || '')}${addr.street ? ', ' + escapeHTML(addr.street) : ''}</div>
         <div><b style="color:var(--text-primary)">Payment:</b> ${escapeHTML(WT.payLabel(o.paymentMethod))}</div></div></div>
-    <div class="form-actions" style="justify-content:center"><a class="btn btn-dark btn-lg" href="track-order.html?number=${encodeURIComponent(o.orderNumber)}&contact=${encodeURIComponent(o.customerPhone)}"><i class="fa-solid fa-truck-fast"></i> Track this order</a><a class="btn btn-secondary btn-lg" href="shop.html">Keep shopping</a></div>`;
+    <div class="form-actions" style="justify-content:center"><a class="btn btn-dark btn-lg" href="/track-order?number=${encodeURIComponent(o.orderNumber)}&contact=${encodeURIComponent(o.customerPhone)}"><i class="fa-solid fa-truck-fast"></i> Track this order</a><a class="btn btn-secondary btn-lg" href="/shop">Keep shopping</a></div>`;
   document.getElementById('copy-ono').addEventListener('click', async () => { try { await navigator.clipboard.writeText(o.orderNumber); showNotification('Order number copied', 'success'); } catch (e) { showNotification(o.orderNumber, 'info'); } });
 })();

@@ -18,8 +18,7 @@
   const writeLocal = () => { try { localStorage.setItem(KEY, JSON.stringify(W.list)); } catch (e) { /* storage blocked: stays in memory */ } };
   const hasToken = () => { try { return !!localStorage.getItem(TOKEN); } catch (e) { return false; } };
   const loginUrl = () => {
-    const file = location.pathname.split('/').pop() || 'index.html';
-    return `${WT.page('login.html')}?redirect=${encodeURIComponent((WT.isSub ? '' : '../') + file + location.search)}`;
+    return `/login?redirect=${encodeURIComponent(location.pathname + location.search)}`;
   };
   const shortName = (id) => { const p = window.Products && Products.getProductById(id); return p ? String(p.name).split(/\s[-–—]\s|[,|(/]/)[0].slice(0, 38) : 'Item'; };
 
@@ -66,7 +65,7 @@
       else writeLocal();
       if (want) {
         if (!W.authed && !sessionStorage.getItem(HINT)) { try { sessionStorage.setItem(HINT, '1'); } catch (e) { /* ignore */ } showNotification(`Saved “${shortName(id)}”. Sign in to keep your wishlist on every device.`, 'success', { label: 'Sign in', href: loginUrl() }); }
-        else showNotification('Saved to your wishlist', 'success', { label: 'View', href: WT.page('wishlist.html') });
+        else showNotification('Saved to your wishlist', 'success', { label: 'View', href: WT.page('/wishlist') });
       } else showNotification('Removed from your wishlist', 'info', { label: 'Undo', onClick: () => W.toggle(id) });
     } catch (e) {
       W.list = prev; paint(); emit();                                 // roll back
