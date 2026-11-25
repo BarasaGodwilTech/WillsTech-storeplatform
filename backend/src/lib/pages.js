@@ -21,6 +21,10 @@ const PAGES = {
 // pages that should not show up in search results or link previews
 const PRIVATE = new Set(['/cart', '/checkout', '/order-confirmation', '/wishlist', '/login', '/register', '/reset-password', '/account', '/track-order']);
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 809eded88154149fea57fa1f8b35d8278a3e3c06
 // Short, readable slug: the part of the name before the first " - " / "," / "(", cut at a whole word (max 60 chars).
 // The slug is only cosmetic; the product is found by the id at the end, and any other slug 301-redirects to this one.
 const baseSlug = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -29,6 +33,13 @@ const slugify = (name) => {
   if (t.length > 60) { t = t.slice(0, 60); const i = t.lastIndexOf('-'); if (i > 15) t = t.slice(0, i); }
   return t.replace(/-+$/, '');
 };
+<<<<<<< HEAD
+=======
+=======
+const slugify = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, ' and ')
+  .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 70).replace(/-+$/, '');
+>>>>>>> c338fb81c595c3987b795b730eafef80368aa8e0
+>>>>>>> 809eded88154149fea57fa1f8b35d8278a3e3c06
 const productPath = (p) => '/product/' + (slugify(p.name) ? slugify(p.name) + '-' : '') + p.id;
 const idFromSlug = (slug) => { const m = /(?:^|-)(\d+)$/.exec(String(slug || '')); return m ? m[1] : null; };
 
@@ -167,7 +178,14 @@ function install(app) {
       extra: [
         `<meta property="product:price:amount" content="${price}">`, `<meta property="product:price:currency" content="UGX">`,
         `<meta property="product:availability" content="${inStock ? 'in stock' : 'out of stock'}">`,
+<<<<<<< HEAD
         `<script>window.__PRODUCT_ID__=${JSON.stringify(String(row.id))}</script>`,
+=======
+<<<<<<< HEAD
+        `<script>window.__PRODUCT_ID__=${JSON.stringify(String(row.id))}</script>`,
+=======
+>>>>>>> c338fb81c595c3987b795b730eafef80368aa8e0
+>>>>>>> 809eded88154149fea57fa1f8b35d8278a3e3c06
         `<script type="application/ld+json" id="ld-product">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`,
       ],
     }));

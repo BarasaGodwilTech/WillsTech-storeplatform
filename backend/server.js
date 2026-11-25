@@ -127,9 +127,19 @@ app.get('/js/site.js', async (req, res, next) => {
 // Scripts and styles are re-checked on every load (a cheap 304 when unchanged) so a deploy can never leave a visitor
 // with an old script talking to new pages. Photos and videos are cached for a day.
 const staticOpts = { dotfiles: 'ignore', index: false, maxAge: isProd ? '1d' : 0 };
+<<<<<<< HEAD
 const codeOpts = { dotfiles: 'ignore', index: false, etag: true, setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache') };
 ['css', 'js'].forEach((dir) => app.use('/' + dir, express.static(path.join(FRONTEND_ROOT, dir), codeOpts)));
 ['IMAGES', 'public'].forEach((dir) => {
+=======
+<<<<<<< HEAD
+const codeOpts = { dotfiles: 'ignore', index: false, etag: true, setHeaders: (res) => res.setHeader('Cache-Control', 'no-cache') };
+['css', 'js'].forEach((dir) => app.use('/' + dir, express.static(path.join(FRONTEND_ROOT, dir), codeOpts)));
+['IMAGES', 'public'].forEach((dir) => {
+=======
+['css', 'js', 'IMAGES', 'public'].forEach((dir) => {
+>>>>>>> c338fb81c595c3987b795b730eafef80368aa8e0
+>>>>>>> 809eded88154149fea57fa1f8b35d8278a3e3c06
   app.use('/' + dir, express.static(path.join(FRONTEND_ROOT, dir), staticOpts));
 });
 // Product images get a long cache (filenames are timestamped, never reused).

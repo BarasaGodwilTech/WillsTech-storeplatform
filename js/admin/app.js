@@ -38,6 +38,10 @@ function renderNav(){var cur=(location.hash||'#dashboard').slice(1).split('/')[0
   var u={};try{u=JSON.parse(localStorage.getItem('willstech_admin_user')||'{}')}catch(e){}var ini=(u.name||'WT').split(/\s+/).map(function(x){return x[0]}).join('').slice(0,2).toUpperCase();
   h+='<div class="sp"></div><a class="nav" href="/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i>View store</a><div class="acct"><div class="av">'+A.esc(ini)+'</div><div style="flex:1;min-width:0"><b>'+A.esc(u.name||'Admin')+'</b><small>Store owner</small></div><button class="ibtn" id="lo" title="Sign out" style="width:32px;height:32px;color:#fff;border-color:rgba(255,255,255,.2)"><i class="fa-solid fa-right-from-bracket"></i></button></div>';
   $('#sb').innerHTML=h;$('#topav').textContent=ini;$('#lo').onclick=function(){localStorage.removeItem(TOKEN);location.replace('/admin/login')}}
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 809eded88154149fea57fa1f8b35d8278a3e3c06
 /* ---------- notifications (bell): everything that needs the owner, in one list ---------- */
 A.notes=[];
 A.refreshCounts=async function(){try{var r=await Promise.all([A.api('/admin/summary'),A.api('/admin/analytics?days=30')]),s=r[0],a=r[1],d=a.delivery||{},n=[];
@@ -57,6 +61,12 @@ A.drawNotes=function(){var p=$('#notes');if(!p)return;p.innerHTML='<div class="n
 A.toggleNotes=function(e){e&&e.stopPropagation();var p=$('#notes');if(p){p.remove();return}p=document.createElement('div');p.id='notes';p.className='notes';document.body.appendChild(p);A.drawNotes();A.refreshCounts();
   setTimeout(function(){var off=function(ev){if(!p.contains(ev.target)){p.remove();document.removeEventListener('click',off)}};document.addEventListener('click',off);p.addEventListener('click',function(ev){if(ev.target.closest('a')){p.remove();document.removeEventListener('click',off)}})},0)};
 setInterval(function(){if(!document.hidden)A.refreshCounts()},60000);
+<<<<<<< HEAD
+=======
+=======
+A.refreshCounts=async function(){try{var s=await A.api('/admin/summary');A.counts.orders=s.pending;A.counts.messages=s.newMessages;$('#bdot').classList.toggle('hidden',!s.pending);renderNav()}catch(e){}};
+>>>>>>> c338fb81c595c3987b795b730eafef80368aa8e0
+>>>>>>> 809eded88154149fea57fa1f8b35d8278a3e3c06
 
 /* ---------- router ---------- */
 async function route(){A.closeDrawer();$('#sb').classList.remove('on');var p=(location.hash||'#dashboard').slice(1).split('/'),n=p[0],f=A.pages[n]||A.pages.dashboard;renderNav();var v=$('#view');v.innerHTML='<div class="card"><div class="pad">'+A.skeleton(8)+'</div></div>';
