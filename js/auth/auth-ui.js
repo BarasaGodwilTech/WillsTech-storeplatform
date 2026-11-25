@@ -122,7 +122,7 @@ const AuthUI = {
 
   // ── ACCOUNT PAGE (FULL INTEGRATION) ───────────────────────
   async initAccountPage() {
-    this.requireAuth('login.html');
+    this.requireAuth('/login');
 
     AuthService.onAuthStateChanged(async (user) => {
       if (!user) return;
@@ -245,7 +245,7 @@ const AuthUI = {
           <i class="fa-solid fa-box-open" aria-hidden="true"></i>
           <h3>No orders yet</h3>
           <p>Start shopping to see your orders here.</p>
-          <a href="shop.html" class="btn btn-primary btn-sm">Browse Products</a>
+          <a href="/shop" class="btn btn-primary btn-sm">Browse Products</a>
         </div>`;
       return;
     }
@@ -288,7 +288,7 @@ const AuthUI = {
             <strong>${formatPrice(order.total)}</strong>
           </div>
           <div class="order-actions">
-            <a class="btn btn-sm btn-dark" href="track-order.html?number=${encodeURIComponent(order.orderNumber || '')}&contact=${encodeURIComponent(order.customerPhone || order.customerEmail || '')}"><i class="fa-solid fa-truck-fast"></i> Track</a>
+            <a class="btn btn-sm btn-dark" href="/track-order?number=${encodeURIComponent(order.orderNumber || '')}&contact=${encodeURIComponent(order.customerPhone || order.customerEmail || '')}"><i class="fa-solid fa-truck-fast"></i> Track</a>
             <button class="btn btn-sm btn-secondary reorder-btn" data-order-id="${order.id}"><i class="fa-solid fa-rotate-right"></i> Buy again</button>
             ${order.status === 'pending' ? `<button class="btn btn-sm btn-outline-danger cancel-order-btn" data-order-id="${order.id}">Cancel</button>` : ''}
           </div>
@@ -300,7 +300,7 @@ const AuthUI = {
       btn.addEventListener('click', () => {
         const o = orders.find(x => x.id === btn.dataset.orderId); if (!o) return;
         o.items.forEach(i => Cart.addItem({ id: i.productId, name: i.name, price: i.price, images: [i.image] }, i.quantity, { silent: true }));
-        showNotification('Items added to your cart', 'success', { label: 'View cart', href: 'cart.html' });
+        showNotification('Items added to your cart', 'success', { label: 'View cart', href: '/cart' });
       });
     });
 
@@ -330,7 +330,7 @@ const AuthUI = {
           <i class="fa-solid fa-heart" aria-hidden="true"></i>
           <h3>Your wishlist is empty</h3>
           <p>Save products you love to your wishlist.</p>
-          <a href="shop.html" class="btn btn-primary btn-sm">Start shopping</a>
+          <a href="/shop" class="btn btn-primary btn-sm">Start shopping</a>
         </div>`;
       return;
     }
@@ -833,7 +833,7 @@ const AuthUI = {
         successDiv.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg><span>Password updated! Redirecting to sign in...</span>`;
         showNotification('Password updated!', 'success');
         form.reset();
-        setTimeout(() => { window.location.href = 'login.html'; }, 1800);
+        setTimeout(() => { window.location.href = '/login'; }, 1800);
       } catch (error) {
         this.showError(errorDiv, error.message);
       } finally {
@@ -901,7 +901,7 @@ const AuthUI = {
     return fallback;
   },
 
-  accountUrl() { return (window.WT && WT.page) ? WT.page('account.html') : 'account.html'; },
+  accountUrl() { return (window.WT && WT.page) ? WT.page('/account') : '/account'; },
 
   // Where to go after signing in: a safe ?redirect=… if present, otherwise the account page
   afterAuthUrl() {
@@ -1089,7 +1089,7 @@ const AuthUI = {
       try {
         await AuthService.signOut();
         showNotification('Signed out!', 'success');
-        window.location.href = 'login.html';
+        window.location.href = '/login';
       } catch (error) {
         showNotification(error.message, 'error');
       }

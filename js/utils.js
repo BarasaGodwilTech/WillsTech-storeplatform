@@ -5,12 +5,22 @@
 (function () {
   'use strict';
   // <html data-abs> (used by the 404 page) forces absolute paths because it can be served from any URL depth.
-  const ABS = document.documentElement.hasAttribute('data-abs');
-  const IS_SUB = ABS || /\/pages\//.test(window.location.pathname);
+  // Clean URLs: every page lives at a root path (/shop, /cart, /product/<name>-<id>), so ALL links and assets are root-absolute.
   const WT = (window.WT = window.WT || {});
-  WT.isSub = IS_SUB;
-  WT.root = ABS ? '/' : (IS_SUB ? '../' : '');
-  WT.page = (file) => (ABS ? '/pages/' : IS_SUB ? '' : 'pages/') + file;       // link to a /pages/ file from anywhere
+  WT.isSub = true;
+  WT.root = '/';
+  // WT.page('/shop?x=1') -> '/shop?x=1' ; WT.page('index.html') -> '/'. Accepts names with or without .html.
+  WT.page = (file) => {
+    const m = /^\/?(?:pages\/)?([^?#]*?)(?:\.html)?([?#].*)?$/.exec(String(file || ''));
+    const base = m && m[1] !== 'index' ? m[1] : '';
+    return '/' + base + ((m && m[2]) || '');
+  };
+  // Which page are we on? 'index', 'shop', 'product', 'cart' ...
+  WT.here = (location.pathname.replace(/\/+$/, '').split('/')[1] || 'index').replace(/\.html$/, '').toLowerCase();
+  WT.slug = (name) => String(name || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 70).replace(/-+$/, '');
+  WT.productPath = (p) => { const s = WT.slug(p.name); return '/product/' + (s ? s + '-' : '') + encodeURIComponent(p.id); };
+  // Product id from the current URL (/product/some-name-123456) with a fallback for old ?id= links.
+  WT.productIdFromUrl = () => { const m = /\/product\/(?:[^/]*-)?(\d+)\/?$/.exec(location.pathname); return m ? m[1] : new URLSearchParams(location.search).get('id'); };
   WT.waLink = (text) => `https://wa.me/${(window.SITE && SITE.whatsapp) || '256751924844'}${text ? '?text=' + encodeURIComponent(text) : ''}`;
 
   // ── Formatting ─────────────────────────────────────────
@@ -44,8 +54,9 @@
   };
   WT.imgOriginal = (url) => (url && /^https?:/.test(url) ? url : '');
   // Fade images in once they have loaded (CSS shows a shimmer behind them until then).
-  document.addEventListener('load', (e) => { if (e.target && e.target.tagName === 'IMG') e.target.classList.add('is-loaded'); }, true);
-  WT.markLoaded = (root) => (root || document).querySelectorAll('img').forEach((i) => { if (i.complete && i.naturalWidth) i.classList.add('is-loaded'); });
+  const fitHero = (i) => { if (i.classList.contains('hs-img') && i.naturalWidth && Math.abs(i.naturalWidth / i.naturalHeight - 1) > 0.12) i.classList.add('fit'); };
+  document.addEventListener('load', (e) => { if (e.target && e.target.tagName === 'IMG') { e.target.classList.add('is-loaded'); fitHero(e.target); } }, true);
+  WT.markLoaded = (root) => (root || document).querySelectorAll('img').forEach((i) => { if (i.complete && i.naturalWidth) { i.classList.add('is-loaded'); fitHero(i); } });
   document.addEventListener('error', (e) => {
     const img = e.target;
     if (!img || img.tagName !== 'IMG') return;

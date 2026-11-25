@@ -44,7 +44,7 @@ start "" /b cmd /c "ping 127.0.0.1 -n 5 >nul & start http://localhost:4000"
 echo.
 echo  --------------------------------------------
 echo    Store:  http://localhost:4000
-echo    Admin:  http://localhost:4000/admin-login.html
+echo    Admin:  http://localhost:4000/admin/login
 echo    Stop:   press Ctrl+C
 echo  --------------------------------------------
 echo.

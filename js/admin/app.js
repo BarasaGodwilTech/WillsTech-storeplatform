@@ -12,7 +12,7 @@ A.debounce=function(f,ms){var t;return function(){var a=arguments,c=this;clearTi
 A.api=async function(path,o){o=o||{};var h=Object.assign({},o.headers||{});var tk=localStorage.getItem(TOKEN);if(tk)h.Authorization='Bearer '+tk;
   if(o.body&&!(o.body instanceof FormData)){h['Content-Type']='application/json';if(typeof o.body!=='string')o.body=JSON.stringify(o.body)}
   var r=await fetch('/api'+path,Object.assign({},o,{headers:h}));
-  if(r.status===401||r.status===403){localStorage.removeItem(TOKEN);location.replace('admin-login.html');throw new Error('Session expired')}
+  if(r.status===401||r.status===403){localStorage.removeItem(TOKEN);location.replace('/admin/login');throw new Error('Session expired')}
   var d=null;try{d=await r.json()}catch(e){}
   if(!r.ok)throw new Error((d&&d.error)||'Request failed ('+r.status+')');return d};
 /* cached GET (stale-while-revalidate not needed; explicit invalidate) */
@@ -36,8 +36,8 @@ A.counts={};
 function renderNav(){var cur=(location.hash||'#dashboard').slice(1).split('/')[0],h='<div class="brand"><img class="logo" src="favicon.svg?v=4" alt="" width="38" height="38"><div><b>Will\'s Tech</b><small>ADMIN</small></div></div>';
   NAV.forEach(function(g){h+='<div class="grp">'+g[0].toUpperCase()+'</div>';g[1].forEach(function(i){var c=A.counts[i[0]];h+='<a class="nav'+(cur===i[0]?' on':'')+'" href="#'+i[0]+'"><i class="fa-solid fa-'+i[2]+'"></i>'+i[1]+(c?'<span class="cnt">'+c+'</span>':'')+'</a>'})});
   var u={};try{u=JSON.parse(localStorage.getItem('willstech_admin_user')||'{}')}catch(e){}var ini=(u.name||'WT').split(/\s+/).map(function(x){return x[0]}).join('').slice(0,2).toUpperCase();
-  h+='<div class="sp"></div><a class="nav" href="index.html" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i>View store</a><div class="acct"><div class="av">'+A.esc(ini)+'</div><div style="flex:1;min-width:0"><b>'+A.esc(u.name||'Admin')+'</b><small>Store owner</small></div><button class="ibtn" id="lo" title="Sign out" style="width:32px;height:32px;color:#fff;border-color:rgba(255,255,255,.2)"><i class="fa-solid fa-right-from-bracket"></i></button></div>';
-  $('#sb').innerHTML=h;$('#topav').textContent=ini;$('#lo').onclick=function(){localStorage.removeItem(TOKEN);location.replace('admin-login.html')}}
+  h+='<div class="sp"></div><a class="nav" href="/" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i>View store</a><div class="acct"><div class="av">'+A.esc(ini)+'</div><div style="flex:1;min-width:0"><b>'+A.esc(u.name||'Admin')+'</b><small>Store owner</small></div><button class="ibtn" id="lo" title="Sign out" style="width:32px;height:32px;color:#fff;border-color:rgba(255,255,255,.2)"><i class="fa-solid fa-right-from-bracket"></i></button></div>';
+  $('#sb').innerHTML=h;$('#topav').textContent=ini;$('#lo').onclick=function(){localStorage.removeItem(TOKEN);location.replace('/admin/login')}}
 A.refreshCounts=async function(){try{var s=await A.api('/admin/summary');A.counts.orders=s.pending;A.counts.messages=s.newMessages;$('#bdot').classList.toggle('hidden',!s.pending);renderNav()}catch(e){}};
 
 /* ---------- router ---------- */

@@ -8,19 +8,19 @@
   'use strict';
   const S = window.SITE || {};
   const R = WT.root;
-  const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  const here = WT.here;
   const qs = new URLSearchParams(location.search);
   const root = document.documentElement;
   try { const t = localStorage.getItem('wt-theme'); if (t) root.dataset.theme = t; } catch (e) { /* ignore */ }
   const effectiveTheme = () => root.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-  const SHOP = WT.page('shop.html');
+  const SHOP = WT.page('/shop');
 
   const NAV = [
-    { href: SHOP, label: 'Shop', icon: 'fa-bag-shopping', on: () => here === 'shop.html' && !qs.get('filter') && !qs.get('category') },
-    { href: SHOP + '?filter=new', label: 'New in', icon: 'fa-bolt', on: () => here === 'shop.html' && qs.get('filter') === 'new' },
-    { href: SHOP + '?filter=bestseller', label: 'Best sellers', icon: 'fa-fire', on: () => here === 'shop.html' && qs.get('filter') === 'bestseller' },
-    { href: SHOP + '?filter=sale', label: 'Deals', icon: 'fa-tag', on: () => here === 'shop.html' && qs.get('filter') === 'sale' },
-    { href: WT.page('about.html'), label: 'About', icon: 'fa-store', on: () => here === 'about.html' },
+    { href: SHOP, label: 'Shop', icon: 'fa-bag-shopping', on: () => here === 'shop' && !qs.get('filter') && !qs.get('category') },
+    { href: SHOP + '?filter=new', label: 'New in', icon: 'fa-bolt', on: () => here === 'shop' && qs.get('filter') === 'new' },
+    { href: SHOP + '?filter=bestseller', label: 'Best sellers', icon: 'fa-fire', on: () => here === 'shop' && qs.get('filter') === 'bestseller' },
+    { href: SHOP + '?filter=sale', label: 'Deals', icon: 'fa-tag', on: () => here === 'shop' && qs.get('filter') === 'sale' },
+    { href: WT.page('/about'), label: 'About', icon: 'fa-store', on: () => here === 'about' },
   ];
   const HEADER_NAV = NAV.filter((n) => ['New in', 'Deals', 'About'].includes(n.label));
   const navLinks = (cls, list) => (list || NAV).map((n) => `<a ${cls ? `class="${cls}${n.on() ? ' active' : ''}"` : (n.on() ? 'class="active"' : '')} href="${n.href}" ${n.on() ? 'aria-current="page"' : ''}>${cls ? `<i class="fa-solid ${n.icon}"></i>` : ''}${n.label}</a>`).join('');
@@ -41,7 +41,7 @@
       <a class="help-row" href="tel:${String(S.phone).replace(/\s/g, '')}"><i class="fa-solid fa-phone"></i><div><b>Call us</b><span>${S.phone}</span></div></a>
       <a class="help-row" href="mailto:${S.email}"><i class="fa-regular fa-envelope"></i><div><b>Email</b><span>${S.email}</span></div></a>
       <div class="help-hours"><i class="fa-regular fa-clock"></i><span>Mon to Sat 8 AM to 8 PM<br>Sunday 10 AM to 6 PM</span></div>
-      <div class="help-links"><a href="${WT.page('track-order.html')}">Track an order</a><a href="${WT.page('faq.html')}">FAQ</a><a href="${WT.page('contact.html')}">Contact form</a></div>
+      <div class="help-links"><a href="${WT.page('/track-order')}">Track an order</a><a href="${WT.page('/faq')}">FAQ</a><a href="${WT.page('/contact')}">Contact form</a></div>
     </div>`;
 
   const header = `
@@ -58,7 +58,7 @@
   <header class="site-header" id="main-header">
     <div class="container header-inner">
       <button class="icon-btn menu-toggle" id="mobile-menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><i class="fa-solid fa-bars" id="hamburger-icon"></i><i class="fa-solid fa-xmark" id="close-icon" style="display:none"></i></button>
-      <a class="brand" href="${R}index.html" aria-label="${S.name} home">
+      <a class="brand" href="/" aria-label="${S.name} home">
         <span class="brand-mark"><img src="${R}favicon.svg?v=4" alt="" width="40" height="40" onerror="this.replaceWith(Object.assign(document.createElement('i'),{className:'fa-solid fa-bolt'}))"></span>
         <span class="brand-text">Will's <span>Tech</span></span>
       </a>
@@ -71,15 +71,15 @@
           <button class="help-btn" id="help-btn" aria-expanded="false" aria-controls="help-pop"><i class="fa-solid fa-headset"></i><span>Help</span></button>${HELP}
         </div>
         <button class="icon-btn theme-toggle" id="theme-toggle" aria-label="Switch colour theme"><i class="fa-solid fa-moon"></i></button>
-        <a href="${WT.page('wishlist.html')}" class="icon-btn wish-link" id="wish-link" aria-label="Wishlist"><i class="fa-regular fa-heart"></i><span class="cart-badge wish-badge" id="wish-badge" hidden>0</span></a>
+        <a href="${WT.page('/wishlist')}" class="icon-btn wish-link" id="wish-link" aria-label="Wishlist"><i class="fa-regular fa-heart"></i><span class="cart-badge wish-badge" id="wish-badge" hidden>0</span></a>
         <div class="account-menu" id="account-menu">
-          <a href="${WT.page('account.html')}" class="icon-btn account-btn" id="account-btn" aria-label="My account" aria-haspopup="menu" aria-expanded="false" aria-controls="account-menu-panel">
+          <a href="${WT.page('/account')}" class="icon-btn account-btn" id="account-btn" aria-label="My account" aria-haspopup="menu" aria-expanded="false" aria-controls="account-menu-panel">
             <i class="fa-regular fa-user account-icon" id="account-icon"></i>
             <img src="" alt="" class="account-avatar" id="account-avatar" style="display:none">
           </a>
           <div class="account-menu-panel" id="account-menu-panel" role="menu" aria-label="Account menu" hidden></div>
         </div>
-        <a href="${WT.page('cart.html')}" class="icon-btn cart-btn" id="cart-btn" aria-label="Shopping cart"><i class="fa-solid fa-bag-shopping"></i><span class="cart-badge" id="cart-badge" data-cart hidden>0</span></a>
+        <a href="${WT.page('/cart')}" class="icon-btn cart-btn" id="cart-btn" aria-label="Shopping cart"><i class="fa-solid fa-bag-shopping"></i><span class="cart-badge" id="cart-badge" data-cart hidden>0</span></a>
       </div>
     </div>
     <div class="cat-menu" id="cat-menu" hidden><div class="container cat-menu-inner" id="cat-menu-inner"><div class="skeleton" style="height:180px;grid-column:1/-1"></div></div></div>
@@ -93,9 +93,9 @@
     </div>
     <details class="m-cats" id="m-cats"><summary class="nav-link"><i class="fa-solid fa-table-cells-large"></i>Categories<i class="fa-solid fa-chevron-down chev"></i></summary><div class="m-cat-list" id="m-cat-list"></div></details>
     ${navLinks('nav-link')}
-    <a class="nav-link" href="${WT.page('track-order.html')}"><i class="fa-solid fa-truck-fast"></i>Track an order</a>
-    <a class="nav-link" href="${WT.page('contact.html')}"><i class="fa-solid fa-headset"></i>Contact &amp; help</a>
-    <a class="nav-link" href="${WT.page('faq.html')}"><i class="fa-solid fa-circle-question"></i>FAQ</a>
+    <a class="nav-link" href="${WT.page('/track-order')}"><i class="fa-solid fa-truck-fast"></i>Track an order</a>
+    <a class="nav-link" href="${WT.page('/contact')}"><i class="fa-solid fa-headset"></i>Contact &amp; help</a>
+    <a class="nav-link" href="${WT.page('/faq')}"><i class="fa-solid fa-circle-question"></i>FAQ</a>
     <div class="mobile-nav-foot">
       <div class="m-help"><a class="btn btn-secondary" href="${WT.waLink('Hi Will\'s Tech! I need help.')}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" style="color:var(--signal)"></i> Chat</a><a class="btn btn-secondary" href="tel:${String(S.phone).replace(/\s/g, '')}"><i class="fa-solid fa-phone"></i> Call</a></div>
       <button class="btn btn-ghost btn-block" id="theme-toggle-m"><i class="fa-solid fa-moon"></i> <span>Dark mode</span></button>
@@ -124,11 +124,11 @@
   </aside>
 
   <nav class="tabbar" id="tabbar" aria-label="Quick navigation">
-    <a href="${R}index.html" class="${here === 'index.html' ? 'active' : ''}"><i class="fa-solid fa-house"></i><span>Home</span></a>
-    <a href="${SHOP}" class="${here === 'shop.html' ? 'active' : ''}"><i class="fa-solid fa-table-cells-large"></i><span>Shop</span></a>
+    <a href="/" class="${here === 'index' ? 'active' : ''}"><i class="fa-solid fa-house"></i><span>Home</span></a>
+    <a href="${SHOP}" class="${here === 'shop' ? 'active' : ''}"><i class="fa-solid fa-table-cells-large"></i><span>Shop</span></a>
     <button data-search><i class="fa-solid fa-magnifying-glass"></i><span>Search</span></button>
-    <a href="${WT.page('cart.html')}" id="tab-cart" class="${here === 'cart.html' ? 'active' : ''}"><i class="fa-solid fa-bag-shopping"></i><span class="cart-badge" data-cart hidden>0</span><span>Cart</span></a>
-    <a href="${WT.page('account.html')}" class="${here === 'account.html' ? 'active' : ''}"><i class="fa-regular fa-user"></i><span>Account</span></a>
+    <a href="${WT.page('/cart')}" id="tab-cart" class="${here === 'cart' ? 'active' : ''}"><i class="fa-solid fa-bag-shopping"></i><span class="cart-badge" data-cart hidden>0</span><span>Cart</span></a>
+    <a href="${WT.page('/account')}" class="${here === 'account' ? 'active' : ''}"><i class="fa-regular fa-user"></i><span>Account</span></a>
   </nav>`;
 
   const PAYMENTS = (S.payments || []).map((p) => `<span class="pay-icon" title="${p.name}"><img src="${R}IMAGES/pay/${p.icon}" alt="${p.name}" width="64" height="40" loading="lazy" decoding="async"></span>`).join('');
@@ -144,13 +144,13 @@
       </div>
       <div class="footer-top">
         <div class="footer-brand">
-          <a class="footer-logo" href="${R}index.html" aria-label="${S.name} home"><img src="${R}IMAGES/logo-white.svg?v=4" alt="${S.name}" width="168" height="138" loading="lazy" decoding="async"></a>
+          <a class="footer-logo" href="/" aria-label="${S.name} home"><img src="${R}IMAGES/logo-white.svg?v=4" alt="${S.name}" width="168" height="138" loading="lazy" decoding="async"></a>
           <p class="footer-tag">${S.tagline || ''}</p>
           <p>We are your go-to for authentic tech: genuine smartphones, audio and gadgets, delivered everywhere in Uganda.</p>
           <div class="footer-contact">
             <a href="${WT.waLink()}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i>${S.phone}</a>
             <a href="mailto:${S.email}"><i class="fa-regular fa-envelope"></i>${S.email}</a>
-            <a href="${WT.page('contact.html')}"><i class="fa-solid fa-location-dot"></i>${S.location}</a>
+            <a href="${WT.page('/contact')}"><i class="fa-solid fa-location-dot"></i>${S.location}</a>
             <span class="footer-hours"><i class="fa-regular fa-clock"></i>Mon to Sat 8 AM to 8 PM · Sun 10 AM to 6 PM</span>
           </div>
           <div class="social">${SOCIAL}</div>
@@ -163,24 +163,24 @@
           <li class="f-cats"></li>
         </ul></div>
         <div class="footer-col"><h4>Help</h4><ul>
-          <li><a href="${WT.page('track-order.html')}">Track an order</a></li>
-          <li><a href="${WT.page('shipping.html')}">Delivery &amp; payment</a></li>
-          <li><a href="${WT.page('returns.html')}">Returns &amp; warranty</a></li>
-          <li><a href="${WT.page('faq.html')}">FAQ</a></li>
-          <li><a href="${WT.page('contact.html')}">Contact us</a></li>
+          <li><a href="${WT.page('/track-order')}">Track an order</a></li>
+          <li><a href="${WT.page('/shipping')}">Delivery &amp; payment</a></li>
+          <li><a href="${WT.page('/returns')}">Returns &amp; warranty</a></li>
+          <li><a href="${WT.page('/faq')}">FAQ</a></li>
+          <li><a href="${WT.page('/contact')}">Contact us</a></li>
         </ul></div>
         <div class="footer-col"><h4>We accept</h4>
           <div class="pay-row">${PAYMENTS}</div>
           <p class="pay-note">Pay on delivery with MoMo, Airtel Money or cash.</p>
           <h4 style="margin-top:26px">Company</h4><ul>
-          <li><a href="${WT.page('about.html')}">About us</a></li>
-          <li><a href="${WT.page('wishlist.html')}">Wishlist</a></li>
-          <li><a href="${WT.page('account.html')}">My account</a></li>
+          <li><a href="${WT.page('/about')}">About us</a></li>
+          <li><a href="${WT.page('/wishlist')}">Wishlist</a></li>
+          <li><a href="${WT.page('/account')}">My account</a></li>
         </ul></div>
       </div>
       <div class="footer-bottom">
         <span>&copy; ${new Date().getFullYear()} ${S.name}. All rights reserved.</span>
-        <nav aria-label="Legal"><a href="${WT.page('privacy.html')}">Privacy</a><a href="${WT.page('terms.html')}">Terms</a><a href="${WT.page('cookies.html')}">Cookies</a></nav>
+        <nav aria-label="Legal"><a href="${WT.page('/privacy')}">Privacy</a><a href="${WT.page('/terms')}">Terms</a><a href="${WT.page('/cookies')}">Cookies</a></nav>
       </div>
     </div>
   </footer>
@@ -252,7 +252,7 @@
   function closeCart() { drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); if (!anyOverlay()) { scrim.classList.remove('show'); lock(false); } }
   WT.openCart = openCart; WT.closeCart = closeCart;
   $('cart-drawer-close').addEventListener('click', closeCart);
-  const onCartPage = here === 'cart.html' || here === 'checkout.html';
+  const onCartPage = here === 'cart' || here === 'checkout';
   document.querySelectorAll('#cart-btn, #tab-cart').forEach((a) => a.addEventListener('click', (e) => { if (!onCartPage) { e.preventDefault(); openCart(); } }));
 
   function renderDrawer() {
@@ -274,8 +274,8 @@
       ${gone ? '<div class="err-box" style="font-size:13.5px"><i class="fa-solid fa-circle-exclamation"></i><span>Some items are no longer available. Remove them to check out.</span></div>' : ''}
       <div style="display:flex;justify-content:space-between;font-weight:800;font-size:18px"><span>Subtotal</span><span style="font-family:var(--font-display)">${formatPrice(sub)}</span></div>
       <p class="form-hint" style="margin:-4px 0 0">Delivery and discount codes are added at checkout.</p>
-      ${gone ? '<button class="btn btn-dark btn-lg btn-block" id="drawer-clean">Remove unavailable items</button>' : `<a class="btn btn-primary btn-lg btn-block" href="${WT.page('checkout.html')}">Checkout</a>`}
-      <a class="btn btn-secondary btn-block" href="${WT.page('cart.html')}">View full cart</a>` : '';
+      ${gone ? '<button class="btn btn-dark btn-lg btn-block" id="drawer-clean">Remove unavailable items</button>' : `<a class="btn btn-primary btn-lg btn-block" href="${WT.page('/checkout')}">Checkout</a>`}
+      <a class="btn btn-secondary btn-block" href="${WT.page('/cart')}">View full cart</a>` : '';
   }
   $('cart-drawer-body').addEventListener('click', (e) => {
     const b = e.target.closest('[data-act]'); if (!b) return;
@@ -331,7 +331,7 @@
   try {
     if (!localStorage.getItem('wt-cookie-ok')) {
       const c = createElement('div', 'cookie-bar');
-      c.innerHTML = `<div>We use your browser's storage to remember your cart and theme. No ad tracking. <a href="${WT.page('cookies.html')}">Details</a></div><div class="row"><button class="btn btn-primary btn-sm" id="cookie-ok">Got it</button></div>`;
+      c.innerHTML = `<div>We use your browser's storage to remember your cart and theme. No ad tracking. <a href="${WT.page('/cookies')}">Details</a></div><div class="row"><button class="btn btn-primary btn-sm" id="cookie-ok">Got it</button></div>`;
       document.body.appendChild(c);
       c.querySelector('#cookie-ok').addEventListener('click', () => { localStorage.setItem('wt-cookie-ok', '1'); c.remove(); });
     }
@@ -344,6 +344,6 @@
   Products.init().then(() => {
     buildCategoryMenus();
     // Catch price changes / delisted items on EVERY page, not just the cart.
-    if (Products.allProducts.length) { const r = Cart.reconcile(Products.allProducts); if (r.changed.length) showNotification('Some prices in your cart were updated.', 'info', { label: 'Review', href: WT.page('cart.html') }); }
+    if (Products.allProducts.length) { const r = Cart.reconcile(Products.allProducts); if (r.changed.length) showNotification('Some prices in your cart were updated.', 'info', { label: 'Review', href: WT.page('/cart') }); }
   });
 })();

@@ -22,8 +22,7 @@ import GuestMode from './account/guest-mode.js';
   let _accountMenuCloseTimer = null;
 
   function _getPagePath(pageFileName) {
-    const isSubpage = window.location.pathname.includes('/pages/');
-    return (isSubpage ? '' : 'pages/') + pageFileName;
+    return (window.WT && WT.page) ? WT.page(pageFileName) : '/' + String(pageFileName).replace(/^\//, '');
   }
 
   function _getRedirectParam() {
@@ -56,10 +55,10 @@ import GuestMode from './account/guest-mode.js';
   }
 
   function _renderAccountMenu(panel, user) {
-    const accountHref = _getPagePath('account.html');
-    const loginHref = `${_getPagePath('login.html')}?${_getRedirectParam()}`;
+    const accountHref = _getPagePath('/account');
+    const loginHref = `${_getPagePath('/login')}?${_getRedirectParam()}`;
     const ordersHref = `${accountHref}?tab=orders`;
-    const wishlistHref = _getPagePath('wishlist.html');
+    const wishlistHref = _getPagePath('/wishlist');
 
     const icons = {
       user: '<i class="fa-regular fa-user" aria-hidden="true"></i>',
@@ -72,7 +71,7 @@ import GuestMode from './account/guest-mode.js';
       panel.innerHTML = `
         <a class="account-menu-primary" role="menuitem" href="${accountHref}">${icons.user}<span>My Account</span></a>
         <a class="account-menu-item" role="menuitem" href="${ordersHref}">${icons.box}<span>My orders</span></a>
-        <a class="account-menu-item" role="menuitem" href="${_getPagePath('track-order.html')}"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i><span>Track an order</span></a>
+        <a class="account-menu-item" role="menuitem" href="${_getPagePath('/track-order')}"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i><span>Track an order</span></a>
         <a class="account-menu-item" role="menuitem" href="${wishlistHref}">${icons.heart}<span>Wishlist</span></a>
         <div class="account-menu-divider" role="separator"></div>
         <button type="button" class="account-menu-item" data-action="signout">${icons.logout}<span>Sign Out</span></button>
@@ -82,8 +81,8 @@ import GuestMode from './account/guest-mode.js';
 
     panel.innerHTML = `
       <a class="account-menu-primary" role="menuitem" href="${loginHref}"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i><span>Sign in</span></a>
-      <a class="account-menu-item" role="menuitem" href="${_getPagePath('register.html')}"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>Create account</span></a>
-      <a class="account-menu-item" role="menuitem" href="${_getPagePath('track-order.html')}"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i><span>Track an order</span></a>
+      <a class="account-menu-item" role="menuitem" href="${_getPagePath('/register')}"><i class="fa-solid fa-user-plus" aria-hidden="true"></i><span>Create account</span></a>
+      <a class="account-menu-item" role="menuitem" href="${_getPagePath('/track-order')}"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i><span>Track an order</span></a>
     `;
   }
 
@@ -134,7 +133,7 @@ import GuestMode from './account/guest-mode.js';
       
       // If not logged in, redirect to login page instead of showing dropdown
       if (!_accountMenuUser) {
-        const loginHref = `${_getPagePath('login.html')}?${_getRedirectParam()}`;
+        const loginHref = `${_getPagePath('/login')}?${_getRedirectParam()}`;
         window.location.href = loginHref;
         return;
       }
@@ -150,7 +149,7 @@ import GuestMode from './account/guest-mode.js';
         
         // If not logged in, redirect to login page instead of showing dropdown
         if (!_accountMenuUser) {
-          const loginHref = `${_getPagePath('login.html')}?${_getRedirectParam()}`;
+          const loginHref = `${_getPagePath('/login')}?${_getRedirectParam()}`;
           window.location.href = loginHref;
           return;
         }
@@ -258,8 +257,7 @@ import GuestMode from './account/guest-mode.js';
       if (!user) {
         e.preventDefault();
         const redirect = window.location.pathname + window.location.search;
-        const isSubpage = window.location.pathname.includes('/pages/');
-        const loginPath = isSubpage ? 'login.html' : 'pages/login.html';
+        const loginPath = '/login';
         window.location.href = `${loginPath}?redirect=${encodeURIComponent(redirect)}`;
         return;
       }
@@ -291,7 +289,7 @@ import GuestMode from './account/guest-mode.js';
       if (!link) return;
 
       const href = link.getAttribute('href') || '';
-      const isAccountLink = link.id !== 'account-btn' && (href && href.includes('account.html'));
+      const isAccountLink = link.id !== 'account-btn' && (href && href.includes('/account'));
       if (!isAccountLink) return;
 
       // If auth is not yet initialized, allow navigation to proceed
@@ -309,8 +307,7 @@ import GuestMode from './account/guest-mode.js';
         const targetUrl = new URL(href, window.location.href);
         redirect = targetUrl.pathname + targetUrl.search + targetUrl.hash;
       } catch (_) {}
-      const isSubpage = window.location.pathname.includes('/pages/');
-      const loginPath = isSubpage ? 'login.html' : 'pages/login.html';
+      const loginPath = '/login';
       window.location.href = `${loginPath}?redirect=${encodeURIComponent(redirect)}`;
     });
   }

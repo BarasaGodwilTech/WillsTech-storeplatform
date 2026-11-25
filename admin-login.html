@@ -1,40 +1,40 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin sign in | Will's Tech</title><meta name="robots" content="noindex">
-<link rel="icon" type="image/svg+xml" href="favicon.svg?v=4">
-<link rel="icon" href="favicon.ico?v=4" sizes="48x48">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png?v=4">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png?v=4">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=4">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4">
+<link rel="icon" href="/favicon.ico?v=4" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=4">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=4">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
 <meta name="theme-color" content="#2a1262">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="/css/admin.css">
 <script>try{var t=localStorage.getItem('wt_admin_theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head><body>
 <div class="login">
   <div class="l">
-    <div><img class="biglogo" src="IMAGES/logo-white.svg?v=4" alt="Will's Tech Store" width="168" height="138"><span class="abadge">ADMIN</span></div>
+    <div><img class="biglogo" src="/IMAGES/logo-white.svg?v=4" alt="Will's Tech Store" width="168" height="138"><span class="abadge">ADMIN</span></div>
     <div><h1>Run the store. <em>Calmly.</em></h1><p>Orders, products, delivery and content, all in one place. Built to be quick on a phone as well.</p></div>
     <small style="opacity:.5">Authentic tech, from people you can reach.</small>
   </div>
   <div class="r">
     <form id="f">
-      <img class="mlogo" src="favicon.svg?v=4" alt="Will's Tech Store" width="52" height="52">
+      <img class="mlogo" src="/favicon.svg?v=4" alt="Will's Tech Store" width="52" height="52">
       <div><h1 style="font-size:30px">Welcome back</h1><p style="color:var(--t3);margin:4px 0 0">Sign in to manage Will's Tech Store.</p></div>
       <div id="err" class="err hidden"></div>
       <div class="f"><label for="e">Email</label><input class="inp" id="e" type="email" autocomplete="username" required></div>
       <div class="f"><label for="p">Password</label><input class="inp" id="p" type="password" autocomplete="current-password" required></div>
       <button class="btn btn-p" id="go" style="justify-content:center">Sign in</button>
-      <a href="index.html" style="text-align:center;color:var(--t3);font-size:13px">← Back to the store</a>
+      <a href="/" style="text-align:center;color:var(--t3);font-size:13px">← Back to the store</a>
     </form>
   </div>
 </div>
 <script>
-if(localStorage.getItem('willstech_admin_token'))location.replace('admin.html');
+if(localStorage.getItem('willstech_admin_token'))location.replace("/admin");
 document.getElementById('f').addEventListener('submit',async function(ev){ev.preventDefault();
  var b=document.getElementById('go'),er=document.getElementById('err');b.disabled=true;b.textContent='Signing in…';er.classList.add('hidden');
  try{var r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:e.value.trim(),password:p.value})});
   var d=await r.json().catch(function(){return{}});if(!r.ok)throw new Error(d.error||'Could not sign in');
-  localStorage.setItem('willstech_admin_token',d.token);localStorage.setItem('willstech_admin_user',JSON.stringify(d.user));location.href='admin.html';
+  localStorage.setItem('willstech_admin_token',d.token);localStorage.setItem('willstech_admin_user',JSON.stringify(d.user));location.href="/admin";
  }catch(x){er.textContent=x.message;er.classList.remove('hidden');b.disabled=false;b.textContent='Sign in';}});
 </script></body></html>

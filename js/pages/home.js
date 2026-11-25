@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   const $ = (id) => document.getElementById(id);
-  const SHOP = WT.page('shop.html');
+  const SHOP = WT.page('/shop');
 
   // Placeholders go in immediately so nothing pops in from empty space.
   $('best-track').innerHTML = `<div class="skel-row">${Products.skeletons(5)}</div>`;
@@ -119,7 +119,7 @@
     const items = [['iPhone', 'iPhone', 'fa-mobile-screen'], ['iPad', 'iPad', 'fa-tablet-screen-button'], ['MacBook', 'MacBook', 'fa-laptop']];
     $('apple-chips').innerHTML = items.map(([label, q, ic]) => {
       const hit = Products.active().find((p) => p.name.toLowerCase().includes(q.toLowerCase()));
-      const href = hit ? Products.href(hit) : `${WT.page('contact.html')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Hi! I'm looking for an ${q}. What do you have, and at what price?`)}`;
+      const href = hit ? Products.href(hit) : `${WT.page('/contact')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Hi! I'm looking for an ${q}. What do you have, and at what price?`)}`;
       return `<a href="${href}"><i class="fa-solid ${ic}"></i>${label}</a>`;
     }).join('');
     const vid = $('apple-video');
@@ -131,7 +131,7 @@
     try {
       const d = await window.apiFetch('/shop/reviews/latest'); const rs = (d.reviews || []).slice(0, 3); if (!rs.length) return;
       $('reviews').innerHTML = rs.map((r) => `<article class="rv-card">${WT.stars(r.rating)}${r.title ? `<b>${escapeHTML(r.title)}</b>` : ''}<p>${escapeHTML(r.body)}</p>
-        <div class="rv-meta"><span><b>${escapeHTML(r.author)}</b>${r.verified ? ' · <i class="fa-solid fa-circle-check" style="color:var(--signal)"></i> Verified' : ''}</span>${r.productId && r.productName ? `<a href="${WT.page('product.html')}?id=${encodeURIComponent(r.productId)}#reviews">${escapeHTML(String(r.productName).split(/\s[-–—]\s|[,|(/]/)[0].slice(0, 26))}</a>` : ''}</div></article>`).join('');
+        <div class="rv-meta"><span><b>${escapeHTML(r.author)}</b>${r.verified ? ' · <i class="fa-solid fa-circle-check" style="color:var(--signal)"></i> Verified' : ''}</span>${r.productId && r.productName ? `<a href="/product/${encodeURIComponent(r.productId)}#reviews">${escapeHTML(String(r.productName).split(/\s[-–—]\s|[,|(/]/)[0].slice(0, 26))}</a>` : ''}</div></article>`).join('');
       $('reviews-section').hidden = false;
     } catch (e) { /* offline or none: keep hidden */ }
   }

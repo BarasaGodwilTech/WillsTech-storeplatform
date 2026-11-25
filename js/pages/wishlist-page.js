@@ -3,7 +3,7 @@
   'use strict';
   const root = document.getElementById('wl-root');
   const W = WT.Wishlist;
-  const SHOP = WT.page('shop.html');
+  const SHOP = WT.page('/shop');
 
   async function render() {
     await W.whenLoaded;
@@ -11,7 +11,7 @@
     const gone = W.list.length - items.length;
     const sub = document.querySelector('.page-hero p');
     if (sub) sub.textContent = items.length ? `${items.length} saved item${items.length === 1 ? '' : 's'}. Add them to your cart when you're ready.` : 'Save products you love and find them here.';
-    const login = `${WT.page('login.html')}?redirect=${encodeURIComponent('wishlist.html')}`;
+    const login = `${WT.page('/login')}?redirect=${encodeURIComponent('/wishlist')}`;
     const nudge = !W.authed && items.length ? `<div class="signin-nudge"><span><i class="fa-regular fa-heart"></i> Saved on this device. Sign in to keep your wishlist on every device.</span><a class="btn btn-dark btn-sm" href="${login}">Sign in</a></div>` : '';
 
     if (!items.length) {
@@ -31,7 +31,7 @@
     if (!e.target.closest('#wl-addall')) return;
     const buyable = W.list.map((id) => Products.getProductById(id)).filter((p) => p && p.status === 'active' && !Products.isOut(p));
     buyable.forEach((p) => Cart.addItem(p, 1, { silent: true }));
-    showNotification(`Added ${buyable.length} item${buyable.length === 1 ? '' : 's'} to your cart`, 'success', { label: 'View cart', href: WT.page('cart.html') });
+    showNotification(`Added ${buyable.length} item${buyable.length === 1 ? '' : 's'} to your cart`, 'success', { label: 'View cart', href: WT.page('/cart') });
   });
 
   WT.ready(render);

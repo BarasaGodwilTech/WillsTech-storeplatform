@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   const root = document.getElementById('cart-root');
-  const SHOP = WT.page('shop.html');
+  const SHOP = WT.page('/shop');
 
   WT.ready(() => { if (Products.allProducts.length) Cart.reconcile(Products.allProducts); render(); document.addEventListener('cart-updated', render); });
 
@@ -32,7 +32,7 @@
       <div class="cart-layout">
         <div class="cart-list">
           ${blocked ? `<div class="err-box"><i class="fa-solid fa-circle-exclamation"></i><span style="flex:1">${goneIds.length === 1 ? 'One item is' : goneIds.length + ' items are'} no longer available. Remove ${goneIds.length === 1 ? 'it' : 'them'} to check out.</span><button class="btn btn-dark btn-sm" id="clean-cart">Remove ${goneIds.length === 1 ? 'it' : 'them'}</button></div>` : ''}
-          ${items.map((i) => { const g = Cart.isUnavailable(i.productId); const href = `${WT.page('product.html')}?id=${encodeURIComponent(i.productId)}`; return `
+          ${items.map((i) => { const g = Cart.isUnavailable(i.productId); const href = `/product/${encodeURIComponent(i.productId)}`; return `
             <article class="cart-card${g ? ' is-gone' : ''}" data-id="${escapeHTML(i.productId)}">
               <a href="${href}"><img src="${escapeHTML(WT.img(i.image))}" data-fallback="${escapeHTML(WT.imgOriginal(i.image))}" alt="" loading="lazy"></a>
               <div>
@@ -54,12 +54,12 @@
           <div class="sum-row"><span>Subtotal</span><b>${formatPrice(total)}</b></div>
           <div class="sum-row"><span>Delivery</span><b>${th <= 0 ? 'Confirmed at checkout' : 'At checkout'}</b></div>
           <div class="sum-total"><span>Estimated total</span><strong>${formatPrice(total)}</strong></div>
-          <a class="btn btn-primary btn-lg btn-block" href="checkout.html" ${blocked ? 'aria-disabled="true" style="pointer-events:none;opacity:.45"' : ''}><i class="fa-solid fa-lock"></i> Checkout</a>
+          <a class="btn btn-primary btn-lg btn-block" href="/checkout" ${blocked ? 'aria-disabled="true" style="pointer-events:none;opacity:.45"' : ''}><i class="fa-solid fa-lock"></i> Checkout</a>
           <p class="fine"><i class="fa-solid fa-shield-halved"></i> Authentic · Pay on delivery · No account needed</p>
-          <p class="fine">Need help deciding? <a href="${WT.page('contact.html')}" style="text-decoration:underline;font-weight:700">Ask us</a></p>
+          <p class="fine">Need help deciding? <a href="${WT.page('/contact')}" style="text-decoration:underline;font-weight:700">Ask us</a></p>
         </aside>
       </div>
-      <div class="cart-sticky"><div><small>${count} item${count === 1 ? '' : 's'}</small><strong>${formatPrice(total)}</strong></div><a class="btn btn-primary btn-lg" href="checkout.html" ${blocked ? 'aria-disabled="true" style="pointer-events:none;opacity:.45"' : ''}>Checkout</a></div>`;
+      <div class="cart-sticky"><div><small>${count} item${count === 1 ? '' : 's'}</small><strong>${formatPrice(total)}</strong></div><a class="btn btn-primary btn-lg" href="/checkout" ${blocked ? 'aria-disabled="true" style="pointer-events:none;opacity:.45"' : ''}>Checkout</a></div>`;
     WT.markLoaded(root);
   }
 

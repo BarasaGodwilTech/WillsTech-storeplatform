@@ -18,8 +18,8 @@ Storefront + admin + API in one Node.js app, with PostgreSQL on **[Neon](https:/
 | What | Where |
 |---|---|
 | Store | http://localhost:4000 |
-| Admin login | http://localhost:4000/admin-login.html |
-| Orders & Inbox (admin) | http://localhost:4000/admin-orders.html (also in the admin sidebar) |
+| Admin login | http://localhost:4000/admin/login |
+| Orders & Inbox (admin) | http://localhost:4000/admin#orders (also in the admin sidebar) |
 | Health check | http://localhost:4000/api/health |
 
 ## 2. What's in the platform
