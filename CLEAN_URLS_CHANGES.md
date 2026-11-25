@@ -21,3 +21,21 @@ and https://cards-dev.x.com/validator if X still shows an old card.
 ## Admin
 Store details now shows the links/phone/email the site is really using (they were only read from the database,
 so the form looked empty while the footer showed them).
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 809eded88154149fea57fa1f8b35d8278a3e3c06
+
+## Round 2
+- Product page "We couldn't find that product": the browser was running an old cached product.js that only understood ?id=.
+  Scripts and styles are now revalidated on every load, and the server also hands the product id to the page directly.
+- Product slugs are now short (first part of the name, whole words, max 60 chars). Old long links 301 to the short one.
+- Admin bell is now a real notification list (new orders, overdue/unscheduled deliveries, messages, stock, expiring codes).
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> c338fb81c595c3987b795b730eafef80368aa8e0
+>>>>>>> 809eded88154149fea57fa1f8b35d8278a3e3c06
+>>>>>>> cd98504477ade47703dbd38df85edb7a9bcec874

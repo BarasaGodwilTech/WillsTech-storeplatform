@@ -17,10 +17,35 @@
   };
   // Which page are we on? 'index', 'shop', 'product', 'cart' ...
   WT.here = (location.pathname.replace(/\/+$/, '').split('/')[1] || 'index').replace(/\.html$/, '').toLowerCase();
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 809eded88154149fea57fa1f8b35d8278a3e3c06
+  // Same rule as the server (backend/src/lib/pages.js): short, whole words only. The id at the end is what identifies the product.
+  const baseSlug = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  WT.slug = (name) => {
+    let t = baseSlug(String(name || '').split(/\s[-–—]\s|[,|(]/)[0]) || baseSlug(name);
+    if (t.length > 60) { t = t.slice(0, 60); const i = t.lastIndexOf('-'); if (i > 15) t = t.slice(0, i); }
+    return t.replace(/-+$/, '');
+  };
+  WT.productPath = (p) => { const s = WT.slug(p.name); return '/product/' + (s ? s + '-' : '') + encodeURIComponent(p.id); };
+  // Product id from the current URL (/product/some-name-123456) with a fallback for old ?id= links.
+  WT.productIdFromUrl = () => { if (window.__PRODUCT_ID__) return window.__PRODUCT_ID__; const m = /\/product\/(?:[^/]*-)?(\d+)\/?$/.exec(location.pathname); return m ? m[1] : new URLSearchParams(location.search).get('id'); };
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> cd98504477ade47703dbd38df85edb7a9bcec874
   WT.slug = (name) => String(name || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 70).replace(/-+$/, '');
   WT.productPath = (p) => { const s = WT.slug(p.name); return '/product/' + (s ? s + '-' : '') + encodeURIComponent(p.id); };
   // Product id from the current URL (/product/some-name-123456) with a fallback for old ?id= links.
   WT.productIdFromUrl = () => { const m = /\/product\/(?:[^/]*-)?(\d+)\/?$/.exec(location.pathname); return m ? m[1] : new URLSearchParams(location.search).get('id'); };
+<<<<<<< HEAD
+=======
+>>>>>>> c338fb81c595c3987b795b730eafef80368aa8e0
+>>>>>>> 809eded88154149fea57fa1f8b35d8278a3e3c06
+>>>>>>> cd98504477ade47703dbd38df85edb7a9bcec874
   WT.waLink = (text) => `https://wa.me/${(window.SITE && SITE.whatsapp) || '256751924844'}${text ? '?text=' + encodeURIComponent(text) : ''}`;
 
   // ── Formatting ─────────────────────────────────────────
