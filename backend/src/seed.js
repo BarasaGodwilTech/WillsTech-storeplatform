@@ -99,7 +99,7 @@ async function seedAdmin() {
     [name, email, hash]
   );
   console.log(`[seed] ✅ Admin account created: ${email}`);
-  console.log('       Log in at /admin-login.html with this email + the password from your .env.');
+  console.log('       Log in at /admin/login with this email + the password from your .env.');
   console.log('       Change ADMIN_PASSWORD (and re-run) or update it from the admin panel later.');
 }
 

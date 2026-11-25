@@ -8,7 +8,7 @@ const { backfillSkus, prefixFor } = require('../lib/sku');
 const { recalcRating, recalcAll } = require('../lib/ratings');
 const storage = require('../lib/storage');
 const imageMigration = require('../lib/imageMigration');
-const { DEFAULTS, DEFAULT_TEMPLATES, getShopConfig, getDeliveryTemplates, clearStoreCache, setting } = require('../shopConfig');
+const { DEFAULTS, DEFAULT_TEMPLATES, getShopConfig, getDeliveryTemplates, clearStoreCache, getStoreForAdmin, setting } = require('../shopConfig');
 
 const router = express.Router();
 router.use(requireAdmin);
@@ -105,7 +105,7 @@ router.get('/settings/:section', async (req, res) => {
   try {
     if (s === 'shipping') return res.json({ value: await getShopConfig(), defaults: DEFAULTS });
     if (s === 'delivery_templates') return res.json({ value: await getDeliveryTemplates(), defaults: DEFAULT_TEMPLATES });
-    res.json({ value: (await setting('store')) || {} });
+    res.json({ value: await getStoreForAdmin() });
   } catch (e) { res.status(500).json({ error: 'Could not load settings' }); }
 });
 

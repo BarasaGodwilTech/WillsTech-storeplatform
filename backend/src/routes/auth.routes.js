@@ -184,7 +184,7 @@ router.post('/forgot-password', async (req, res) => {
       [tokenHash, expires, rows[0].id]
     );
 
-    const resetLink = `${req.protocol}://${req.get('host')}/pages/reset-password.html?token=${token}`;
+    const resetLink = `${req.protocol}://${req.get('host')}/reset-password?token=${token}`;
 
     // ── Plug in a real email provider here ────────────────────────────
     // Example with a provider's SDK:

@@ -34,7 +34,7 @@
           <p class="text-muted" style="margin-bottom:22px">Placed ${WT.date(o.createdAt)} · ${escapeHTML(WT.payLabel(o.paymentMethod))} · ${o.paymentStatus === 'paid' ? 'Paid' : o.paymentStatus === 'refunded' ? 'Refunded' : 'Pay on delivery'}</p>${WT.orderTimeline(o.status, d.events)}</div>
         ${deliveryPanel(o)}
         <div class="panel"><h2>Items</h2>${WT.orderLines(o.items)}${WT.orderTotals(o)}</div>
-        <div class="form-actions" style="justify-content:center"><a class="btn btn-secondary btn-lg" href="${WT.page('contact.html')}?subject=${encodeURIComponent('Order support')}&message=${encodeURIComponent(`Hi! I'm checking on order ${o.orderNumber}.`)}"><i class="fa-regular fa-comment-dots"></i> Need help with this order?</a></div>`;
+        <div class="form-actions" style="justify-content:center"><a class="btn btn-secondary btn-lg" href="${WT.page('/contact')}?subject=${encodeURIComponent('Order support')}&message=${encodeURIComponent(`Hi! I'm checking on order ${o.orderNumber}.`)}"><i class="fa-regular fa-comment-dots"></i> Need help with this order?</a></div>`;
       $('track-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (ex) { $('track-result').innerHTML = ''; err.hidden = false; err.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><span>${escapeHTML(ex.status ? ex.message : "We couldn't reach our server. Please try again in a moment.")}</span>`; }
     btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i> Find my order';

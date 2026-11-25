@@ -42,7 +42,7 @@ const Cart = {
     this.save(); this.updateBadge(true); this._emit();
     if (!opts.silent) {
       if (clamped) showNotification(`You can order up to ${this.MAX_QTY} of one item online. Contact us for bulk orders.`, 'info');
-      else showNotification(`Added: ${product.name}`, 'success', { label: 'View cart', href: WT.page('cart.html') });
+      else showNotification(`Added: ${product.name}`, 'success', { label: 'View cart', href: WT.page('/cart') });
     }
     return true;
   },
