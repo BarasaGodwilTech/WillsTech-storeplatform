@@ -53,7 +53,7 @@ const Products = {
   trending(n) {
     return [...this.active()].sort((a, b) => (b.rating || 0) * Math.log(2 + (b.reviewCount || 0)) - (a.rating || 0) * Math.log(2 + (a.reviewCount || 0))).slice(0, n || 10);
   },
-  href(p) { return `${WT.page('product.html')}?id=${encodeURIComponent(p.id)}`; },
+  href(p) { return WT.productPath(p); },
 
   // ── Brands & budgets ───────────────────────────────────
   brand(p) {
@@ -68,10 +68,10 @@ const Products = {
   budgets() {
     const A = this.active(), n = (lo, hi) => A.filter((p) => p.price >= lo && (hi === null || p.price <= hi)).length;
     return [
-      { label: 'Under UGX 200,000', hint: 'Everyday essentials', href: `${WT.page('shop.html')}?max=200000`, count: n(0, 200000) },
-      { label: 'UGX 200K – 500K', hint: 'Crowd pleasers', href: `${WT.page('shop.html')}?min=200000&max=500000`, count: n(200000, 500000) },
-      { label: 'UGX 500K – 1M', hint: 'Step it up', href: `${WT.page('shop.html')}?min=500000&max=1000000`, count: n(500000, 1000000) },
-      { label: 'Over UGX 1M', hint: 'The big wow', href: `${WT.page('shop.html')}?min=1000000`, count: n(1000000, null) },
+      { label: 'Under UGX 200,000', hint: 'Everyday essentials', href: `${WT.page('/shop')}?max=200000`, count: n(0, 200000) },
+      { label: 'UGX 200K – 500K', hint: 'Crowd pleasers', href: `${WT.page('/shop')}?min=200000&max=500000`, count: n(200000, 500000) },
+      { label: 'UGX 500K – 1M', hint: 'Step it up', href: `${WT.page('/shop')}?min=500000&max=1000000`, count: n(500000, 1000000) },
+      { label: 'Over UGX 1M', hint: 'The big wow', href: `${WT.page('/shop')}?min=1000000`, count: n(1000000, null) },
     ];
   },
 
@@ -91,7 +91,7 @@ const Products = {
     const slidesHTML = (imgs.length ? imgs : ['']).map((u, i) => `<a class="slide" href="${this.href(p)}" tabindex="-1" aria-hidden="true"><img src="${escapeHTML(WT.thumb(u))}" data-fallback="${escapeHTML(WT.img(u))}" alt="${i === 0 ? escapeHTML(p.name) : ''}" loading="lazy" decoding="async" width="480" height="480"></a>`).join('');
     const dotsHTML = multi ? `<div class="pcard-dots" aria-hidden="true">${imgs.map((_, i) => `<i${i === 0 ? ' class="on"' : ''}></i>`).join('')}</div>` : '';
     const link = this.href(p);
-    const ask = `${WT.page('contact.html')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Please let me know when "${p.name}" is back in stock.`)}`;
+    const ask = `${WT.page('/contact')}?subject=${encodeURIComponent('Product question')}&message=${encodeURIComponent(`Please let me know when "${p.name}" is back in stock.`)}`;
     const card = createElement('article', 'pcard' + (out ? ' is-out' : ''));
     card.dataset.id = p.id; card.dataset.category = p.category || '';
     card.innerHTML = `

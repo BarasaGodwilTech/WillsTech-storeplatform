@@ -27,7 +27,7 @@
   });
 
   function empty() {
-    root.innerHTML = `<div class="empty-state" style="padding:72px 20px"><i class="fa-solid fa-bag-shopping"></i><h3>Your cart is empty</h3><p>Add something first, then come back to check out.</p><a class="btn btn-primary btn-lg" href="shop.html">Start shopping</a></div>`;
+    root.innerHTML = `<div class="empty-state" style="padding:72px 20px"><i class="fa-solid fa-bag-shopping"></i><h3>Your cart is empty</h3><p>Add something first, then come back to check out.</p><a class="btn btn-primary btn-lg" href="/shop">Start shopping</a></div>`;
   }
 
   async function prefillFromAccount(user) {
@@ -48,8 +48,8 @@
     root.innerHTML = `
     <div class="checkout-layout">
       <form class="co-form" id="co-form" novalidate>
-        <div class="signin-nudge" id="signin-nudge" hidden><span><i class="fa-regular fa-user"></i> Have an account? Sign in to fill this in and track your orders.</span><a class="btn btn-dark btn-sm" href="login.html?redirect=checkout.html">Sign in</a></div>
-        ${notes}${gone ? `<div class="err-box"><i class="fa-solid fa-circle-exclamation"></i><span>Some items in your cart are no longer available. <a href="cart.html" style="text-decoration:underline">Review your cart</a>.</span></div>` : ''}
+        <div class="signin-nudge" id="signin-nudge" hidden><span><i class="fa-regular fa-user"></i> Have an account? Sign in to fill this in and track your orders.</span><a class="btn btn-dark btn-sm" href="/login?redirect=%2Fcheckout">Sign in</a></div>
+        ${notes}${gone ? `<div class="err-box"><i class="fa-solid fa-circle-exclamation"></i><span>Some items in your cart are no longer available. <a href="/cart" style="text-decoration:underline">Review your cart</a>.</span></div>` : ''}
         <section class="co-card"><h2><span class="n">1</span> Your details</h2>
           <div class="form-row">
             <div class="form-group"><label class="form-label" for="f-name">Full name</label><input class="form-input" id="f-name" autocomplete="name" value="${escapeHTML(f.name)}" required><span class="form-error" id="e-name"></span></div>
@@ -71,7 +71,7 @@
         </section>
         <div class="err-box" id="co-error" hidden></div>
         <button class="btn btn-primary btn-lg btn-block" type="submit" id="place-btn" ${gone ? 'disabled' : ''}><i class="fa-solid fa-lock"></i> Place order · <span id="btn-total"></span></button>
-        <p class="form-hint" style="text-align:center">By placing your order you agree to our <a href="terms.html" style="text-decoration:underline">Terms</a> and <a href="returns.html" style="text-decoration:underline">Returns policy</a>.</p>
+        <p class="form-hint" style="text-align:center">By placing your order you agree to our <a href="/terms" style="text-decoration:underline">Terms</a> and <a href="/returns" style="text-decoration:underline">Returns policy</a>.</p>
       </form>
 
       <aside class="co-summary"><div class="summary" aria-label="Order summary">
@@ -166,7 +166,7 @@
         customerName: f.name.trim(), customerPhone: f.phone.trim(), customerEmail: f.email.trim() || undefined,
         deliveryZone: f.zone, shippingAddress: { street: f.street.trim(), city: zone().name, ...(f.lat != null ? { lat: f.lat, lng: f.lng } : {}) }, paymentMethod: f.pay, couponCode: coupon ? coupon.code : undefined, notes: f.notes.trim() || undefined }) });
       try { sessionStorage.setItem('wt-last-order', JSON.stringify({ order: data.order, quote: !!data.deliveryQuote })); sessionStorage.removeItem(DRAFT); localStorage.setItem(SAVED, JSON.stringify({ name: f.name, phone: f.phone, email: f.email, zone: f.zone, street: f.street, pay: f.pay, lat: f.lat, lng: f.lng })); } catch (x) { /* ignore */ }
-      Cart.clear(); location.href = 'order-confirmation.html';
+      Cart.clear(); location.href = '/order-confirmation';
     } catch (ex) {
       busy = false; btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-lock"></i> Place order · <span id="btn-total"></span>'; totals();
       const offline = !ex.status; // network failure / backend down

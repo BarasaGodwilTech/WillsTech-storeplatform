@@ -15,5 +15,5 @@ node scripts/prepare.js
 
 ( sleep 4; (command -v xdg-open >/dev/null && xdg-open http://localhost:4000) || (command -v open >/dev/null && open http://localhost:4000) || true ) >/dev/null 2>&1 &
 
-echo; echo "   Store: http://localhost:4000"; echo "   Admin: http://localhost:4000/admin-login.html"; echo "   Stop:  Ctrl+C"; echo
+echo; echo "   Store: http://localhost:4000"; echo "   Admin: http://localhost:4000/admin/login"; echo "   Stop:  Ctrl+C"; echo
 npm start

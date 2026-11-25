@@ -64,8 +64,8 @@ const GuestMode = {
         <h2 class="modal-title">Sign In Required</h2>
         <p class="modal-message">Please sign in or create an account to access <strong>${feature}</strong>.</p>
         <div class="modal-actions">
-          <a href="pages/login.html?redirect=${encodeURIComponent(redirectUrl)}" class="btn btn-primary btn-lg">Sign In</a>
-          <a href="pages/register.html?redirect=${encodeURIComponent(redirectUrl)}" class="btn btn-secondary btn-lg">Create Account</a>
+          <a href="/login?redirect=${encodeURIComponent(redirectUrl)}" class="btn btn-primary btn-lg">Sign In</a>
+          <a href="/register?redirect=${encodeURIComponent(redirectUrl)}" class="btn btn-secondary btn-lg">Create Account</a>
         </div>
         <p class="modal-footer">
           <a href="${redirectUrl}">Continue browsing</a>
@@ -149,7 +149,7 @@ const GuestMode = {
     checkoutBtn.addEventListener('click', (e) => {
       if (!this.isAuthenticated()) {
         e.preventDefault();
-        this.requireAuth('checkout', 'pages/cart.html');
+        this.requireAuth('checkout', '/cart');
       }
     });
   },
@@ -167,7 +167,7 @@ const GuestMode = {
    */
   init() {
     // Show banner on homepage
-    if (window.location.pathname === '/' || window.location.pathname.includes('index.html')) {
+    if (window.location.pathname === '/') {
       this.showSignInBanner();
     }
 

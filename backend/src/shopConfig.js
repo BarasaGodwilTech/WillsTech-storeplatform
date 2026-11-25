@@ -70,6 +70,28 @@ async function getStoreSettings() {
 }
 const clearStoreCache = () => { _cache = { at: 0, value: {} }; };
 
+// The values built into js/site.js (what the website shows until the owner saves something in the admin).
+function siteDefaults() {
+  try {
+    const src = require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'js', 'site.js'), 'utf8');
+    const sandbox = { window: {} };
+    require('vm').runInNewContext(src, sandbox, { timeout: 500 });
+    return sandbox.window.SITE || {};
+  } catch (e) { return {}; }
+}
+
+// What the admin "Store details" form should show: the saved value if there is one, otherwise the value the
+// website is actually using right now (so links that already appear on the site are never shown as empty).
+async function getStoreForAdmin() {
+  const saved = (await setting('store')) || {};
+  const base = siteDefaults();
+  const out = {};
+  STORE_KEYS.forEach((k) => { out[k] = typeof saved[k] === 'string' ? saved[k] : (base[k] || ''); });
+  out.social = {};
+  SOCIAL_KEYS.forEach((k) => { out.social[k] = saved.social && typeof saved.social[k] === 'string' ? saved.social[k] : ((base.social && base.social[k]) || ''); });
+  return out;
+}
+
 function deliveryFor(cfg, zoneId, subtotal) {
   const zone = (cfg.zones || []).find((z) => z.id === zoneId);
   if (!zone) return null;
@@ -93,4 +115,4 @@ async function evaluateCoupon(client, rawCode, subtotal) {
   return { code, discount, description: c.description || (c.type === 'percent' ? `${Number(c.value)}% off` : `UGX ${Number(c.value).toLocaleString('en-UG')} off`) };
 }
 
-module.exports = { DEFAULTS, DEFAULT_TEMPLATES, getShopConfig, getDeliveryTemplates, getStoreSettings, clearStoreCache, deliveryFor, evaluateCoupon, setting };
+module.exports = { DEFAULTS, DEFAULT_TEMPLATES, getShopConfig, getDeliveryTemplates, getStoreSettings, getStoreForAdmin, siteDefaults, clearStoreCache, deliveryFor, evaluateCoupon, setting };
