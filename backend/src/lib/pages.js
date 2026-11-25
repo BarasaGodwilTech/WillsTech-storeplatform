@@ -41,6 +41,7 @@ function origin(req) {
 }
 const abs = (req, u) => (/^https?:\/\//i.test(u) ? u : origin(req) + (u.startsWith('/') ? u : '/' + u));
 
+const { stamp } = require('./build');
 const cache = new Map();
 function readFile(rel) {
   if (isProd && cache.has(rel)) return cache.get(rel);
@@ -85,7 +86,7 @@ function withMeta(html, m) {
 }
 
 function sendHtml(res, html, status) {
-  res.status(status || 200).type('html').set('Cache-Control', 'no-cache').send(html);
+  res.status(status || 200).type('html').set('Cache-Control', 'no-cache').send(stamp(html));   // stamp = the cache bump (?v=BUILD on every script/style)
 }
 
 async function loadProduct(id) {
@@ -215,7 +216,7 @@ function install(app) {
   });
 
   // ── Admin ───────────────────────────────────────────────────────────
-  const adminFile = (file) => (req, res) => { res.set('X-Robots-Tag', 'noindex'); res.sendFile(path.join(ROOT, file)); };
+  const adminFile = (file) => (req, res) => { res.set('X-Robots-Tag', 'noindex'); sendHtml(res, readFile(file)); };
   app.get('/admin', adminFile('admin.html'));
   app.get('/admin/login', adminFile('admin-login.html'));
   app.get('/admin/orders', (req, res) => res.redirect(302, '/admin#orders'));
@@ -224,7 +225,7 @@ function install(app) {
 function notFound(req, res) {
   if (req.accepts('html')) {
     const html = withMeta(readFile('pages/404.html'), { title: "Page not found | Will's Tech Store", url: origin(req) + req.path, image: abs(req, DEFAULT_IMAGE), noindex: true });
-    return res.status(404).type('html').send(html);
+    return sendHtml(res, html, 404);   // same no-cache + build stamp as every other page
   }
   res.status(404).json({ error: 'Not found' });
 }

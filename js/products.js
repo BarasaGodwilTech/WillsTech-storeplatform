@@ -7,18 +7,32 @@ const Products = {
   loaded: false,
   fromFallback: false,   // true when the live API was unreachable and data/site-config.json was used
 
+  // Bump this string whenever the saved catalogue's shape changes: every returning visitor's old copy is then ignored once.
+  CACHE_KEY: 'wt-catalog-v3',
+  CACHE_TTL: 5 * 60 * 1000,   // a saved copy is only trusted for 5 minutes (and is replaced the moment the server's version differs)
+  version: null,              // catalogue version reported by the server for the copy currently in memory
+
+  _readCache() {
+    try {
+      const c = JSON.parse(localStorage.getItem(this.CACHE_KEY) || 'null');
+      if (c && Array.isArray(c.p) && c.p.length && Date.now() - c.t < this.CACHE_TTL) return c;
+    } catch (e) { /* no cache */ }
+    // Tidy up copies left behind by older versions of the site.
+    try { ['wt-catalog-v1', 'wt-catalog-v2'].forEach((k) => localStorage.removeItem(k)); } catch (e) { /* ignore */ }
+    return null;
+  },
+
   async init() {
     // Show the last catalogue we saw straight away (names, prices and stock appear instantly), then refresh quietly.
-    const CK = 'wt-catalog-v2'; let cached = null;
-    try { const c = JSON.parse(localStorage.getItem(CK) || 'null'); if (c && Array.isArray(c.p) && c.p.length && Date.now() - c.t < 10 * 60 * 1000) cached = c.p; } catch (e) { /* no cache */ }
-    const fresh = this.loadProducts().then((list) => { if (!this.fromFallback) { try { localStorage.setItem(CK, JSON.stringify({ t: Date.now(), p: list })); } catch (e) { /* storage full */ } } return list; });
+    const cache = this._readCache(); const cached = cache && cache.p;
+    const fresh = this.loadProducts().then((list) => {
+      if (!this.fromFallback) { try { localStorage.setItem(this.CACHE_KEY, JSON.stringify({ t: Date.now(), v: this.version, p: list })); } catch (e) { /* storage full */ } }
+      return list;
+    });
     if (cached) {
+      const drawn = cache.v || null;   // version of the copy being shown right now
       this.allProducts = cached; this.loaded = true; WT._flush();
-      fresh.then((list) => {
-        this.allProducts.splice(0, this.allProducts.length, ...list);
-        if (window.Cart && list.length && !this.fromFallback) Cart.reconcile(this.allProducts);   // prices/stock may have changed since the cached copy
-        document.dispatchEvent(new CustomEvent('wt:products-refreshed'));
-      }).catch(() => {});
+      fresh.then((list) => this._apply(list, drawn)).catch(() => {});
       return;
     }
     try { this.allProducts = await fresh; }
@@ -27,12 +41,33 @@ const Products = {
     WT._flush();
   },
 
+  // Swap in a newly loaded list and tell the page, but only when something actually changed.
+  _apply(list, before) {
+    this.allProducts.splice(0, this.allProducts.length, ...list);
+    if (window.Cart && list.length && !this.fromFallback) Cart.reconcile(this.allProducts);   // prices/stock may have changed since the cached copy
+    document.dispatchEvent(new CustomEvent('wt:products-refreshed', { detail: { version: this.version, changed: !this.version || !before || this.version !== before } }));
+  },
+
+  // Re-check the live catalogue (used when a visitor returns to a tab that has been in the background).
+  async refresh() {
+    if (this._refreshing) return; this._refreshing = true;
+    try {
+      const prev = this.version;
+      const list = await this.loadProducts();
+      if (this.fromFallback) return;
+      try { localStorage.setItem(this.CACHE_KEY, JSON.stringify({ t: Date.now(), v: this.version, p: list })); } catch (e) { /* storage full */ }
+      if (this.version && this.version === prev) return;   // nothing changed on the server
+      this._apply(list, prev);
+    } catch (e) { /* offline: keep what is on screen */ }
+    finally { this._refreshing = false; }
+  },
+
   async loadProducts() {
     this.fromFallback = false;
     try {
       const base = typeof window.API_BASE === 'string' ? window.API_BASE : '/api';
-      const res = await fetch(`${base}/products`);
-      if (res.ok) { const data = await res.json(); if (Array.isArray(data.products)) return data.products; }
+      const res = await fetch(`${base}/products`, { cache: 'no-cache' });   // always ask the server first (a quick 304 when unchanged)
+      if (res.ok) { const data = await res.json(); if (Array.isArray(data.products)) { this.version = data.version || res.headers.get('X-Catalog-Version') || null; return data.products; } }
     } catch (e) { /* handled below */ }
     console.warn('[Products] Live catalogue unavailable, using data/site-config.json');
     this.fromFallback = true;

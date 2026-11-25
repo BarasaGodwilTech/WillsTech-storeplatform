@@ -101,6 +101,9 @@ app.use('/api/orders', (req, res, next) => (req.method === 'POST'
   ? rateLimit({ windowMs: 10 * 60 * 1000, max: 30, message: 'Too many orders. Please slow down.' })(req, res, next)
   : next()));
 
+// The build ID changes whenever the site's code changes (see src/lib/build.js). Open tabs poll this to notice a new deploy.
+app.get('/api/version', (req, res) => res.set('Cache-Control', 'no-store').json({ build: require('./src/lib/build').BUILD }));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/admin', adminShopRoutes);

@@ -12,6 +12,13 @@
     const P = Products.active();
     buildHero(P); buildBento(P); buildCategories(P); buildRails(P); buildBudgets(); buildNeeds(P);
     buildReels(); buildApple(); buildReviews(); buildRecent();
+    // The page may have been drawn from a saved copy. When the live catalogue turns out to be different, redraw the
+    // product sections (the hero slider and videos are left alone so nothing jumps).
+    document.addEventListener('wt:products-refreshed', (e) => {
+      if (e.detail && e.detail.changed === false) return;
+      const P2 = Products.active();
+      buildBento(P2); buildCategories(P2); buildRails(P2, true); buildNeeds(P2); buildRecent();
+    });
   });
 
   // ── Hero ───────────────────────────────────────────────
@@ -64,10 +71,10 @@
   }
 
   // ── Rails & grids ──────────────────────────────────────
-  function buildRails(P) {
+  function buildRails(P, redraw) {
     const best = P.filter((p) => (p.badges || []).includes('bestseller'));
     Products.render($('best-track'), (best.length >= 4 ? best : Products.trending(10)).slice(0, 10));
-    WT.rail($('best-track'), $('best-prev'), $('best-next'));
+    if (!redraw) WT.rail($('best-track'), $('best-prev'), $('best-next'));   // arrows are wired once
     Products.render($('fresh-grid'), [...P].sort((a, b) => new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0)).slice(0, 8));
   }
 

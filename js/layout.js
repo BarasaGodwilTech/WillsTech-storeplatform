@@ -346,4 +346,14 @@
     // Catch price changes / delisted items on EVERY page, not just the cart.
     if (Products.allProducts.length) { const r = Cart.reconcile(Products.allProducts); if (r.changed.length) showNotification('Some prices in your cart were updated.', 'info', { label: 'Review', href: WT.page('/cart') }); }
   });
+
+  // Returning visitors: when a tab comes back to the foreground (or the browser restores the page from its back/forward cache)
+  // after a few minutes away, quietly re-check the live catalogue so prices, stock and new products are current.
+  let hiddenAt = 0; const AWAY = 3 * 60 * 1000;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (hiddenAt && Date.now() - hiddenAt > AWAY) Products.refresh();
+    hiddenAt = 0;
+  });
+  window.addEventListener('pageshow', (e) => { if (e.persisted) Products.refresh(); });
 })();

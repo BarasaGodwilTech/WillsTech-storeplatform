@@ -40,22 +40,39 @@ function renderNav(){var cur=(location.hash||'#dashboard').slice(1).split('/')[0
   $('#sb').innerHTML=h;$('#topav').textContent=ini;$('#lo').onclick=function(){localStorage.removeItem(TOKEN);location.replace('/admin/login')}}
 /* ---------- notifications (bell): everything that needs the owner, in one list ---------- */
 A.notes=[];
-A.refreshCounts=async function(){try{var r=await Promise.all([A.api('/admin/summary'),A.api('/admin/analytics?days=30')]),s=r[0],a=r[1],d=a.delivery||{},n=[];
+/* The red dot means "something new since you last opened the bell". The list inside always shows everything that still needs you. */
+var SEEN='wt_admin_seen_notes';
+var seenKeys=function(){try{return JSON.parse(localStorage.getItem(SEEN)||'[]')}catch(e){return[]}};
+var saveSeen=function(k){try{localStorage.setItem(SEEN,JSON.stringify(k))}catch(e){}};
+A.paintDot=function(){var seen=seenKeys(),fresh=A.notes.some(function(x){return seen.indexOf(x.k)<0}),d=$('#bdot');if(d)d.classList.toggle('hidden',!fresh);var b=$('#bell');if(b)b.setAttribute('aria-label',A.notes.length?'Notifications, '+A.notes.length+' need you':'Notifications')};
+A.refreshCounts=async function(){try{var r=await Promise.all([A.api('/admin/summary'),A.api('/admin/analytics?days=30')]),s=r[0],a=r[1],d=a.delivery||{},pr=a.products||{},n=[];
   A.counts.orders=s.pending;A.counts.messages=s.newMessages;
-  var add=function(c,h,ic,tone,t,sub){if(c>0)n.push({h:h,ic:ic,tone:tone,t:t,sub:sub})};
-  add(s.pending,'#orders/pending','bag-shopping','warn',s.pending+' new order'+(s.pending>1?'s':'')+' waiting','Confirm them to start delivery');
-  add(d.overdue,'#orders/overdue','clock','bad',d.overdue+' overdue deliver'+(d.overdue>1?'ies':'y'),'Past the planned delivery date');
-  add(d.unscheduled,'#orders/unscheduled','calendar-day','warn',d.unscheduled+' order'+(d.unscheduled>1?'s':'')+' without a delivery date','Pick a delivery plan');
-  add(d.today,'#orders/today','truck','info',d.today+' deliver'+(d.today>1?'ies':'y')+' planned for today','');
-  add(s.newMessages,'#messages','message','warn',s.newMessages+' new message'+(s.newMessages>1?'s':''),'Customers are waiting for a reply');
-  var out=(a.lowStock||[]).filter(function(x){return x.stock==='out-of-stock'}).length,low=(a.lowStock||[]).length-out;
-  add(out,'#products','box','bad',out+' product'+(out>1?'s':'')+' sold out','Hidden from buying until restocked');
-  add(low,'#products','box','warn',low+' product'+(low>1?'s':'')+' running low','');
-  (a.expiringCoupons||[]).forEach(function(c){n.push({h:'#coupons',ic:'ticket',tone:'info',t:'Code '+c.code+' expires '+A.date(c.expires_at),sub:''})});
-  A.notes=n;$('#bdot').classList.toggle('hidden',!n.length);renderNav();if($('#notes'))A.drawNotes()}catch(e){}};
-A.drawNotes=function(){var p=$('#notes');if(!p)return;p.innerHTML='<div class="nh"><b>Notifications</b><small>'+(A.notes.length?A.notes.length+' need you':'')+'</small></div>'+(A.notes.length?A.notes.map(function(x){return'<a href="'+x.h+'" class="ni"><i class="fa-solid fa-'+x.ic+' t-'+x.tone+'"></i><span><b>'+A.esc(x.t)+'</b>'+(x.sub?'<small>'+A.esc(x.sub)+'</small>':'')+'</span></a>'}).join(''):'<div class="ne"><i class="fa-solid fa-circle-check"></i>You are all caught up</div>')};
-A.toggleNotes=function(e){e&&e.stopPropagation();var p=$('#notes');if(p){p.remove();return}p=document.createElement('div');p.id='notes';p.className='notes';document.body.appendChild(p);A.drawNotes();A.refreshCounts();
-  setTimeout(function(){var off=function(ev){if(!p.contains(ev.target)){p.remove();document.removeEventListener('click',off)}};document.addEventListener('click',off);p.addEventListener('click',function(ev){if(ev.target.closest('a')){p.remove();document.removeEventListener('click',off)}})},0)};
+  /* k = what the dot remembers: the count is part of it, so a NEW order makes the dot come back */
+  var add=function(k,c,h,ic,tone,t,sub){if(c>0)n.push({k:k+':'+c,h:h,ic:ic,tone:tone,t:t,sub:sub})};
+  add('pending',s.pending,'#orders/pending','bag-shopping','warn',s.pending+' new order'+(s.pending>1?'s':'')+' waiting','Confirm them to start delivery');
+  add('overdue',d.overdue,'#orders/overdue','clock','bad',d.overdue+' overdue deliver'+(d.overdue>1?'ies':'y'),'Past the planned delivery date');
+  add('unscheduled',d.unscheduled,'#orders/unscheduled','calendar-day','warn',d.unscheduled+' order'+(d.unscheduled>1?'s':'')+' without a delivery date','Pick a delivery plan');
+  add('today',d.today,'#orders/today','truck','info',d.today+' deliver'+(d.today>1?'ies':'y')+' planned for today','');
+  add('unpaid',d.unpaid,'#orders/unpaid','coins','bad',d.unpaid+' completed order'+(d.unpaid>1?'s':'')+' not marked paid','Record the payment');
+  add('messages',s.newMessages,'#messages','message','warn',s.newMessages+' new message'+(s.newMessages>1?'s':''),'Customers are waiting for a reply');
+  /* real totals from the stock counters (the lowStock list is capped at 6 so it cannot be counted) */
+  add('out',pr.out,'#products/low','box','bad',pr.out+' product'+(pr.out>1?'s':'')+' sold out','Hidden from buying until restocked');
+  add('low',pr.low,'#products/low','box','warn',pr.low+' product'+(pr.low>1?'s':'')+' running low','');
+  (a.expiringCoupons||[]).forEach(function(c){n.push({k:'coupon:'+c.code,h:'#coupons',ic:'ticket',tone:'info',t:'Code '+c.code+' expires '+A.date(c.expires_at),sub:''})});
+  A.notes=n;A.paintDot();renderNav();if($('#notes'))A.drawNotes()}catch(e){}};
+A.drawNotes=function(){var p=$('#notes');if(!p)return;p.innerHTML='<div class="nh"><b>Notifications</b><small>'+(A.notes.length?A.notes.length+' need you':'')+'</small></div>'+(A.notes.length?A.notes.map(function(x){return'<a href="'+x.h+'" class="ni"><i class="fa-solid fa-'+x.ic+' t-'+x.tone+'"></i><span><b>'+A.esc(x.t)+'</b>'+(x.sub?'<small>'+A.esc(x.sub)+'</small>':'')+'</span></a>'}).join(''):'<div class="ne"><i class="fa-solid fa-circle-check"></i>You are all caught up</div>')+'<a class="nf" href="#orders">View all orders<i class="fa-solid fa-arrow-right"></i></a>'};
+A.closeNotes=function(){var p=$('#notes');if(p)p.remove();var b=$('#bell');if(b)b.setAttribute('aria-expanded','false');document.removeEventListener('click',A._notesOff);document.removeEventListener('keydown',A._notesKey)};
+A.toggleNotes=function(e){e&&e.stopPropagation();if($('#notes'))return A.closeNotes();
+  var p=document.createElement('div');p.id='notes';p.className='notes';p.setAttribute('role','dialog');p.setAttribute('aria-label','Notifications');document.body.appendChild(p);$('#bell').setAttribute('aria-expanded','true');
+  A.drawNotes();A.refreshCounts();
+  saveSeen(A.notes.map(function(x){return x.k}));A.paintDot();   /* opening the bell = you have seen what is there */
+  A._notesOff=function(ev){if(!p.contains(ev.target))A.closeNotes()};A._notesKey=function(ev){if(ev.key==='Escape')A.closeNotes()};
+  setTimeout(function(){document.addEventListener('click',A._notesOff);document.addEventListener('keydown',A._notesKey)},0);
+  p.addEventListener('click',function(ev){var a=ev.target.closest('a');if(!a)return;var h=a.getAttribute('href');A.closeNotes();
+    /* clicking the page you are already on changes nothing in the address bar, so reload that view by hand */
+    if(h===(location.hash||'#dashboard')){ev.preventDefault();route()}})};
+/* anything that arrived while the bell was open is now on screen, so count it as seen too */
+var _paint=A.paintDot;A.paintDot=function(){if($('#notes'))saveSeen(A.notes.map(function(x){return x.k}));_paint()};
 setInterval(function(){if(!document.hidden)A.refreshCounts()},60000);
 
 /* ---------- router ---------- */
@@ -160,7 +177,7 @@ async function openOrder(id){var all=(await A.get('orders','/orders')).orders,o=
   if($('#on2'))$('#on2').onclick=function(){if(next[0]==='shipped'&&!o.deliveryDate&&!confirm('No delivery date is set yet. Continue anyway?'))return;set(next[0])};
   if($('#oc'))$('#oc').onclick=async function(){if(await A.confirm('Cancel this order?','The stock goes back on the shelf and the customer sees it as cancelled.','Cancel order'))set('cancelled')};
   if($('#oo'))$('#oo').onclick=function(){set('pending')}}
-var rt=route;route=async function(){await rt();var p=(location.hash||'').slice(1).split('/');if(p[0]==='orders'&&p[1]&&!['pending','confirmed','shipped','completed','cancelled','all'].includes(p[1]))openOrder(p[1])};window.removeEventListener('hashchange',rt);window.addEventListener('hashchange',route);
+var rt=route;route=async function(){await rt();var p=(location.hash||'').slice(1).split('/');if(p[0]==='orders'&&p[1]&&!STATUS_FILTERS.concat(EXTRA,['all']).includes(p[1]))openOrder(p[1])};window.removeEventListener('hashchange',rt);window.addEventListener('hashchange',route);
 
 A.start=function(){route();A.refreshCounts()};
 })();

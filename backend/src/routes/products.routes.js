@@ -68,8 +68,16 @@ router.get('/', optionalAuth, async (req, res) => {
     if (req.query.featured === '1') clauses.push('featured = true');
     const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
     const { rows } = await pool.query(`SELECT * FROM products ${where} ORDER BY date_added DESC`, params);
-    res.set('Cache-Control', isAdmin ? 'no-store' : 'public, max-age=15, stale-while-revalidate=300');   // pages show products instantly
-    res.json({ products: rows.map((r) => toClientProduct(r, showAll)) });
+    // 'no-cache' = the browser may keep a copy but must ask the server first (a cheap 304 when nothing changed).
+    // Before, returning visitors could be handed a copy up to 5 minutes old without being asked to check.
+    res.set('Cache-Control', isAdmin ? 'no-store' : 'no-cache');
+    // Catalogue version: changes whenever any product is added, edited, hidden or removed. The storefront stores it with its
+    // saved copy, so a returning visitor's old copy is recognised as out of date and replaced.
+    const stamp = rows.reduce((m, r) => Math.max(m, new Date(r.date_updated || r.date_added || 0).getTime() || 0), 0);
+    const reviews = rows.reduce((n, r) => n + (Number(r.review_count) || 0), 0);   // new reviews change ratings without touching date_updated
+    const version = `${stamp.toString(36)}-${rows.length}-${reviews}`;
+    res.set('X-Catalog-Version', version);
+    res.json({ version, products: rows.map((r) => toClientProduct(r, showAll)) });
   } catch (err) { console.error('[products] list error:', err.message); res.status(500).json({ error: 'Could not load products' }); }
 });
 
