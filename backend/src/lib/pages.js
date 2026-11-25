@@ -21,7 +21,7 @@ const PAGES = {
 // pages that should not show up in search results or link previews
 const PRIVATE = new Set(['/cart', '/checkout', '/order-confirmation', '/wishlist', '/login', '/register', '/reset-password', '/account', '/track-order']);
 
-// Short, readable slug: the part of the name before the first " - " / "," / "(", cut at a whole word (max 60 chars).
+ // Short, readable slug: the part of the name before the first " - " / "," / "(", cut at a whole word (max 60 chars).
 // The slug is only cosmetic; the product is found by the id at the end, and any other slug 301-redirects to this one.
 const baseSlug = (s) => String(s || '').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 const slugify = (name) => {
