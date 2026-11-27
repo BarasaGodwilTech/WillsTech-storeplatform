@@ -149,7 +149,7 @@ const PUBLIC_FILES = [
   'apple-touch-icon.png',
   'web-app-manifest-192x192.png', 'web-app-manifest-512x512.png', 'web-app-manifest-512x512-maskable.png',
 ];
-PUBLIC_FILES.forEach((f) => app.get('/' + f, (req, res) => res.sendFile(path.join(FRONTEND_ROOT, f))));
+PUBLIC_FILES.forEach((f) => app.get('/' + f, (req, res) => res.sendFile(path.join(FRONTEND_ROOT, f), { maxAge: /^(robots|site)/.test(f) ? '1h' : '7d' })));
 // Static catalogue the storefront falls back to when /api/products is unreachable (js/products.js). Only this one file of data/ is public.
 app.get('/data/site-config.json', (req, res) => res.set('Cache-Control', 'no-cache').sendFile(path.join(FRONTEND_ROOT, 'data', 'site-config.json')));
 // Clean URLs (/shop, /product/<name>-<id>, /admin …), old .html redirects and link-preview tags live in src/lib/pages.js.

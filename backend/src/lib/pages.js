@@ -51,6 +51,18 @@ function readFile(rel) {
   return t;
 }
 
+// The browser-tab icon, Google-results icon and home-screen icon. The same block goes on every page so Google always sees one
+// consistent set. Keep these URLs stable: changing them makes Google re-learn the icon from scratch.
+const ICON_TAGS = [
+  '<link rel="icon" href="/favicon.ico?v=4" sizes="48x48">',
+  '<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=4" sizes="any">',
+  '<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png?v=4">',
+  '<link rel="icon" type="image/png" sizes="192x192" href="/web-app-manifest-192x192.png">',
+  '<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=4">',
+  '<link rel="manifest" href="/site.webmanifest">',
+  '<meta name="theme-color" content="#2a1262">',
+];
+
 // Replace every title/description/Open Graph/Twitter/canonical tag in the page with a fresh, complete set.
 //   m.ogTitle / m.ogDescription  what WhatsApp, Facebook, X and Telegram show (can differ from the Google title)
 //   m.jsonld                     structured-data objects (schema.org) added to the page
@@ -86,13 +98,16 @@ function withMeta(html, m) {
     `<meta name="twitter:description" content="${esc(ogDesc)}">`,
     `<meta name="twitter:image" content="${esc(m.image)}">`,
     `<meta name="twitter:image:alt" content="${esc(m.imageAlt || title)}">`,
+    ...ICON_TAGS,
     ...(m.extra || []),
     ...(m.jsonld || []).map((o) => `<script type="application/ld+json">${seo.ldJson(o)}</script>`),
   ].join('\n  ');
   let out = html
     .replace(/<title>[^<]*<\/title>/i, `<title>${esc(title)}</title>`)
     .replace(/\s*<meta\s+(?:name|property)="(?:description|og:[^"]*|twitter:[^"]*|robots)"[^>]*>/gi, '')
-    .replace(/\s*<link\s+rel="canonical"[^>]*>/gi, '');
+    .replace(/\s*<link\s+rel="canonical"[^>]*>/gi, '')
+    .replace(/\s*<link\s+rel="(?:icon|shortcut icon|apple-touch-icon|manifest)"[^>]*>/gi, '')
+    .replace(/\s*<meta\s+name="(?:theme-color|application-name|apple-mobile-web-app-title)"[^>]*>/gi, '');
   if (m.dropLd) out = out.replace(/\s*<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, '');
   out = out.replace(/<\/head>/i, `  ${tags}\n</head>`);
   if (m.beforeMainEnd) out = out.replace(/<\/main>/i, () => `${m.beforeMainEnd}\n</main>`);

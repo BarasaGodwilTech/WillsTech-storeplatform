@@ -29,3 +29,12 @@
 2. Google Search Console + Bing Webmaster Tools: verify the site, submit https://willstech.store/sitemap.xml.
 3. Google Business Profile for local searches. Merchant Center: add the feed URL above.
 4. Use exact product names ("JBL Flip 6", not "Jbl Flip 6") and split the big "Accessories" category into specific ones.
+
+## How the site appears on Google (favicon, name, logo)
+- Every page now carries the same icon set (pages.js `ICON_TAGS`): favicon.ico (48px), SVG, 96px and 192px PNG, Apple icon, manifest.
+  Keep the `?v=4` URLs unchanged; changing them makes Google start over.
+- Google only shows a favicon after its own crawler fetches it, and refreshing one takes days to weeks. Nothing in code can speed that up.
+- Site name ("Will's Tech Store" instead of "willstech.store") and the logo come from the WebSite/Organization data on the home page.
+- Sitelinks (the extra links under a result, like Jumia's) are chosen by Google automatically. Clear menus and the new category pages help.
+- The knowledge panel on the right comes from a Google Business Profile. The "Wills tech services" panel in your screenshot (Wakiso,
+  0766 587965) is not the number on this site: claim it if it's yours, otherwise create your own profile.
