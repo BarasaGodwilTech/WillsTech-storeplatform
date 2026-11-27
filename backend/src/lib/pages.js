@@ -175,7 +175,7 @@ function install(app) {
       ogDescription: 'Genuine, sealed tech delivered across Uganda. Pay on delivery with MTN MoMo, Airtel Money or cash.',
       url: base + '/', image: abs(req, DEFAULT_IMAGE), imageAlt: "Will's Tech Store: authentic phones, audio and gadgets in Uganda",
       dropLd: true, jsonld: [seo.orgGraph(base, info)],
-      beforeMainEnd: rows.length ? seo.catalogueHtml(rows, 'Browse all products by category') : '',
+      beforeMainEnd: rows.length ? seo.catalogueHtml(rows, { title: 'Shop by category', sub: 'Everything we stock in Uganda, priced in UGX, with pay on delivery.', limit: 8 }) : '',
     }));
   });
 
@@ -200,7 +200,7 @@ function install(app) {
         meta.title = "Shop Phones, Laptops, Speakers & Gadgets in Uganda | Will's Tech Store";
         meta.description = `Browse ${rows.length || 'all our'} authentic smartphones, speakers, power banks and creator gear in Uganda. Filter by category, brand and price. Pay on delivery.`;
         meta.jsonld = [seo.breadcrumbLd([['Home', base + '/'], ['Shop', base + '/shop']])];
-        meta.beforeMainEnd = rows.length ? seo.catalogueHtml(rows, 'All products') : '';
+        meta.beforeMainEnd = rows.length ? seo.catalogueHtml(rows, { title: 'All products by category', sub: 'Authentic, brand-new stock with delivery across Uganda.' }) : '';
       } else if (!meta.noindex) {
         const t = (/<title>([^<]*)<\/title>/i.exec(html) || [])[1] || '';
         const label = t.split('|')[0].replace(/&amp;/g, '&').trim();
@@ -227,7 +227,7 @@ function install(app) {
       url: base + path, image: first ? `${base}/share/product/${first.id}.jpg?c=${CARD_VERSION}` : abs(req, DEFAULT_IMAGE), imageAlt: `${cm.label} at Will's Tech Store`,
       extra: [`<script>window.__CATEGORY__=${JSON.stringify(slug)};window.__SEO_TITLE__=${JSON.stringify(cm.title)}</script>`],
       jsonld: [seo.breadcrumbLd([['Home', base + '/'], ['Shop', base + '/shop'], [cm.label, base + path]]), seo.collectionLd(base, path, cm.label, rows)],
-      beforeMainEnd: seo.catalogueHtml(rows, `${cm.label} in Uganda`),
+      beforeMainEnd: seo.catalogueHtml(rows, { title: `All ${cm.label.toLowerCase()} in Uganda`, sub: `${rows.length} authentic ${rows.length === 1 ? 'product' : 'products'}, delivered across Uganda. Pay on delivery.` }),
     }));
   });
 

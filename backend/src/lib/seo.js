@@ -148,13 +148,24 @@ function productHtml(base, row, canonicalPath) {
   </article>`;
 }
 
-// A normal-looking "browse by category" block listing every product as a plain link. It gives crawlers a path to every product
-// from the home page and shop page, and gives shoppers a quick index.
-function catalogueHtml(rows, heading) {
+// "Shop by category": a card per category with a thumbnail, name and price for each product. Every product is a plain link, so
+// crawlers (and people) can reach all of them from the home and shop pages.   opts: { title, sub, limit }
+function catalogueHtml(rows, opts) {
+  const o = typeof opts === 'string' ? { title: opts } : (opts || {});
   const groups = new Map();
   rows.forEach((r) => { const k = r.category || 'Other'; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(r); });
-  const blocks = [...groups.entries()].map(([cat, list]) => `<div><h3><a href="/shop/${escHtml(catSlug(cat))}">${escHtml(cap(cat))} in Uganda</a></h3><ul>${list.map((r) => `<li><a href="${escHtml(pathOf(r))}">${escHtml(oneLine(r.name, 80))}</a> <span>${money(r.price)}</span></li>`).join('')}</ul></div>`);
-  return `<section class="section container seo-catalogue" aria-label="${escHtml(heading)}"><h2>${escHtml(heading)}</h2><div class="seo-cat-grid">${blocks.join('')}</div></section>`;
+  const tile = (r) => {
+    const price = Number(r.price), was = r.original_price != null ? Number(r.original_price) : 0, img = (r.images || [])[0];
+    const off = was > price ? Math.round((1 - price / was) * 100) : 0;
+    const cost = r.stock === 'out-of-stock' ? '<b class="seo-oos">Out of stock</b>'
+      : `<b>${money(price)}</b>${was > price ? ` <s>${money(was)}</s>` : ''}${off >= 3 ? ` <em>-${off}%</em>` : ''}`;
+    return `<li><a class="seo-tile" href="${escHtml(pathOf(r))}"><span class="seo-thumb">${img ? `<img src="${escHtml(img)}" alt="${escHtml(r.name)}" width="136" height="136" loading="lazy" decoding="async">` : ''}</span><span class="seo-info"><span class="seo-name">${escHtml(r.name)}</span><span class="seo-price">${cost}</span></span></a></li>`;
+  };
+  const blocks = [...groups.entries()].map(([cat, list]) => {
+    const shown = o.limit ? list.slice(0, o.limit) : list, slug = escHtml(catSlug(cat));
+    return `<div class="seo-cat-block"><div class="seo-cat-top"><h3><a href="/shop/${slug}">${escHtml(cap(cat))} in Uganda</a><span>${list.length} ${list.length === 1 ? 'product' : 'products'}</span></h3>${o.limit && list.length > shown.length ? `<a class="seo-cat-all" href="/shop/${slug}">View all ${list.length} &rarr;</a>` : ''}</div><ul class="seo-cat-list">${shown.map(tile).join('')}</ul></div>`;
+  });
+  return `<section class="section container seo-catalogue" aria-labelledby="seo-cat-h"><header class="seo-cat-head"><h2 id="seo-cat-h">${escHtml(o.title || 'Shop by category')}</h2>${o.sub ? `<p>${escHtml(o.sub)}</p>` : ''}</header>${blocks.join('')}</section>`;
 }
 
 // ── Data ──────────────────────────────────────────────────────────────

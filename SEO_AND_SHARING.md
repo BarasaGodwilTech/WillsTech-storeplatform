@@ -38,3 +38,9 @@
 - Sitelinks (the extra links under a result, like Jumia's) are chosen by Google automatically. Clear menus and the new category pages help.
 - The knowledge panel on the right comes from a Google Business Profile. The "Wills tech services" panel in your screenshot (Wakiso,
   0766 587965) is not the number on this site: claim it if it's yours, otherwise create your own profile.
+
+## "Shop by category" block (home, shop and category pages)
+Written by the server (`catalogueHtml` in seo.js, styles at the end of css/pages.css). A card per category with a thumbnail, name,
+price and discount badge for each product; every product is a plain link, so crawlers reach all of them without JavaScript.
+The home page shows the first 8 per category with a "View all" button; /shop and /shop/<category> list everything.
+Uses the site's theme colours, so dark mode works. Phones get two compact columns.
